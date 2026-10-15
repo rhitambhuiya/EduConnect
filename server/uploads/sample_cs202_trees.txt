@@ -1,0 +1,4 @@
+CS202 Data Structures Notes:
+
+Topic: Binary Search Trees & Tree Traversals (In-order, Pre-order, Post-order).
+Time complexity: O(log n) average, O(n) worst-case.

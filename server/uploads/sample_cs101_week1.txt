@@ -1,0 +1,4 @@
+CS101 Week 1 Lecture Notes:
+
+Welcome to Introduction to Computer Science.
+Key concepts: algorithms, pseudo-code, compilation, variables, and expressions.

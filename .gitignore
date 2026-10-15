@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+client/node_modules/
+/.pnp
+.pnp.js
+
+# Production & Build Outputs
+client/dist/
+client/dist-ssr/
+build/
+dist/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Server Dynamic Uploads & Data
+server/uploads/*
+!server/uploads/.gitkeep
+!server/uploads/sample_*
+server/data/db.json
+!server/data/.gitkeep
+
+# Logs & Diagnostics
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Editor & OS Metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDE Directories & Settings
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing & Coverage
+coverage/
+.nyc_output/
