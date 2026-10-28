@@ -4,6 +4,8 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const classRoutes = require('./routes/classes');
 const noteRoutes = require('./routes/notes');
+const assignmentRoutes = require('./routes/assignments');
+const quizRoutes = require('./routes/quizzes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +20,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

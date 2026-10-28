@@ -1,0 +1,4 @@
+CS101 Assignment 1 Submission
+Student: Brian Chen
+
+Completed algorithms analysis, pseudo-code tables, and complexity comparisons.

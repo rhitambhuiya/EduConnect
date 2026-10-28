@@ -164,6 +164,36 @@ router.get('/:id/students', authenticate, requireRole('teacher'), (req, res) => 
   return res.json(students);
 });
 
+// DELETE /api/classes/:id/students/:studentId - Teacher derolls an enrolled student
+router.delete('/:id/students/:studentId', authenticate, requireRole('teacher'), (req, res) => {
+  const cls = db.findClassById(req.params.id);
+  if (!cls) {
+    return res.status(404).json({ error: 'Class not found' });
+  }
+
+  // Only the teacher who created the class can deroll students
+  if (cls.teacherId !== req.user.id) {
+    return res.status(403).json({ error: 'You can only manage enrollments for classes you created.' });
+  }
+
+  const { studentId } = req.params;
+  if (!db.isEnrolled(studentId, cls.id)) {
+    return res.status(404).json({ error: 'Student is not enrolled in this class.' });
+  }
+
+  const removed = db.unenrollStudent(studentId, cls.id);
+  if (!removed) {
+    return res.status(500).json({ error: 'Failed to deroll student from class.' });
+  }
+
+  return res.json({
+    message: 'Student has been successfully derolled from the class.',
+    studentId,
+    classId: cls.id,
+    enrollmentCount: db.getEnrollmentCount(cls.id)
+  });
+});
+
 // GET /api/classes/:id/notes - View notes
 router.get('/:id/notes', authenticate, (req, res) => {
   const cls = db.findClassById(req.params.id);

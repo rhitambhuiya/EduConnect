@@ -15,6 +15,8 @@ import TeacherAnnouncements from './pages/teacher/TeacherAnnouncements';
 import StudentDashboard from './pages/student/StudentDashboard';
 import StudentClasses from './pages/student/StudentClasses';
 import StudentClassDetail from './pages/student/StudentClassDetail';
+import StudentAssignments from './pages/student/StudentAssignments';
+import StudentQuizzes from './pages/student/StudentQuizzes';
 import BrowseClasses from './pages/student/BrowseClasses';
 
 function HomeRedirect() {
@@ -101,6 +103,26 @@ export default function App() {
           <ProtectedRoute allowedRole="student">
             <Layout>
               <StudentClassDetail />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/assignments"
+        element={
+          <ProtectedRoute allowedRole="student">
+            <Layout>
+              <StudentAssignments />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/quizzes"
+        element={
+          <ProtectedRoute allowedRole="student">
+            <Layout>
+              <StudentQuizzes />
             </Layout>
           </ProtectedRoute>
         }

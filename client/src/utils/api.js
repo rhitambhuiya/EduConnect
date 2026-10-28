@@ -1,7 +1,7 @@
 const BASE_URL = '';
 
 export async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem('cp_token');
+  const token = localStorage.getItem('cp_token') || localStorage.getItem('token');
   
   const headers = {
     ...(options.headers || {})
@@ -69,3 +69,64 @@ export function formatDateTime(dateString) {
     minute: '2-digit'
   });
 }
+
+export function formatTimeRemaining(dueDateString) {
+  if (!dueDateString) return { text: 'No deadline', isExpired: false, isUrgent: false };
+  const now = new Date();
+  const due = new Date(dueDateString);
+  const diffMs = due.getTime() - now.getTime();
+
+  if (diffMs <= 0) {
+    return { text: 'Deadline passed', isExpired: true, isUrgent: false };
+  }
+
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 1) {
+    return { text: `${diffDays} days left`, isExpired: false, isUrgent: diffDays <= 2 };
+  } else if (diffDays === 1) {
+    const remHours = diffHours % 24;
+    return { text: `1 day ${remHours}h left`, isExpired: false, isUrgent: true };
+  } else if (diffHours > 0) {
+    const remMins = diffMins % 60;
+    return { text: `${diffHours}h ${remMins}m left`, isExpired: false, isUrgent: true };
+  } else {
+    return { text: `${Math.max(1, diffMins)}m left`, isExpired: false, isUrgent: true };
+  }
+}
+
+export async function downloadFile(url, fileName, inline = false) {
+  const token = localStorage.getItem('cp_token');
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    let errText = 'Failed to download file';
+    try {
+      const errJson = await res.json();
+      if (errJson.error) errText = errJson.error;
+    } catch (e) {}
+    throw new Error(errText);
+  }
+
+  const blob = await res.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+
+  if (inline) {
+    window.open(blobUrl, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileName || 'download';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+}
+

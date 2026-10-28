@@ -10,7 +10,9 @@ import {
   Menu, 
   X, 
   User, 
-  ChevronRight
+  ChevronRight,
+  Calendar,
+  CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CreateClassModal from '../pages/teacher/CreateClassModal';
@@ -47,6 +49,8 @@ export default function Layout({ children }) {
   const studentNavItems = [
     { label: 'Dashboard', to: '/student/dashboard', icon: LayoutDashboard },
     { label: 'My Classes', to: '/student/classes', icon: BookOpen },
+    { label: 'Assignments', to: '/student/assignments', icon: Calendar },
+    { label: 'Quizzes', to: '/student/quizzes', icon: CheckSquare },
     { label: 'View Available Classes', to: '/student/browse', icon: Compass },
   ];
 

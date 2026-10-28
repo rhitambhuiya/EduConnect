@@ -8,46 +8,65 @@ import {
   Sparkles, 
   FileText, 
   CheckCircle2, 
-  Clock 
+  Clock,
+  Calendar,
+  UploadCloud,
+  Award,
+  AlertCircle,
+  CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { apiRequest, formatDate, formatDateTime } from '../../utils/api';
+import { apiRequest, formatDate, formatDateTime, formatTimeRemaining } from '../../utils/api';
+import StudentSubmitModal from './StudentSubmitModal';
+import TakeQuizModal from './TakeQuizModal';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
+  const [pendingAssignments, setPendingAssignments] = useState([]);
+  const [pendingQuizzes, setPendingQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [submittingAssignment, setSubmittingAssignment] = useState(null);
+  const [takingQuizId, setTakingQuizId] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [myClasses, pending, quizzes] = await Promise.all([
+        apiRequest('/api/classes/my'),
+        apiRequest('/api/assignments/my-pending').catch(() => []),
+        apiRequest('/api/quizzes/my-pending').catch(() => [])
+      ]);
+      setEnrolledClasses(myClasses);
+      setPendingAssignments(pending || []);
+      setPendingQuizzes(quizzes || []);
+
+      // Fetch announcements from enrolled classes
+      if (myClasses.length > 0) {
+        const annPromises = myClasses.map(async (c) => {
+          try {
+            const anns = await apiRequest(`/api/classes/${c.id}/announcements`);
+            return anns.map(a => ({ ...a, classCode: c.code, className: c.name }));
+          } catch (err) {
+            return [];
+          }
+        });
+        const allAnns = await Promise.all(annPromises);
+        const flattened = allAnns.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentAnnouncements(flattened.slice(0, 3));
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to load student dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const myClasses = await apiRequest('/api/classes/my');
-        setEnrolledClasses(myClasses);
-
-        // Fetch announcements from enrolled classes
-        if (myClasses.length > 0) {
-          const annPromises = myClasses.map(async (c) => {
-            try {
-              const anns = await apiRequest(`/api/classes/${c.id}/announcements`);
-              return anns.map(a => ({ ...a, classCode: c.code, className: c.name }));
-            } catch (err) {
-              return [];
-            }
-          });
-          const allAnns = await Promise.all(annPromises);
-          const flattened = allAnns.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          setRecentAnnouncements(flattened.slice(0, 3));
-        }
-      } catch (err) {
-        setError(err.message || 'Failed to load student dashboard');
-      } finally {
-        setLoading(false);
-      }
-    }
     loadData();
   }, []);
 
@@ -77,8 +96,19 @@ export default function StudentDashboard() {
         </Link>
       </div>
 
+      {/* Notification */}
+      {successMsg && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+          <button onClick={() => setSuccessMsg('')} className="hover:opacity-75">✕</button>
+        </div>
+      )}
+
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
             <BookOpen className="w-6 h-6" />
@@ -93,6 +123,54 @@ export default function StudentDashboard() {
           </div>
         </div>
 
+        {/* Pending Assignments Metric */}
+        <Link
+          to="/student/assignments"
+          className="bg-white rounded-xl border border-slate-200 hover:border-amber-300 p-5 shadow-xs flex items-center justify-between transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 group-hover:scale-105 transition-transform">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
+                Pending Assignments
+              </div>
+              <div className="text-2xl font-bold text-slate-900 mt-0.5">
+                {loading ? '—' : pendingAssignments.length}
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-amber-600 group-hover:underline flex items-center gap-1">
+            <span>View</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </span>
+        </Link>
+
+        {/* Pending Quizzes Metric */}
+        <Link
+          to="/student/quizzes"
+          className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 p-5 shadow-xs flex items-center justify-between transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200 group-hover:scale-105 transition-transform">
+              <CheckSquare className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
+                Pending Quizzes
+              </div>
+              <div className="text-2xl font-bold text-slate-900 mt-0.5">
+                {loading ? '—' : pendingQuizzes.length}
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-indigo-600 group-hover:underline flex items-center gap-1">
+            <span>View</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </span>
+        </Link>
+
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
             <CheckCircle2 className="w-6 h-6" />
@@ -104,27 +182,134 @@ export default function StudentDashboard() {
             <div className="text-sm font-bold text-emerald-700 mt-1">
               Active Student
             </div>
-            <span className="text-[11px] text-slate-400">Standard registration</span>
+            <span className="text-[11px] text-slate-400">Regular Semester Term</span>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex items-center justify-between sm:col-span-2 lg:col-span-1">
-          <div>
-            <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
-              Course Catalog
+      {/* Pending Quizzes Section */}
+      {pendingQuizzes.length > 0 && (
+        <div className="bg-white rounded-2xl border border-indigo-200 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                <CheckSquare className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900">Upcoming & Pending Quizzes</h2>
+                <p className="text-xs text-slate-500">Timed assessments waiting for your attempt</p>
+              </div>
             </div>
-            <div className="text-sm font-bold text-slate-900 mt-1">
-              Explore More Courses
+            <Link
+              to="/student/quizzes"
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+            >
+              <span>View All ({pendingQuizzes.length})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {pendingQuizzes.slice(0, 2).map(quiz => (
+              <div
+                key={quiz.id}
+                className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/30 flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 uppercase">
+                      {quiz.classCode}
+                    </span>
+                    <span className="text-xs text-slate-500">{quiz.totalPoints} Marks &bull; {quiz.durationMinutes} mins</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900 truncate">{quiz.title}</h4>
+                  <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                    <Clock className="w-3 h-3 text-slate-400" />
+                    <span>Due: {new Date(quiz.endTime).toLocaleDateString()}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setTakingQuizId(quiz.id)}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors shrink-0"
+                >
+                  Take Quiz
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Prominent Pending Assignments Section */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/30">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">Browse offerings to enrol</p>
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">Pending Assignments Due</h2>
+              <p className="text-[11px] text-slate-500">Tasks requiring your timely submission</p>
+            </div>
           </div>
           <Link
-            to="/student/browse"
-            className="p-2.5 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-lg border border-slate-200 transition-colors"
+            to="/student/assignments"
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
           >
-            <Compass className="w-5 h-5" />
+            <span>All Assignments ({pendingAssignments.length})</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-xs text-slate-400">Loading assignments...</div>
+        ) : pendingAssignments.length === 0 ? (
+          <div className="p-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>All caught up! You have no pending assignments right now.</span>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {pendingAssignments.slice(0, 4).map(asg => {
+              const timer = formatTimeRemaining(asg.dueDate);
+              return (
+                <div
+                  key={asg.id}
+                  className="p-4 sm:px-6 hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
+                        {asg.classCode}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-600 truncate">{asg.className}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900">{asg.title}</h3>
+                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{asg.description}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      timer.isUrgent ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                    }`}>
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{timer.text}</span>
+                    </div>
+
+                    <button
+                      onClick={() => setSubmittingAssignment(asg)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>Submit</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -241,6 +426,30 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Student Submit Modal */}
+      <StudentSubmitModal
+        isOpen={!!submittingAssignment}
+        onClose={() => setSubmittingAssignment(null)}
+        assignment={submittingAssignment}
+        onSubmitted={async () => {
+          setSuccessMsg(`Assignment "${submittingAssignment?.title}" was submitted successfully!`);
+          await loadData();
+          setTimeout(() => setSuccessMsg(''), 4500);
+        }}
+      />
+
+      {/* Take Quiz Modal */}
+      <TakeQuizModal
+        isOpen={!!takingQuizId}
+        onClose={() => setTakingQuizId(null)}
+        quizId={takingQuizId}
+        onQuizSubmitted={async () => {
+          setSuccessMsg('Quiz attempt submitted successfully!');
+          await loadData();
+          setTimeout(() => setSuccessMsg(''), 4500);
+        }}
+      />
     </div>
   );
 }

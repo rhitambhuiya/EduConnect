@@ -1,0 +1,5 @@
+CS101 Assignment 1 Instructions:
+
+1. Design pseudo-code for Linear Search and Binary Search.
+2. Compare time and space complexity in best, average, and worst cases.
+3. Format your report clearly and export as a PDF document for submission.

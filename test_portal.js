@@ -295,8 +295,166 @@ async function runTests() {
   }
   console.log('✓ Confirmed note is deleted from class notes list');
 
+  // Test 18: Teacher Derolls Student from Class & Permissions
+  console.log('\n[18] Testing Student Deroll Feature and Permission Security...');
+  const studentToDerollId = sLogin.user.id;
+
+  // Student tries to deroll someone -> 403 Forbidden
+  const sDerollForbidden = await fetch(`${BASE_URL}/api/classes/${createdClass.id}/students/${studentToDerollId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${studentToken}` }
+  });
+  if (sDerollForbidden.status !== 403) throw new Error(`Expected 403 for student derolling, got ${sDerollForbidden.status}`);
+  console.log('✓ Student cannot deroll students: 403 Forbidden properly enforced');
+
+  // Other teacher tries to deroll student from Dr. Miller's class -> 403 Forbidden
+  const otherTDerollForbidden = await fetch(`${BASE_URL}/api/classes/${createdClass.id}/students/${studentToDerollId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${otherTeacherToken}` }
+  });
+  if (otherTDerollForbidden.status !== 403) throw new Error(`Expected 403 for other teacher derolling, got ${otherTDerollForbidden.status}`);
+  console.log('✓ Other teachers cannot deroll students: 403 Forbidden properly enforced');
+
+  // Owning teacher derolls student -> 200 OK
+  const tDerollSuccess = await fetch(`${BASE_URL}/api/classes/${createdClass.id}/students/${studentToDerollId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${teacherToken}` }
+  });
+  const tDerollResult = await tDerollSuccess.json();
+  if (!tDerollSuccess.ok) throw new Error(`Owning teacher deroll failed: ${JSON.stringify(tDerollResult)}`);
+  console.log('✓ Owning teacher derolled student successfully:', tDerollResult.message);
+
+  // Verify student is no longer in roster
+  const verifyRosterRes = await fetch(`${BASE_URL}/api/classes/${createdClass.id}/students`, {
+    headers: { 'Authorization': `Bearer ${teacherToken}` }
+  });
+  const remainingStudents = await verifyRosterRes.json();
+  if (remainingStudents.some(s => s.id === studentToDerollId)) {
+    throw new Error('Student still exists in class roster after deroll!');
+  }
+  console.log('✓ Confirmed student is removed from class roster');
+
+  // Verify derolled student cannot access class details/notes anymore -> 403
+  const derolledAccessRes = await fetch(`${BASE_URL}/api/classes/${createdClass.id}`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` }
+  });
+  if (derolledAccessRes.status !== 403) {
+    throw new Error(`Expected 403 for derolled student accessing class, got ${derolledAccessRes.status}`);
+  }
+  console.log('✓ Derolled student access blocked: 403 Forbidden properly enforced');
+
+  // Test 19: Teacher creates timed assignment with attachment
+  console.log('\n[19] Testing Teacher Creating Timed Assignment...');
+  const promptPdfContent = '%PDF-1.4\n1 0 obj\n<< /Title (CS101 Problem Set) >>\nendobj\ntrailer\n<< >>\n%%EOF';
+  const asgForm = new FormData();
+  asgForm.append('title', 'Project Sprint 1: Full Stack Architecture');
+  asgForm.append('description', 'Design and implement REST endpoints with proper error handling and documentation. Export your report as PDF.');
+  asgForm.append('dueDate', new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString());
+  asgForm.append('totalPoints', '100');
+  asgForm.append('allowReupload', 'true');
+  asgForm.append('file', new Blob([promptPdfContent], { type: 'application/pdf' }), 'Sprint1_Instructions.pdf');
+
+  const createAsgRes = await fetch(`${BASE_URL}/api/assignments/class/cls_cs101`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${teacherToken}` },
+    body: asgForm
+  });
+  const createAsgData = await createAsgRes.json();
+  if (!createAsgRes.ok) throw new Error(`Create assignment failed: ${JSON.stringify(createAsgData)}`);
+  const createdAsg = createAsgData.assignment;
+  console.log('✓ Teacher created assignment:', createdAsg.title, 'AllowReupload:', createdAsg.allowReupload);
+
+  // Test 20: Student views pending assignments
+  console.log('\n[20] Testing Student Viewing Pending Assignments...');
+  const studentPendingRes = await fetch(`${BASE_URL}/api/assignments/my-pending`, {
+    headers: { 'Authorization': `Bearer ${studentToken}` }
+  });
+  const studentPending = await studentPendingRes.json();
+  if (!studentPendingRes.ok) throw new Error('Failed to get student pending assignments');
+  console.log(`✓ Student has ${studentPending.length} pending assignment(s)`);
+
+  // Test 21: Teacher views submissions roster (detecting who submitted vs who did not)
+  console.log('\n[21] Testing Teacher Viewing Submissions Roster...');
+  const rosterBeforeRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submissions`, {
+    headers: { 'Authorization': `Bearer ${teacherToken}` }
+  });
+  const rosterBefore = await rosterBeforeRes.json();
+  console.log(`✓ Roster verified: ${rosterBefore.submittedCount} submitted, ${rosterBefore.pendingCount} pending out of ${rosterBefore.totalEnrolled} enrolled`);
+  const missingStudents = rosterBefore.roster.filter(r => !r.hasSubmitted);
+  console.log(`✓ Identified ${missingStudents.length} student(s) who did not submit yet:`, missingStudents.map(s => s.studentName).join(', '));
+
+  // Test 22: Student submits assignment PDF
+  console.log('\n[22] Testing Student Submitting PDF Solution...');
+  const studentPdfContent = '%PDF-1.4\n1 0 obj\n<< /Title (Student Solution) >>\nendobj\ntrailer\n<< >>\n%%EOF';
+  const subForm = new FormData();
+  subForm.append('file', new Blob([studentPdfContent], { type: 'application/pdf' }), 'Student_Solution_Sprint1.pdf');
+  subForm.append('notes', 'Attached my architectural design document and test logs.');
+
+  const submitRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submit`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+    body: subForm
+  });
+  const submitData = await submitRes.json();
+  if (!submitRes.ok) throw new Error(`Student submission failed: ${JSON.stringify(submitData)}`);
+  console.log('✓ Student submitted assignment successfully:', submitData.submission.originalName);
+
+  // Test 23: Verify teacher now sees this student as SUBMITTED in roster
+  console.log('\n[23] Testing Teacher Verification of Updated Submissions Roster...');
+  const rosterAfterRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submissions`, {
+    headers: { 'Authorization': `Bearer ${teacherToken}` }
+  });
+  const rosterAfter = await rosterAfterRes.json();
+  const studentEntry = rosterAfter.roster.find(r => r.studentEmail === 'student@college.edu');
+  if (!studentEntry || !studentEntry.hasSubmitted) {
+    throw new Error('Teacher roster did not show student as submitted!');
+  }
+  console.log(`✓ Teacher verified student ${studentEntry.studentName} is marked SUBMITTED with file: ${studentEntry.submission.originalName}`);
+
+  // Test 24: Student deletes submission to re-upload (allowed by teacher)
+  console.log('\n[24] Testing Student Deleting Submission to Re-upload...');
+  const delSubRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submission`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${studentToken}` }
+  });
+  const delSubData = await delSubRes.json();
+  if (!delSubRes.ok) throw new Error(`Delete submission failed: ${JSON.stringify(delSubData)}`);
+  console.log('✓ Student deleted submission successfully:', delSubData.message);
+
+  // Student re-uploads revised version
+  const subForm2 = new FormData();
+  subForm2.append('file', new Blob([studentPdfContent], { type: 'application/pdf' }), 'Student_Solution_Sprint1_v2.pdf');
+  subForm2.append('notes', 'Version 2 with updated diagrams.');
+  const reuploadRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submit`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${studentToken}` },
+    body: subForm2
+  });
+  if (!reuploadRes.ok) throw new Error('Re-upload submission failed');
+  console.log('✓ Student re-uploaded revised version 2 successfully');
+
+  // Test 25: Teacher locks re-uploading and verifies student cannot delete/re-upload
+  console.log('\n[25] Testing Teacher Locking Re-upload and Enforcing Lock...');
+  const toggleRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/toggle-reupload`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${teacherToken}` }
+  });
+  const toggleData = await toggleRes.json();
+  if (toggleData.assignment.allowReupload !== false) throw new Error('Re-upload toggle failed to lock');
+  console.log('✓ Teacher locked re-uploading:', toggleData.message);
+
+  // Student attempts to delete/re-upload -> must be 403 Forbidden
+  const blockedDelRes = await fetch(`${BASE_URL}/api/assignments/${createdAsg.id}/submission`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${studentToken}` }
+  });
+  if (blockedDelRes.status !== 403) {
+    throw new Error(`Expected 403 Forbidden when deleting locked submission, got ${blockedDelRes.status}`);
+  }
+  console.log('✓ Re-upload lock verified: HTTP 403 Forbidden properly returned when teacher disabled re-uploads');
+
   console.log('\n======================================================');
-  console.log(' ALL 17 INTEGRATION TESTS PASSED WITH 100% SUCCESS!');
+  console.log(' ALL 25 INTEGRATION TESTS PASSED WITH 100% SUCCESS!');
   console.log('======================================================');
 }
 
@@ -304,3 +462,4 @@ runTests().catch(err => {
   console.error('\n❌ Test failed with error:', err);
   process.exit(1);
 });
+
