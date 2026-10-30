@@ -75,6 +75,7 @@ export default function TeacherClassDetail() {
   // Quiz State
   const [quizzes, setQuizzes] = useState([]);
   const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [editingQuiz, setEditingQuiz] = useState(null);
   const [reviewQuizId, setReviewQuizId] = useState(null);
   const [reviewQuizTab, setReviewQuizTab] = useState('summary');
   const [quizToDelete, setQuizToDelete] = useState(null);
@@ -317,6 +318,17 @@ export default function TeacherClassDetail() {
       setQuizToDelete(null);
     } finally {
       setIsDeletingQuiz(false);
+    }
+  };
+
+  const handleOpenEditQuiz = async (quiz) => {
+    try {
+      const fullQuiz = await apiRequest(`/api/quizzes/${quiz.id}`);
+      setEditingQuiz(fullQuiz);
+      setQuizModalOpen(true);
+    } catch (err) {
+      setEditingQuiz(quiz);
+      setQuizModalOpen(true);
     }
   };
 
@@ -1094,7 +1106,10 @@ export default function TeacherClassDetail() {
               </p>
             </div>
             <button
-              onClick={() => setQuizModalOpen(true)}
+              onClick={() => {
+                setEditingQuiz(null);
+                setQuizModalOpen(true);
+              }}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors shrink-0"
             >
               <PlusCircle className="w-4 h-4" />
@@ -1111,7 +1126,10 @@ export default function TeacherClassDetail() {
                 Schedule a quiz to evaluate your students with automated MCQ grading and paragraph evaluations.
               </p>
               <button
-                onClick={() => setQuizModalOpen(true)}
+                onClick={() => {
+                  setEditingQuiz(null);
+                  setQuizModalOpen(true);
+                }}
                 className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -1212,6 +1230,14 @@ export default function TeacherClassDetail() {
                         </div>
 
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleOpenEditQuiz(quiz)}
+                            className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl transition-colors border border-blue-200 flex items-center gap-1.5 cursor-pointer"
+                            title="Edit schedule timing or add/remove questions"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Edit Quiz</span>
+                          </button>
                           <button
                             onClick={() => {
                               setReviewQuizTab('keys');
@@ -1461,11 +1487,15 @@ export default function TeacherClassDetail() {
         </div>
       )}
 
-      {/* Teacher Quiz Creation Modal */}
+      {/* Teacher Quiz Creation / Edit Modal */}
       <TeacherQuizModal
         isOpen={quizModalOpen}
-        onClose={() => setQuizModalOpen(false)}
+        onClose={() => {
+          setQuizModalOpen(false);
+          setEditingQuiz(null);
+        }}
         classId={id}
+        quizToEdit={editingQuiz}
         onQuizCreated={async (newQ) => {
           setQuizMsg({
             text: `Quiz "${newQ.title}" was scheduled and published successfully!`,
@@ -1474,6 +1504,15 @@ export default function TeacherClassDetail() {
           const updated = await apiRequest(`/api/quizzes/class/${id}`).catch(() => []);
           setQuizzes(updated);
           setTimeout(() => setQuizMsg({ text: '', type: '' }), 4000);
+        }}
+        onQuizUpdated={async (updatedQ) => {
+          setQuizMsg({
+            text: `Quiz "${updatedQ.title}" was updated! If timing changed, previous attempts were reset and active students notified.`,
+            type: 'success'
+          });
+          const updated = await apiRequest(`/api/quizzes/class/${id}`).catch(() => []);
+          setQuizzes(updated);
+          setTimeout(() => setQuizMsg({ text: '', type: '' }), 5000);
         }}
       />
 

@@ -924,8 +924,8 @@ class Database {
     const formattedQuestions = (questions || []).map((q, idx) => ({
       id: q.id || generateId('q'),
       type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-      questionText: (q.questionText || '').trim(),
-      options: Array.isArray(q.options) ? q.options.map(opt => String(opt).trim()) : [],
+      questionText: (q.questionText || q.question || '').trim(),
+      options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
       correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
       correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
       points: Number(q.points) || 1,
@@ -941,7 +941,7 @@ class Database {
       teacherId,
       teacherName,
       title: title.trim(),
-      description: description.trim(),
+      description: (description || '').trim(),
       durationMinutes: Number(durationMinutes) || 0,
       startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
       endTime: new Date(endTime).toISOString(),
@@ -960,18 +960,38 @@ class Database {
     const quiz = this.findQuizById(id);
     if (!quiz) return null;
 
+    let timingChanged = false;
+    if (updates.startTime !== undefined) {
+      const newStart = new Date(updates.startTime).toISOString();
+      if (newStart !== quiz.startTime) {
+        quiz.startTime = newStart;
+        timingChanged = true;
+      }
+    }
+    if (updates.endTime !== undefined) {
+      const newEnd = new Date(updates.endTime).toISOString();
+      if (newEnd !== quiz.endTime) {
+        quiz.endTime = newEnd;
+        timingChanged = true;
+      }
+    }
+
     if (updates.title !== undefined) quiz.title = updates.title.trim();
     if (updates.description !== undefined) quiz.description = updates.description.trim();
-    if (updates.durationMinutes !== undefined) quiz.durationMinutes = Number(updates.durationMinutes) || 0;
-    if (updates.startTime !== undefined) quiz.startTime = new Date(updates.startTime).toISOString();
-    if (updates.endTime !== undefined) quiz.endTime = new Date(updates.endTime).toISOString();
+    if (updates.durationMinutes !== undefined) {
+      quiz.durationMinutes = Number(updates.durationMinutes) || 0;
+    } else if (timingChanged) {
+      const startMs = new Date(quiz.startTime).getTime();
+      const endMs = new Date(quiz.endTime).getTime();
+      quiz.durationMinutes = Math.max(1, Math.round((endMs - startMs) / 60000));
+    }
 
     if (updates.questions !== undefined) {
       quiz.questions = updates.questions.map(q => ({
         id: q.id || generateId('q'),
         type: q.type || 'single',
-        questionText: (q.questionText || '').trim(),
-        options: Array.isArray(q.options) ? q.options.map(opt => String(opt).trim()) : [],
+        questionText: (q.questionText || q.question || '').trim(),
+        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
         correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
         correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
         points: Number(q.points) || 1,
@@ -979,6 +999,13 @@ class Database {
         rubric: (q.rubric || '').trim()
       }));
       quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
+    }
+
+    if (timingChanged) {
+      // If a student had already attempted the test, their previous attempt will be deleted.
+      this.data.quizAttempts = (this.data.quizAttempts || []).filter(a => a.quizId !== id);
+      // Mark rescheduled timestamp to notify and interrupt active student attempts
+      quiz.rescheduledAt = new Date().toISOString();
     }
 
     this.save();

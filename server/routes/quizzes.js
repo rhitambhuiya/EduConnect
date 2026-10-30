@@ -10,15 +10,17 @@ const router = express.Router();
  */
 function sanitizeQuestions(questions = []) {
   return questions.map(q => {
+    const text = (q.questionText || q.question || '').trim();
     const sanitized = {
       id: q.id,
       type: q.type,
-      question: q.question,
+      question: text,
+      questionText: text,
       points: q.points || 0
     };
     if (q.type === 'single' || q.type === 'multiple') {
       sanitized.options = (q.options || []).map(opt => ({
-        id: opt.id !== undefined ? opt.id : opt.text,
+        id: opt.id !== undefined ? opt.id : (typeof opt === 'object' ? opt.text : opt),
         text: typeof opt === 'object' ? opt.text : opt
       }));
     }
@@ -149,6 +151,36 @@ router.get('/class/:classId', authenticate, (req, res) => {
   }
 });
 
+// GET /api/quizzes/:id/status - Real-time status for active attempts (interruption on reschedule)
+router.get('/:id/status', authenticate, (req, res) => {
+  try {
+    const quiz = db.findQuizById(req.params.id);
+    if (!quiz) {
+      return res.status(404).json({ error: 'Quiz not found' });
+    }
+
+    const { since } = req.query;
+    let rescheduled = false;
+    if (since && quiz.rescheduledAt) {
+      const sinceTime = new Date(since).getTime();
+      const reschedTime = new Date(quiz.rescheduledAt).getTime();
+      if (!isNaN(sinceTime) && !isNaN(reschedTime) && reschedTime > sinceTime) {
+        rescheduled = true;
+      }
+    }
+
+    return res.json({
+      rescheduled,
+      rescheduledAt: quiz.rescheduledAt || null,
+      startTime: quiz.startTime,
+      endTime: quiz.endTime
+    });
+  } catch (err) {
+    console.error('Error checking quiz status:', err);
+    return res.status(500).json({ error: 'Failed to check quiz status' });
+  }
+});
+
 // POST /api/quizzes/class/:classId - Teacher creates and schedules a quiz
 router.get('/detail/:id', authenticate, (req, res) => {
   // Shortcut alias to GET /api/quizzes/:id
@@ -180,6 +212,10 @@ function getQuizDetail(req, res) {
       const attempts = db.getQuizAttempts(quiz.id);
       return res.json({
         ...quiz,
+        questions: (quiz.questions || []).map(q => ({
+          ...q,
+          question: q.questionText || q.question || ''
+        })),
         attemptsCount: attempts.length
       });
     }
@@ -189,7 +225,9 @@ function getQuizDetail(req, res) {
     const hasAttempted = !!attempt;
 
     // If student has not attempted, questions must be sanitized!
-    const questions = hasAttempted ? quiz.questions : sanitizeQuestions(quiz.questions);
+    const questions = hasAttempted 
+      ? (quiz.questions || []).map(q => ({ ...q, question: q.questionText || q.question || '' }))
+      : sanitizeQuestions(quiz.questions);
 
     return res.json({
       id: quiz.id,
@@ -302,7 +340,7 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), (req, res) 
   }
 });
 
-// PUT /api/quizzes/:id - Teacher updates a quiz
+// PUT /api/quizzes/:id - Teacher updates a quiz (schedule timing, title, questions)
 router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
   try {
     const quiz = db.findQuizById(req.params.id);
@@ -312,6 +350,49 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
     const cls = db.findClassById(quiz.classId);
     if (!cls || cls.teacherId !== req.user.id) {
       return res.status(403).json({ error: 'Unauthorized to update this quiz' });
+    }
+
+    const { title, description, startTime, endTime, questions } = req.body;
+
+    const newStart = startTime ? new Date(startTime) : new Date(quiz.startTime);
+    const newEnd = endTime ? new Date(endTime) : new Date(quiz.endTime);
+
+    if (isNaN(newStart.getTime()) || isNaN(newEnd.getTime())) {
+      return res.status(400).json({ error: 'Invalid start or end time format' });
+    }
+    if (newStart >= newEnd) {
+      return res.status(400).json({ error: 'End time must be after start time' });
+    }
+
+    if (questions !== undefined) {
+      if (!Array.isArray(questions) || questions.length === 0) {
+        return res.status(400).json({ error: 'Quiz must contain at least one question' });
+      }
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const qText = (q.questionText || q.question || '').trim();
+        if (!qText) {
+          return res.status(400).json({ error: `Question #${i + 1} is missing question text` });
+        }
+        if (!['single', 'multiple', 'paragraph'].includes(q.type)) {
+          return res.status(400).json({ error: `Question #${i + 1} has invalid type: ${q.type}` });
+        }
+        if (q.type === 'single') {
+          if (!Array.isArray(q.options) || q.options.length < 2) {
+            return res.status(400).json({ error: `Question #${i + 1} must have at least 2 options` });
+          }
+          if (q.correctAnswer === undefined || q.correctAnswer === null || q.correctAnswer < 0 || q.correctAnswer >= q.options.length) {
+            return res.status(400).json({ error: `Question #${i + 1} must have a valid correct answer option selected` });
+          }
+        } else if (q.type === 'multiple') {
+          if (!Array.isArray(q.options) || q.options.length < 2) {
+            return res.status(400).json({ error: `Question #${i + 1} must have at least 2 options` });
+          }
+          if (!Array.isArray(q.correctAnswers) || q.correctAnswers.length === 0) {
+            return res.status(400).json({ error: `Question #${i + 1} must have at least one correct answer selected` });
+          }
+        }
+      }
     }
 
     const updated = db.updateQuiz(quiz.id, req.body);

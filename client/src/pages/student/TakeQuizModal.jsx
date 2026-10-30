@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, 
   Clock, 
@@ -28,6 +28,8 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
   const [exitWarningOpen, setExitWarningOpen] = useState(false);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isRescheduledInterrupted, setIsRescheduledInterrupted] = useState(false);
+  const attemptStartTimeRef = useRef(null);
 
   // Answers state: { [questionId]: { selectedOption, selectedOptions: [], answerText: '' } }
   const [answers, setAnswers] = useState({});
@@ -38,13 +40,15 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
       setAttemptStarted(false);
       setExitWarningOpen(false);
       setConfirmSubmitOpen(false);
+      setIsRescheduledInterrupted(false);
+      attemptStartTimeRef.current = null;
       loadQuiz();
     }
   }, [isOpen, quizId]);
 
   // Prevent accidental browser reload / tab close while active
   useEffect(() => {
-    if (!isOpen || !attemptStarted || submitting) return;
+    if (!isOpen || !attemptStarted || submitting || isRescheduledInterrupted) return;
     const handleBeforeUnload = (e) => {
       e.preventDefault();
       e.returnValue = 'You have an active quiz attempt! If you leave, your quiz will be submitted.';
@@ -52,7 +56,26 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isOpen, attemptStarted, submitting]);
+  }, [isOpen, attemptStarted, submitting, isRescheduledInterrupted]);
+
+  // Real-time interruption check: polls every 3s to detect if teacher rescheduled quiz timing
+  useEffect(() => {
+    if (!isOpen || !attemptStarted || isRescheduledInterrupted || submitting || !quizId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        if (!attemptStartTimeRef.current) return;
+        const res = await apiRequest(`/api/quizzes/${quizId}/status?since=${encodeURIComponent(attemptStartTimeRef.current)}`);
+        if (res && res.rescheduled) {
+          setIsRescheduledInterrupted(true);
+        }
+      } catch (err) {
+        // Silently ignore background network status poll
+      }
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [isOpen, attemptStarted, isRescheduledInterrupted, submitting, quizId]);
 
   const loadQuiz = async () => {
     setLoading(true);
@@ -96,7 +119,7 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
 
   // Timer countdown: only runs once the attempt has officially started
   useEffect(() => {
-    if (!isOpen || loading || !quiz || !attemptStarted || timeLeftSeconds <= 0) return;
+    if (!isOpen || loading || !quiz || !attemptStarted || isRescheduledInterrupted || timeLeftSeconds <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeftSeconds(prev => {
@@ -193,7 +216,7 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
   };
 
   const handleRequestClose = () => {
-    if (!attemptStarted) {
+    if (!attemptStarted || isRescheduledInterrupted) {
       onClose();
     } else {
       setExitWarningOpen(true);
@@ -254,7 +277,11 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
 
           <div className="flex items-center gap-3">
             {/* Live countdown timer badge: only active once attempt starts */}
-            {attemptStarted ? (
+            {isRescheduledInterrupted ? (
+              <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                Rescheduled
+              </span>
+            ) : attemptStarted ? (
               <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-sm font-bold border transition-colors ${
                 isTimeUrgent 
                   ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' 
@@ -290,7 +317,46 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
             </div>
           )}
 
-          {loading ? (
+          {isRescheduledInterrupted ? (
+            <div className="py-8 sm:py-12 max-w-xl mx-auto space-y-6 text-center animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-xs border border-amber-200">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  Quiz Rescheduled by Teacher
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto">
+                  The instructor has rescheduled the timing or modified this quiz while your session was active.
+                </p>
+              </div>
+
+              <div className="p-5 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2 text-left text-xs sm:text-sm text-amber-900">
+                <div className="font-bold flex items-center gap-2 text-amber-900">
+                  <Clock className="w-4 h-4 text-amber-700" />
+                  <span>Session Cancelled Without Penalty</span>
+                </div>
+                <p className="text-amber-800 leading-relaxed text-xs">
+                  Your partial answers have been cancelled and will not count as a submission. Previous student attempts have also been reset, and you can re-attempt the quiz during its new scheduled window.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRescheduledInterrupted(false);
+                    setAttemptStarted(false);
+                    onClose();
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  Return to Class Dashboard
+                </button>
+              </div>
+            </div>
+          ) : loading ? (
             <div className="py-24 text-center">
               <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-xs text-slate-400">Loading quiz assessment...</p>
@@ -372,7 +438,10 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAttemptStarted(true)}
+                  onClick={() => {
+                    attemptStartTimeRef.current = new Date().toISOString();
+                    setAttemptStarted(true);
+                  }}
                   className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <PlayCircle className="w-4 h-4" />
@@ -555,7 +624,7 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
         </div>
 
         {/* Sticky Footer Bar with progress & submit: only shown during active attempt */}
-        {quiz && attemptStarted && (
+        {quiz && attemptStarted && !isRescheduledInterrupted && (
           <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3 text-xs text-slate-600">
               <div className="w-32 bg-slate-200 rounded-full h-2 overflow-hidden">

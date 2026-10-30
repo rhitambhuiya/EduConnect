@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   BookOpen, 
@@ -17,7 +17,27 @@ import {
 import { apiRequest } from '../../utils/api';
 import QuestionBankPickerModal from './QuestionBankPickerModal';
 
-export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreated }) {
+const toLocalDatetimeInput = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+export default function TeacherQuizModal({ 
+  isOpen, 
+  onClose, 
+  classId, 
+  quizToEdit = null, 
+  onQuizCreated, 
+  onQuizUpdated 
+}) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -45,6 +65,64 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [bankModalOpen, setBankModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (quizToEdit) {
+      setTitle(quizToEdit.title || '');
+      setDescription(quizToEdit.description || '');
+      setStartTime(toLocalDatetimeInput(quizToEdit.startTime));
+      setEndTime(toLocalDatetimeInput(quizToEdit.endTime));
+
+      const mapped = (quizToEdit.questions || []).map((q, idx) => ({
+        id: q.id || `q_${Date.now()}_${idx}`,
+        type: q.type || 'single',
+        question: q.questionText || q.question || '',
+        points: q.points !== undefined ? q.points : (q.type === 'paragraph' ? 10 : 5),
+        options: q.type !== 'paragraph'
+          ? (q.options || []).map(opt => (typeof opt === 'object' ? opt.text : String(opt)))
+          : [],
+        correctAnswer: q.type === 'single' ? (q.correctAnswer !== undefined ? q.correctAnswer : 0) : null,
+        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers : [0]) : [],
+        explanation: q.explanation || ''
+      }));
+
+      setQuestions(mapped.length > 0 ? mapped : [
+        {
+          id: 'q_1',
+          type: 'single',
+          question: '',
+          points: 5,
+          options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+          correctAnswer: 0,
+          correctAnswers: [],
+          explanation: ''
+        }
+      ]);
+    } else {
+      setTitle('');
+      setDescription('');
+      const n = new Date();
+      const s = new Date(n.getTime() - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      const e = new Date(n.getTime() + 3 * 24 * 60 * 60 * 1000 - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      setStartTime(s);
+      setEndTime(e);
+      setQuestions([
+        {
+          id: 'q_1',
+          type: 'single',
+          question: '',
+          points: 5,
+          options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+          correctAnswer: 0,
+          correctAnswers: [],
+          explanation: ''
+        }
+      ]);
+    }
+    setError('');
+  }, [isOpen, quizToEdit]);
 
   const handleImportFromBank = (selectedFromBank) => {
     if (!selectedFromBank || selectedFromBank.length === 0) return;
@@ -206,19 +284,28 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
 
     setSubmitting(true);
     try {
-      const data = await apiRequest(`/api/quizzes/class/${classId}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          title,
-          description,
-          durationMinutes: Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60))),
-          startTime: new Date(startTime).toISOString(),
-          endTime: new Date(endTime).toISOString(),
-          questions
-        })
-      });
+      const payload = {
+        title,
+        description,
+        durationMinutes: Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60))),
+        startTime: new Date(startTime).toISOString(),
+        endTime: new Date(endTime).toISOString(),
+        questions
+      };
 
-      onQuizCreated && onQuizCreated(data);
+      if (quizToEdit) {
+        const data = await apiRequest(`/api/quizzes/${quizToEdit.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        onQuizUpdated && onQuizUpdated(data);
+      } else {
+        const data = await apiRequest(`/api/quizzes/class/${classId}`, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        onQuizCreated && onQuizCreated(data);
+      }
       onClose();
     } catch (err) {
       setError(err.message);
@@ -237,8 +324,14 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
               <CheckSquare className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Create & Schedule Quiz</h2>
-              <p className="text-xs text-slate-500">Configure quiz timeline, MCQs with auto-grading, and paragraph questions</p>
+              <h2 className="text-xl font-bold text-slate-900">
+                {quizToEdit ? 'Edit Scheduled Quiz & Questions' : 'Create & Schedule Quiz'}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {quizToEdit 
+                  ? 'Update timing, add new questions or remove existing ones. Rescheduling deletes previous attempts.' 
+                  : 'Configure quiz timeline, MCQs with auto-grading, and paragraph questions'}
+              </p>
             </div>
           </div>
           <button 
@@ -292,6 +385,15 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
               />
             </div>
 
+            {quizToEdit && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Rescheduling Notice:</strong> If you change the Start or End Time, previous student attempts will be deleted and students actively taking the test will be interrupted so they can take it in the new scheduled window.
+                </span>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1 flex items-center gap-1.5">
@@ -315,6 +417,7 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
                 <input
                   type="datetime-local"
                   required
+                  min={startTime}
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -618,7 +721,9 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
                 disabled={submitting}
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold shadow-xs transition-colors flex items-center gap-2"
               >
-                {submitting ? 'Publishing Quiz...' : 'Publish & Schedule Quiz'}
+                {quizToEdit 
+                  ? (submitting ? 'Updating Quiz...' : 'Save & Update Quiz') 
+                  : (submitting ? 'Publishing Quiz...' : 'Publish & Schedule Quiz')}
               </button>
             </div>
           </div>
