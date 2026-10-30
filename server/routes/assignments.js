@@ -7,22 +7,8 @@ const { authenticate, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Multer storage for assignment materials and student submissions
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, uniqueSuffix + '-' + safeName);
-  }
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 } // 25MB max
-});
+// Cloudinary integration for assignment documents & student PDF submissions
+const { upload, uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 
 // GET /api/assignments/my-pending - Student views pending assignments across all classes
 router.get('/my-pending', authenticate, requireRole('student'), (req, res) => {
@@ -153,7 +139,7 @@ router.get('/:id', authenticate, (req, res) => {
 });
 
 // POST /api/assignments/class/:classId - Teacher creates assignment with optional prompt attachment
-router.post('/class/:classId', authenticate, requireRole('teacher'), upload.single('file'), (req, res) => {
+router.post('/class/:classId', authenticate, requireRole('teacher'), upload.single('file'), async (req, res) => {
   try {
     const cls = db.findClassById(req.params.classId);
     if (!cls) {
@@ -183,9 +169,12 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), upload.sing
 
     let attachment = null;
     if (req.file) {
+      const cloudFile = await uploadToCloudinary(req.file.buffer, req.file.originalname, 'college_portal/assignments');
       attachment = {
         originalName: req.file.originalname,
-        fileName: req.file.filename,
+        fileName: cloudFile.fileName,
+        fileUrl: cloudFile.fileUrl,
+        cloudinaryId: cloudFile.cloudinaryId,
         fileSize: req.file.size,
         mimeType: req.file.mimetype
       };
@@ -295,7 +284,7 @@ router.get('/:id/submissions', authenticate, requireRole('teacher'), (req, res) 
 });
 
 // POST /api/assignments/:id/submit - Student uploads assignment submission (e.g. PDF)
-router.post('/:id/submit', authenticate, requireRole('student'), upload.single('file'), (req, res) => {
+router.post('/:id/submit', authenticate, requireRole('student'), upload.single('file'), async (req, res) => {
   try {
     const assignment = db.findAssignmentById(req.params.id);
     if (!assignment) {
@@ -311,10 +300,6 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
     const now = new Date();
     const dueDate = new Date(assignment.dueDate);
     if (now > dueDate) {
-      // Remove temporary uploaded file if present
-      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
-      }
       return res.status(400).json({
         error: 'The submission deadline has passed. Submissions are no longer accepted for this assignment.'
       });
@@ -323,9 +308,6 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
     // Check if student already submitted and if re-upload is disallowed
     const existingSubmission = db.getSubmission(assignment.id, req.user.id);
     if (existingSubmission && !assignment.allowReupload) {
-      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
-      }
       return res.status(403).json({
         error: 'You have already submitted this assignment, and the instructor has disabled re-uploading.'
       });
@@ -337,6 +319,14 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
 
     const { notes } = req.body;
 
+    // Stream submission PDF directly to Cloudinary (or local fallback)
+    const cloudFile = await uploadToCloudinary(req.file.buffer, req.file.originalname, 'college_portal/submissions');
+
+    // If re-uploading, cleanup previous submission from Cloudinary
+    if (existingSubmission && existingSubmission.cloudinaryId) {
+      deleteFromCloudinary(existingSubmission.cloudinaryId);
+    }
+
     const submission = db.createSubmission({
       assignmentId: assignment.id,
       classId: cls.id,
@@ -344,7 +334,9 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
       studentName: req.user.name,
       studentEmail: req.user.email,
       originalName: req.file.originalname,
-      fileName: req.file.filename,
+      fileName: cloudFile.fileName,
+      fileUrl: cloudFile.fileUrl,
+      cloudinaryId: cloudFile.cloudinaryId,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
       notes: notes || ''
@@ -423,6 +415,11 @@ router.get('/:id/attachment/download', authenticate, (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to download this file.' });
   }
 
+  // If file is hosted on Cloudinary, redirect to CDN URL
+  if (assignment.attachment.fileUrl && assignment.attachment.fileUrl.startsWith('http')) {
+    return res.redirect(assignment.attachment.fileUrl);
+  }
+
   const filePath = path.join(UPLOADS_DIR, assignment.attachment.fileName);
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File was not found on server disk.' });
@@ -454,6 +451,11 @@ router.get('/submissions/:submissionId/download', authenticate, (req, res) => {
 
   if (!isTeacherOwner && !isStudentOwner) {
     return res.status(403).json({ error: 'You are not authorized to access this submission file.' });
+  }
+
+  // If student submission is hosted on Cloudinary, redirect to CDN URL
+  if (submission.fileUrl && submission.fileUrl.startsWith('http')) {
+    return res.redirect(submission.fileUrl);
   }
 
   const filePath = path.join(UPLOADS_DIR, submission.fileName);

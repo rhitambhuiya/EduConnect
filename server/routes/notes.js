@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { db, UPLOADS_DIR } = require('../db');
 const { authenticate } = require('../middleware/auth');
+const { deleteFromCloudinary } = require('../config/cloudinary');
 
 const router = express.Router();
 
@@ -24,6 +25,11 @@ router.get('/:id/download', authenticate, (req, res) => {
 
   if (!isOwner && !isEnrolled) {
     return res.status(403).json({ error: 'You are not authorized to download this file.' });
+  }
+
+  // If hosted on Cloudinary, redirect directly to secure CDN URL
+  if (note.fileUrl && note.fileUrl.startsWith('http')) {
+    return res.redirect(note.fileUrl);
   }
 
   const filePath = path.join(UPLOADS_DIR, note.fileName);
@@ -62,6 +68,9 @@ router.delete('/:id', authenticate, (req, res) => {
     return res.status(403).json({ error: 'You can only delete materials from classes you created.' });
   }
 
+  if (note.cloudinaryId) {
+    deleteFromCloudinary(note.cloudinaryId);
+  }
   const deleted = db.deleteNote(req.params.id);
   if (!deleted) {
     return res.status(500).json({ error: 'Failed to delete study material' });

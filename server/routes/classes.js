@@ -6,22 +6,8 @@ const { authenticate, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Multer storage for note uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, uniqueSuffix + '-' + safeName);
-  }
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 25 * 1024 * 1024 } // 25MB max
-});
+// Cloudinary file upload integration with automatic local fallback
+const { upload, uploadToCloudinary } = require('../config/cloudinary');
 
 // GET /api/classes - Browse available classes on the platform
 // Used by students to see all offerings and whether they are enrolled
@@ -213,8 +199,8 @@ router.get('/:id/notes', authenticate, (req, res) => {
   return res.json(notes);
 });
 
-// POST /api/classes/:id/notes - Teacher uploads notes
-router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('file'), (req, res) => {
+// POST /api/classes/:id/notes - Teacher uploads notes (persists to Cloudinary)
+router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('file'), async (req, res) => {
   try {
     const cls = db.findClassById(req.params.id);
     if (!cls) {
@@ -234,12 +220,17 @@ router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('f
       return res.status(400).json({ error: 'A file attachment is required.' });
     }
 
+    // Stream directly to Cloudinary (or local fallback if not configured)
+    const cloudFile = await uploadToCloudinary(req.file.buffer, req.file.originalname, 'college_portal/notes');
+
     const note = db.createNote({
       classId: cls.id,
       teacherId: req.user.id,
       title: title.trim(),
       originalName: req.file.originalname,
-      fileName: req.file.filename,
+      fileName: cloudFile.fileName,
+      fileUrl: cloudFile.fileUrl,
+      cloudinaryId: cloudFile.cloudinaryId,
       fileSize: req.file.size,
       mimeType: req.file.mimetype
     });

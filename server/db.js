@@ -22,6 +22,8 @@ function generateId(prefix = 'id') {
 
 class Database {
   constructor() {
+    this.isMongoConnected = false;
+    this.models = null;
     this.data = {
       users: [],
       classes: [],
@@ -77,6 +79,101 @@ class Database {
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (err) {
       console.error('Failed to persist database:', err);
+    }
+
+    if (this.isMongoConnected && this.models) {
+      this.syncToMongo().catch(err => {
+        console.error('[MongoDB Atlas] Async persist error:', err.message);
+      });
+    }
+  }
+
+  async connectMongo(uri) {
+    try {
+      const mongoose = require('mongoose');
+      const models = require('./models');
+      console.log('[MongoDB Atlas] Connecting to cluster...');
+      await mongoose.connect(uri);
+      this.isMongoConnected = true;
+      this.models = models;
+      console.log('[MongoDB Atlas] Connected successfully!');
+
+      const userCount = await models.User.countDocuments();
+      if (userCount === 0) {
+        console.log('[MongoDB Atlas] Cluster is empty. Initializing with local seed data...');
+        await this.syncToMongo();
+        console.log('[MongoDB Atlas] Initial seed data uploaded successfully!');
+      } else {
+        console.log('[MongoDB Atlas] Syncing live data from cloud database into cache...');
+        await this.syncFromMongo();
+        console.log('[MongoDB Atlas] Cloud synchronization complete.');
+      }
+    } catch (err) {
+      console.error('[MongoDB Atlas] Connection failed:', err.message);
+      this.isMongoConnected = false;
+    }
+  }
+
+  async syncToMongo() {
+    if (!this.models) return;
+    try {
+      const collections = [
+        { model: this.models.User, items: this.data.users },
+        { model: this.models.Class, items: this.data.classes },
+        { model: this.models.Enrollment, items: this.data.enrollments },
+        { model: this.models.Note, items: this.data.notes },
+        { model: this.models.Announcement, items: this.data.announcements },
+        { model: this.models.Assignment, items: this.data.assignments },
+        { model: this.models.Submission, items: this.data.submissions },
+        { model: this.models.Quiz, items: this.data.quizzes },
+        { model: this.models.QuizAttempt, items: this.data.quizAttempts }
+      ];
+
+      for (const col of collections) {
+        const currentIds = (col.items || []).map(i => i.id).filter(Boolean);
+        // Remove documents deleted from memory (e.g. deleted quizzes, notes, or reset attempts)
+        await col.model.deleteMany({ id: { $nin: currentIds } });
+
+        for (const item of (col.items || [])) {
+          if (!item.id) continue;
+          await col.model.findOneAndUpdate(
+            { id: item.id },
+            { $set: item },
+            { upsert: true }
+          );
+        }
+      }
+    } catch (err) {
+      console.error('[MongoDB Atlas] Sync error:', err.message);
+    }
+  }
+
+  async syncFromMongo() {
+    if (!this.models) return;
+    try {
+      const [users, classes, enrollments, notes, announcements, assignments, submissions, quizzes, quizAttempts] = await Promise.all([
+        this.models.User.find({}).lean(),
+        this.models.Class.find({}).lean(),
+        this.models.Enrollment.find({}).lean(),
+        this.models.Note.find({}).lean(),
+        this.models.Announcement.find({}).lean(),
+        this.models.Assignment.find({}).lean(),
+        this.models.Submission.find({}).lean(),
+        this.models.Quiz.find({}).lean(),
+        this.models.QuizAttempt.find({}).lean()
+      ]);
+
+      if (users.length > 0) this.data.users = users;
+      if (classes.length > 0) this.data.classes = classes;
+      if (enrollments.length > 0) this.data.enrollments = enrollments;
+      if (notes.length > 0) this.data.notes = notes;
+      if (announcements.length > 0) this.data.announcements = announcements;
+      if (assignments.length > 0) this.data.assignments = assignments;
+      if (submissions.length > 0) this.data.submissions = submissions;
+      if (quizzes.length > 0) this.data.quizzes = quizzes;
+      if (quizAttempts.length > 0) this.data.quizAttempts = quizAttempts;
+    } catch (err) {
+      console.error('[MongoDB Atlas] Sync from cloud error:', err.message);
     }
   }
 

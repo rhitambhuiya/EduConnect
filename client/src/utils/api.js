@@ -1,4 +1,4 @@
-const BASE_URL = '';
+const BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('cp_token') || localStorage.getItem('token');
@@ -103,7 +103,8 @@ export async function downloadFile(url, fileName, inline = false) {
   const headers = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(url, { headers });
+  const targetUrl = url.startsWith('http') ? url : `${BASE_URL}${url}`;
+  const res = await fetch(targetUrl, { headers });
   if (!res.ok) {
     let errText = 'Failed to download file';
     try {
