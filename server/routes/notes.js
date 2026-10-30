@@ -27,24 +27,32 @@ router.get('/:id/download', authenticate, (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to download this file.' });
   }
 
-  // If hosted on Cloudinary, redirect directly to secure CDN URL
+  // 1. Direct Cloudinary / CDN URL
   if (note.fileUrl && note.fileUrl.startsWith('http')) {
     return res.redirect(note.fileUrl);
   }
 
+  // 2. Local disk file if present
   const filePath = path.join(UPLOADS_DIR, note.fileName);
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File was not found on server disk.' });
+  if (fs.existsSync(filePath)) {
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Type', note.mimeType || 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(note.originalName)}"`);
+      return res.sendFile(filePath);
+    }
+    return res.download(filePath, note.originalName);
   }
 
-  // Check if query wants inline viewing vs attachment download
-  if (req.query.view === 'inline') {
-    res.setHeader('Content-Type', note.mimeType || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(note.originalName)}"`);
-    return res.sendFile(filePath);
+  // 3. Fallback to Cloudinary URL if uploaded to cloud
+  if (process.env.CLOUDINARY_CLOUD_NAME && note.fileName) {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const cloudUrl = note.cloudinaryId 
+      ? `https://res.cloudinary.com/${cloudName}/raw/upload/${note.cloudinaryId}`
+      : `https://res.cloudinary.com/${cloudName}/raw/upload/college_portal/notes/${note.fileName}`;
+    return res.redirect(cloudUrl);
   }
 
-  return res.download(filePath, note.originalName);
+  return res.status(404).json({ error: 'File was not found on server disk or cloud storage.' });
 });
 
 // DELETE /api/notes/:id - Teacher deletes a previously uploaded note

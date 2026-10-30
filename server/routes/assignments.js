@@ -415,23 +415,32 @@ router.get('/:id/attachment/download', authenticate, (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to download this file.' });
   }
 
-  // If file is hosted on Cloudinary, redirect to CDN URL
+  // 1. Direct Cloudinary / CDN URL
   if (assignment.attachment.fileUrl && assignment.attachment.fileUrl.startsWith('http')) {
     return res.redirect(assignment.attachment.fileUrl);
   }
 
+  // 2. Local disk file if present
   const filePath = path.join(UPLOADS_DIR, assignment.attachment.fileName);
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File was not found on server disk.' });
+  if (fs.existsSync(filePath)) {
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Type', assignment.attachment.mimeType || 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(assignment.attachment.originalName)}"`);
+      return res.sendFile(filePath);
+    }
+    return res.download(filePath, assignment.attachment.originalName);
   }
 
-  if (req.query.view === 'inline') {
-    res.setHeader('Content-Type', assignment.attachment.mimeType || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(assignment.attachment.originalName)}"`);
-    return res.sendFile(filePath);
+  // 3. Fallback to Cloudinary URL if uploaded to cloud
+  if (process.env.CLOUDINARY_CLOUD_NAME && assignment.attachment.fileName) {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const cloudUrl = assignment.attachment.cloudinaryId 
+      ? `https://res.cloudinary.com/${cloudName}/raw/upload/${assignment.attachment.cloudinaryId}`
+      : `https://res.cloudinary.com/${cloudName}/raw/upload/college_portal/assignments/${assignment.attachment.fileName}`;
+    return res.redirect(cloudUrl);
   }
 
-  return res.download(filePath, assignment.attachment.originalName);
+  return res.status(404).json({ error: 'File was not found on server disk or cloud storage.' });
 });
 
 // GET /api/assignments/submissions/:submissionId/download - Download student submission file
@@ -453,23 +462,32 @@ router.get('/submissions/:submissionId/download', authenticate, (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to access this submission file.' });
   }
 
-  // If student submission is hosted on Cloudinary, redirect to CDN URL
+  // 1. Direct Cloudinary / CDN URL
   if (submission.fileUrl && submission.fileUrl.startsWith('http')) {
     return res.redirect(submission.fileUrl);
   }
 
+  // 2. Local disk file if present
   const filePath = path.join(UPLOADS_DIR, submission.fileName);
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File not found on server disk.' });
+  if (fs.existsSync(filePath)) {
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Type', submission.mimeType || 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(submission.originalName)}"`);
+      return res.sendFile(filePath);
+    }
+    return res.download(filePath, submission.originalName);
   }
 
-  if (req.query.view === 'inline') {
-    res.setHeader('Content-Type', submission.mimeType || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(submission.originalName)}"`);
-    return res.sendFile(filePath);
+  // 3. Fallback to Cloudinary URL if uploaded to cloud
+  if (process.env.CLOUDINARY_CLOUD_NAME && submission.fileName) {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const cloudUrl = submission.cloudinaryId 
+      ? `https://res.cloudinary.com/${cloudName}/raw/upload/${submission.cloudinaryId}`
+      : `https://res.cloudinary.com/${cloudName}/raw/upload/college_portal/submissions/${submission.fileName}`;
+    return res.redirect(cloudUrl);
   }
 
-  return res.download(filePath, submission.originalName);
+  return res.status(404).json({ error: 'File not found on server disk or cloud storage.' });
 });
 
 module.exports = router;
