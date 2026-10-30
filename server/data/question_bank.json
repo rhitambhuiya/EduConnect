@@ -1,0 +1,3464 @@
+[
+  {
+    "id": "qb_dbms_1",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "single",
+    "question": "Which property ensures that all operations of a transaction execute completely or none at all?",
+    "options": [
+      "Atomicity",
+      "Consistency",
+      "Isolation",
+      "Durability"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Atomicity ensures that transactions are all-or-nothing.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_2",
+    "subject": "DBMS",
+    "topic": "Relational Algebra",
+    "type": "single",
+    "question": "Which relational algebra operation selects rows that satisfy a specified predicate condition?",
+    "options": [
+      "Projection (π)",
+      "Selection (σ)",
+      "Cartesian Product (×)",
+      "Join (⋈)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Selection (sigma) filters rows based on a boolean predicate.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_3",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "type": "single",
+    "question": "Which normal form eliminates partial functional dependencies on composite candidate keys?",
+    "options": [
+      "1NF",
+      "2NF",
+      "3NF",
+      "BCNF"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "2NF removes partial dependency of non-prime attributes on candidate keys.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_4",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "type": "single",
+    "question": "A relation is in 3NF if it is in 2NF and has no:",
+    "options": [
+      "Partial dependencies",
+      "Transitive dependencies",
+      "Multivalued dependencies",
+      "Join dependencies"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "3NF removes transitive dependencies where a non-prime attribute depends on another non-prime attribute.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_5",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "type": "single",
+    "question": "What is the primary condition for a relation to be in Boyce-Codd Normal Form (BCNF)?",
+    "options": [
+      "Every determinant must be a candidate key",
+      "It must have no composite keys",
+      "It must be in 4NF",
+      "All functional dependencies must be preserved"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "In BCNF, for every functional dependency X -> Y, X must be a superkey.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_6",
+    "subject": "DBMS",
+    "topic": "SQL DDL",
+    "type": "single",
+    "question": "Which SQL command permanently removes a table along with its schema and indexes?",
+    "options": [
+      "DELETE",
+      "TRUNCATE",
+      "DROP",
+      "REMOVE"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "DROP TABLE removes the entire table structure and data.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_7",
+    "subject": "DBMS",
+    "topic": "Indexing",
+    "type": "single",
+    "question": "Which data structure is most commonly used for relational database table indexing for fast range scans and point queries?",
+    "options": [
+      "B+ Tree",
+      "Hash Map",
+      "Red-Black Tree",
+      "Skip List"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "B+ trees maintain sorted keys in leaf nodes connected by a linked list, optimal for disk-based range queries.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_8",
+    "subject": "DBMS",
+    "topic": "Crash Recovery",
+    "type": "single",
+    "question": "What does the Write-Ahead Logging (WAL) protocol dictate?",
+    "options": [
+      "Log records must be written to disk before corresponding dirty pages are flushed",
+      "All reads must be logged prior to execution",
+      "Indexes must be logged before table rows",
+      "Transactions must write changes directly to disk before logging"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "WAL guarantees durability and atomicity by persisting log changes before dirty data pages reach disk.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_9",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "Which isolation level prevents Dirty Reads and Non-repeatable Reads, but may allow Phantom Reads?",
+    "options": [
+      "Read Uncommitted",
+      "Read Committed",
+      "Repeatable Read",
+      "Serializable"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "Repeatable Read prevents non-repeatable reads on existing rows, but new rows inserted by others (phantoms) can appear.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_10",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "In the Two-Phase Locking (2PL) protocol, what is permitted during the shrinking phase?",
+    "options": [
+      "Only acquiring locks",
+      "Only releasing locks",
+      "Both acquiring and releasing locks",
+      "Converting shared locks to exclusive locks"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "During 2PL shrinking phase, locks may only be released; no new locks can be acquired.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_11",
+    "subject": "DBMS",
+    "topic": "SQL DML",
+    "type": "single",
+    "question": "Which SQL clause is used to filter rows after an aggregate function has been calculated?",
+    "options": [
+      "WHERE",
+      "HAVING",
+      "GROUP BY",
+      "FILTER BY"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "HAVING filters groups created by GROUP BY after aggregation.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_12",
+    "subject": "DBMS",
+    "topic": "Integrity Constraints",
+    "type": "single",
+    "question": "Which integrity rule states that no primary key attribute can accept a NULL value?",
+    "options": [
+      "Referential Integrity",
+      "Entity Integrity",
+      "Domain Integrity",
+      "Key Constraint"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Entity integrity requires primary keys to be unique and non-null.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_13",
+    "subject": "DBMS",
+    "topic": "ER Modeling",
+    "type": "single",
+    "question": "In an Entity-Relationship diagram, how is a multivalued attribute represented?",
+    "options": [
+      "Single ellipse",
+      "Double ellipse",
+      "Dashed rectangle",
+      "Diamond"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A double ellipse represents a multivalued attribute (such as multiple phone numbers).",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_14",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "A schedule is conflict serializable if and only if its precedence graph:",
+    "options": [
+      "Is bipartite",
+      "Contains no directed cycles",
+      "Is a tree",
+      "Has equal in-degree and out-degree"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A precedence (serialization) graph without cycles proves conflict serializability.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_15",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "What type of lock allows multiple concurrent transactions to read the same data item simultaneously?",
+    "options": [
+      "Exclusive (X) lock",
+      "Shared (S) lock",
+      "Intent lock",
+      "Update lock"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Shared locks allow concurrent read operations but block write operations.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_16",
+    "subject": "DBMS",
+    "topic": "SQL DML",
+    "type": "single",
+    "question": "What does the TRUNCATE statement in SQL do?",
+    "options": [
+      "Deletes all rows without logging individual row deletes",
+      "Removes table definition and constraints",
+      "Performs a rollback of uncommitted changes",
+      "Compresses table storage"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "TRUNCATE removes all rows rapidly by deallocating data pages with minimal logging.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_17",
+    "subject": "DBMS",
+    "topic": "Keys",
+    "type": "single",
+    "question": "A candidate key that is not chosen as the primary key is referred to as a(n):",
+    "options": [
+      "Alternate Key",
+      "Foreign Key",
+      "Super Key",
+      "Composite Key"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Unselected candidate keys are known as alternate keys.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_18",
+    "subject": "DBMS",
+    "topic": "Crash Recovery",
+    "type": "single",
+    "question": "What is the purpose of Checkpointing in DBMS recovery?",
+    "options": [
+      "To reduce the amount of log that must be scanned during recovery after a crash",
+      "To verify SQL syntax before execution",
+      "To automatically backup the database offsite",
+      "To compact database indexes"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Checkpoints flush dirty pages to disk, limiting the log replay distance during restart.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_19",
+    "subject": "DBMS",
+    "topic": "SQL DML",
+    "type": "single",
+    "question": "What is the default ordering of the SQL ORDER BY clause?",
+    "options": [
+      "ASC (Ascending)",
+      "DESC (Descending)",
+      "Arbitrary",
+      "Physical disk order"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "ORDER BY defaults to ascending (ASC).",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_20",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "Which variation of 2PL avoids cascading aborts by holding all exclusive locks until transaction commit?",
+    "options": [
+      "Basic 2PL",
+      "Strict 2PL",
+      "Conservative 2PL",
+      "Non-locking 2PL"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Strict 2PL holds exclusive locks until commit/abort, preventing dirty reads and cascading rollbacks.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_21",
+    "subject": "DBMS",
+    "topic": "Security",
+    "type": "single",
+    "question": "Which SQL command is used to remove granted permissions from a database user?",
+    "options": [
+      "DENY",
+      "REVOKE",
+      "DISALLOW",
+      "CANCEL"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "REVOKE removes previously granted privileges.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_22",
+    "subject": "DBMS",
+    "topic": "Keys",
+    "type": "single",
+    "question": "What is the minimal superkey called?",
+    "options": [
+      "Primary Key",
+      "Candidate Key",
+      "Foreign Key",
+      "Secondary Key"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A candidate key is a minimal superkey containing no redundant attributes.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_23",
+    "subject": "DBMS",
+    "topic": "Joins",
+    "type": "single",
+    "question": "Which join returns all rows from the left table and matched rows from the right table, with NULLs for unmatched right rows?",
+    "options": [
+      "INNER JOIN",
+      "LEFT OUTER JOIN",
+      "RIGHT OUTER JOIN",
+      "FULL OUTER JOIN"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "LEFT JOIN keeps all rows from the left relation, padding unmatched right attributes with NULL.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_24",
+    "subject": "DBMS",
+    "topic": "Joins",
+    "type": "single",
+    "question": "What is the Cartesian product of relation R with 5 rows and relation S with 6 rows?",
+    "options": [
+      "11 rows",
+      "30 rows",
+      "1 row",
+      "6 rows"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Cartesian product combines each row of R with every row of S: 5 * 6 = 30 rows.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_25",
+    "subject": "DBMS",
+    "topic": "Crash Recovery",
+    "type": "single",
+    "question": "In the ARIES recovery algorithm, which phase repeats history by replaying logged updates?",
+    "options": [
+      "Analysis Phase",
+      "Redo Phase",
+      "Undo Phase",
+      "Validation Phase"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "The Redo phase in ARIES replays history starting from the earliest unwritten dirty page.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_26",
+    "subject": "DBMS",
+    "topic": "Indexing",
+    "type": "single",
+    "question": "An index in which index records appear for only some search-key values is called a:",
+    "options": [
+      "Dense index",
+      "Sparse index",
+      "Clustered index",
+      "Composite index"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A sparse index contains entries for only some search-key values, typically one per disk block.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_27",
+    "subject": "DBMS",
+    "topic": "SQL Functions",
+    "type": "single",
+    "question": "Which SQL function returns the first non-null argument from a list of expressions?",
+    "options": [
+      "NULLIF()",
+      "COALESCE()",
+      "NVL2()",
+      "ISNULL()"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "COALESCE evaluates arguments sequentially and returns the first non-null value.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_28",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "single",
+    "question": "What is a \"Dirty Read\" anomaly?",
+    "options": [
+      "A transaction reads uncommitted changes made by another concurrent transaction",
+      "A transaction reads the same row twice and observes different values",
+      "A transaction reads an obsolete cache block",
+      "A transaction is aborted due to deadlocks"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A dirty read occurs when T1 reads data modified by uncommitted T2 that may later abort.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_29",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "single",
+    "question": "What does the Thomas Write Rule optimize in Timestamp Ordering concurrency control?",
+    "options": [
+      "Allows obsolete write operations to be safely ignored if a newer write has already occurred",
+      "Forces locks on read operations",
+      "Eliminates cascading commits",
+      "Prevents all deadlocks by aborting younger transactions"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Thomas Write Rule discards outdated write requests rather than aborting, improving concurrency.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_30",
+    "subject": "DBMS",
+    "topic": "Architecture",
+    "type": "single",
+    "question": "Which level of the 3-schema architecture defines the physical storage structure of the database on disk?",
+    "options": [
+      "External Level",
+      "Conceptual Level",
+      "Internal / Physical Level",
+      "Logical Level"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "The internal (physical) schema describes physical storage representations and access paths.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_31",
+    "subject": "DBMS",
+    "topic": "Views",
+    "type": "single",
+    "question": "A View in SQL is best defined as a:",
+    "options": [
+      "Physically copied table",
+      "Virtual table defined by a stored SQL query",
+      "Cached query execution plan",
+      "Database index on disk"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A view is a virtual relation whose contents are dynamically computed from an underlying query.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_32",
+    "subject": "DBMS",
+    "topic": "Relational Model",
+    "type": "single",
+    "question": "What is the term for the number of attributes (columns) in a relational table?",
+    "options": [
+      "Cardinality",
+      "Degree",
+      "Domain",
+      "Tuple count"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Degree is the number of attributes/columns; cardinality is the number of rows.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_33",
+    "subject": "DBMS",
+    "topic": "Relational Model",
+    "type": "single",
+    "question": "What is the term for the number of tuples (rows) in a relational table?",
+    "options": [
+      "Degree",
+      "Cardinality",
+      "Dimension",
+      "Schema count"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Cardinality is the total number of rows/tuples in a relation.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_34",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "single",
+    "question": "Which database buffer management policy allows uncommitted dirty pages to be written to disk to free buffer space?",
+    "options": [
+      "FORCE",
+      "NO-FORCE",
+      "STEAL",
+      "NO-STEAL"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "STEAL allows the buffer manager to flush dirty pages belonging to uncommitted transactions.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_35",
+    "subject": "DBMS",
+    "topic": "Storage",
+    "type": "single",
+    "question": "In file organization, what is a clustered index?",
+    "options": [
+      "An index whose search key specifies the physical sequential order of data records on disk",
+      "An index distributed across a server cluster",
+      "A hash index with overflow buckets",
+      "An index that contains no duplicate values"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A clustered index determines the physical order of data records in storage.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_36",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "multiple",
+    "question": "Which of the following are ACID properties in database management? (Select all that apply)",
+    "options": [
+      "Atomicity",
+      "Consistency",
+      "Concurrency",
+      "Durability"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "ACID stands for Atomicity, Consistency, Isolation, and Durability.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_37",
+    "subject": "DBMS",
+    "topic": "SQL DDL",
+    "type": "multiple",
+    "question": "Which of the following statements belong to SQL Data Definition Language (DDL)? (Select all that apply)",
+    "options": [
+      "CREATE",
+      "ALTER",
+      "UPDATE",
+      "DROP"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "CREATE, ALTER, and DROP modify schema structure (DDL); UPDATE is DML.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_38",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "multiple",
+    "question": "Which anomalies can occur in concurrent database transactions without serializable isolation? (Select all that apply)",
+    "options": [
+      "Dirty Read",
+      "Non-repeatable Read",
+      "Phantom Read",
+      "Deadlock Detection Fault"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Dirty read, non-repeatable read, and phantom read are the 3 standard SQL concurrency phenomena.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_39",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "type": "multiple",
+    "question": "Which functional dependency violations are resolved by Third Normal Form (3NF)? (Select all that apply)",
+    "options": [
+      "Transitive dependency between non-prime attributes",
+      "Non-prime attribute determining another non-prime attribute",
+      "Non-atomic values in attributes",
+      "Join dependencies"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "3NF removes transitive dependencies where non-prime attributes determine other non-prime attributes.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_40",
+    "subject": "DBMS",
+    "topic": "SQL Functions",
+    "type": "multiple",
+    "question": "Which of the following are valid SQL aggregate functions? (Select all that apply)",
+    "options": [
+      "COUNT()",
+      "SUM()",
+      "CONCAT()",
+      "AVG()"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "COUNT, SUM, and AVG aggregate rows; CONCAT is a scalar string function.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_41",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "multiple",
+    "question": "Which of the following conditions must hold simultaneously for a deadlock to occur? (Select all that apply)",
+    "options": [
+      "Mutual Exclusion",
+      "Hold and Wait",
+      "No Preemption",
+      "Circular Wait"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "These are the four Coffman conditions necessary for a deadlock.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_42",
+    "subject": "DBMS",
+    "topic": "Indexing",
+    "type": "multiple",
+    "question": "Which of the following are advantages of B+ Trees for database index storage? (Select all that apply)",
+    "options": [
+      "High fan-out reduces tree height and disk seeks",
+      "Leaves are linked sequentially for rapid range queries",
+      "Guaranteed logarithmic search complexity O(log N)",
+      "Full record storage inside internal index nodes"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "B+ trees maintain high fan-out, linked leaves for range scans, and uniform depth. Internal nodes store keys only.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_43",
+    "subject": "DBMS",
+    "topic": "Integrity Constraints",
+    "type": "multiple",
+    "question": "Which of the following are integrity constraints enforced by relational databases? (Select all that apply)",
+    "options": [
+      "PRIMARY KEY constraint",
+      "FOREIGN KEY constraint",
+      "CHECK constraint",
+      "INDEX constraint"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "PRIMARY KEY, FOREIGN KEY, and CHECK enforce data integrity; INDEX is an access optimization structure.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_44",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "multiple",
+    "question": "Which of the following commands terminate a database transaction? (Select all that apply)",
+    "options": [
+      "COMMIT",
+      "ROLLBACK",
+      "SELECT",
+      "ABORT"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "COMMIT and ROLLBACK/ABORT end a transaction; SELECT executes a read query.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_45",
+    "subject": "DBMS",
+    "topic": "NoSQL",
+    "type": "multiple",
+    "question": "Which characteristics commonly describe NoSQL database systems compared to traditional RDBMS? (Select all that apply)",
+    "options": [
+      "Schema-flexible or document/key-value storage model",
+      "Horizontal scaling across distributed commodity nodes",
+      "Strict enforcement of all 3 CAP properties simultaneously",
+      "Trade-off of strict immediate ACID for BASE / eventual consistency"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "NoSQL features schema flexibility, horizontal scale, and eventual consistency. CAP theorem precludes achieving C, A, and P simultaneously.",
+    "points": 5
+  },
+  {
+    "id": "qb_dbms_46",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "type": "paragraph",
+    "question": "Explain the difference between 3NF and BCNF. Provide an example showing when a relation is in 3NF but fails BCNF.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "3NF allows X -> A if X is a superkey OR A is a prime attribute. BCNF strictly requires X to be a superkey. Relations with overlapping candidate keys often satisfy 3NF but violate BCNF.",
+    "points": 10
+  },
+  {
+    "id": "qb_dbms_47",
+    "subject": "DBMS",
+    "topic": "Concurrency",
+    "type": "paragraph",
+    "question": "Explain the Two-Phase Locking (2PL) protocol. How does Strict 2PL prevent cascading rollbacks?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "2PL consists of growing (acquiring locks) and shrinking (releasing locks) phases. Strict 2PL holds all exclusive locks until commit/abort, ensuring uncommitted updates are never observed by other transactions, preventing cascading aborts.",
+    "points": 10
+  },
+  {
+    "id": "qb_dbms_48",
+    "subject": "DBMS",
+    "topic": "Crash Recovery",
+    "type": "paragraph",
+    "question": "Discuss the Write-Ahead Logging (WAL) protocol and explain the three phases of the ARIES recovery process after a crash.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "WAL ensures log records reach non-volatile disk before dirty pages are written. ARIES recovery executes Analysis (identifies dirty pages and active transactions), Redo (replays history from checkpoint), and Undo (reverses uncommitted transactions).",
+    "points": 10
+  },
+  {
+    "id": "qb_dbms_49",
+    "subject": "DBMS",
+    "topic": "Indexing",
+    "type": "paragraph",
+    "question": "Describe the internal structure of a B+ Tree index. Why is it preferred over Binary Search Trees and Hash Indexes in relational database systems?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "B+ trees store data pointers exclusively in linked leaf nodes while internal nodes store routing keys, yielding high fan-out (low disk I/O depth). Unlike hash indexes, B+ trees efficiently support range queries and order scans.",
+    "points": 10
+  },
+  {
+    "id": "qb_dbms_50",
+    "subject": "DBMS",
+    "topic": "Transactions",
+    "type": "paragraph",
+    "question": "Define the ACID properties of database transactions. Explain how the DBMS storage engine implements Atomicity and Isolation.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "ACID stands for Atomicity, Consistency, Isolation, and Durability. Atomicity is achieved via write-ahead logging (undo logs restore state on failure). Isolation is enforced through lock-based concurrency protocols (Strict 2PL) or multi-version concurrency control (MVCC).",
+    "points": 10
+  },
+  {
+    "id": "qb_os_1",
+    "subject": "OS",
+    "topic": "Process Management",
+    "type": "single",
+    "question": "What data structure does the operating system kernel use to store state information about an active process?",
+    "options": [
+      "Process Control Block (PCB)",
+      "Thread Local Storage (TLS)",
+      "Page Directory",
+      "In-Memory Superblock"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The PCB maintains process ID, register values, program counter, CPU scheduling state, and memory allocation.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_2",
+    "subject": "OS",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "Which CPU scheduling algorithm is non-preemptive and can cause the \"convoy effect\"?",
+    "options": [
+      "First-Come, First-Served (FCFS)",
+      "Round Robin (RR)",
+      "Shortest Remaining Time First (SRTF)",
+      "Multilevel Feedback Queue"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "FCFS is non-preemptive; short jobs waiting behind a long CPU-bound process suffer the convoy effect.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_3",
+    "subject": "OS",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "Which scheduling algorithm assigns each process a fixed time slice (quantum) in circular order?",
+    "options": [
+      "Priority Scheduling",
+      "Round Robin (RR)",
+      "Shortest Job First (SJF)",
+      "Lottery Scheduling"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Round Robin allocates a fixed quantum per process in FIFO order, preempting when the quantum expires.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_4",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "single",
+    "question": "What is a critical section in concurrent programming?",
+    "options": [
+      "A region of code where shared resources are accessed that must not be executed by more than one thread simultaneously",
+      "A segment of memory reserved exclusively for kernel stack frames",
+      "A hardware interrupt handler for CPU faults",
+      "A section of code that runs in user mode without CPU restrictions"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The critical section is code accessing shared mutable resources, requiring mutual exclusion.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_5",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "single",
+    "question": "What are the two atomic operations provided by Dijkstra’s counting semaphore?",
+    "options": [
+      "wait() and signal() [P and V]",
+      "lock() and unlock()",
+      "push() and pop()",
+      "read() and write()"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Semaphores provide wait() (decrements and blocks if <= 0) and signal() (increments and unblocks).",
+    "points": 5
+  },
+  {
+    "id": "qb_os_6",
+    "subject": "OS",
+    "topic": "Deadlocks",
+    "type": "single",
+    "question": "Which deadlock handling algorithm tests for a safe state by simulating resource allocation?",
+    "options": [
+      "Banker’s Algorithm",
+      "Peterson’s Algorithm",
+      "Dekker’s Algorithm",
+      "Lamport’s Bakery Algorithm"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Dijkstra’s Banker’s Algorithm avoids deadlocks by ensuring allocations always maintain a safe state.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_7",
+    "subject": "OS",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "What hardware component translates virtual page addresses into physical frame addresses?",
+    "options": [
+      "Memory Management Unit (MMU)",
+      "Direct Memory Access (DMA) controller",
+      "ALU",
+      "Programmable Interrupt Controller (PIC)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The MMU performs runtime virtual-to-physical address translation using page tables and the TLB.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_8",
+    "subject": "OS",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "What high-speed hardware cache is used inside the MMU to store recent virtual-to-physical page translations?",
+    "options": [
+      "Translation Lookaside Buffer (TLB)",
+      "L1 Data Cache",
+      "Write Buffer",
+      "Instruction Pipeline Cache"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The TLB caches recent virtual-to-physical address mappings to avoid multiple memory lookups for page tables.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_9",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "What occurs when a process attempts to access a virtual memory page that is not currently loaded in physical RAM?",
+    "options": [
+      "Segmentation Fault",
+      "Page Fault",
+      "General Protection Fault",
+      "Stack Overflow"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A page fault trap is generated by the MMU, prompting the OS kernel to load the missing page from swap.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_10",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "Which page replacement algorithm suffers from Belady’s Anomaly, where increasing the number of page frames can increase page faults?",
+    "options": [
+      "First-In, First-Out (FIFO)",
+      "Least Recently Used (LRU)",
+      "Optimal Page Replacement (OPT)",
+      "Clock (Second Chance)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "FIFO can experience Belady’s anomaly because its eviction policy does not satisfy the stack property.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_11",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "What is \"Thrashing\" in an operating system?",
+    "options": [
+      "A state where the system spends more time paging (swapping) than executing actual process instructions",
+      "When hard drive heads collide with the magnetic platter",
+      "Excessive CPU thermal throttling",
+      "Rapid memory allocation in user space without freeing"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Thrashing occurs when total working set sizes exceed physical memory, causing continuous page faults.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_12",
+    "subject": "OS",
+    "topic": "File Systems",
+    "type": "single",
+    "question": "In Unix-like file systems, what data structure stores file metadata such as file size, permissions, and disk block pointers?",
+    "options": [
+      "Inode (Index Node)",
+      "Superblock",
+      "FAT Entry",
+      "Master File Table (MFT)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "An inode stores all file metadata, ownership, permissions, and block pointers except the filename.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_13",
+    "subject": "OS",
+    "topic": "I/O & Storage",
+    "type": "single",
+    "question": "Which disk scheduling algorithm services I/O requests by sweeping the head back and forth across cylinders like an elevator?",
+    "options": [
+      "SCAN algorithm",
+      "FCFS",
+      "SSTF",
+      "LOOK"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "SCAN moves the disk arm across all cylinders in one direction, servicing requests, then reverses direction.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_14",
+    "subject": "OS",
+    "topic": "System Calls",
+    "type": "single",
+    "question": "Which Unix system call creates an exact duplicate child process of the calling parent process?",
+    "options": [
+      "fork()",
+      "exec()",
+      "clone()",
+      "pthread_create()"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "fork() duplicates the calling process, returning 0 to the child and the child’s PID to the parent.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_15",
+    "subject": "OS",
+    "topic": "Processes vs Threads",
+    "type": "single",
+    "question": "What is shared between multiple threads belonging to the same process?",
+    "options": [
+      "Heap memory and code segment",
+      "CPU registers and program counter",
+      "Thread stack",
+      "Thread ID"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Threads in the same process share the address space (code, data, heap) but have private stacks and registers.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_16",
+    "subject": "OS",
+    "topic": "Inter-Process Communication",
+    "type": "single",
+    "question": "Which IPC mechanism provides asynchronous notification sent directly to a process when a specific event occurs (e.g. SIGINT)?",
+    "options": [
+      "Signals",
+      "Shared Memory",
+      "Message Queues",
+      "Named Pipes"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Signals are software interrupts sent to a process to notify it of asynchronous system events.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_17",
+    "subject": "OS",
+    "topic": "Process States",
+    "type": "single",
+    "question": "When a process is waiting for I/O completion or a mutex lock, which state is it in?",
+    "options": [
+      "Waiting / Blocked",
+      "Ready",
+      "Running",
+      "Terminated"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A process waiting for an external event (I/O, synchronization) transitions to the Blocked/Waiting state.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_18",
+    "subject": "OS",
+    "topic": "CPU Modes",
+    "type": "single",
+    "question": "Which mechanism switches the CPU execution level from unprivileged User Mode to privileged Kernel Mode?",
+    "options": [
+      "System Call / Software Interrupt (Trap)",
+      "Cache Miss",
+      "Memory Defragmentation",
+      "Thread Context Switch"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A software trap or syscall instruction safely switches processor execution from user to supervisor mode.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_19",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "What is internal fragmentation in memory allocation?",
+    "options": [
+      "Unused memory space within an allocated block or page frame",
+      "Memory scattered between allocated blocks preventing a new process from loading",
+      "Cache miss penalties",
+      "Swap file exhaustion"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Internal fragmentation is wasted space inside an assigned partition/page when the process requires less than the allocated block.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_20",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "What is external fragmentation?",
+    "options": [
+      "Total free memory space is sufficient to satisfy a request, but it is not contiguous",
+      "Unused bytes inside a page frame",
+      "Virtual addresses pointing to unmapped swap space",
+      "Memory leaks in user-space applications"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "External fragmentation exists when total free memory is adequate, but fragmented into non-contiguous blocks.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_21",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "single",
+    "question": "What is a Spinlock in kernel synchronization?",
+    "options": [
+      "A lock where a thread repeatedly polls (busy-waits) in a tight loop until the lock becomes available",
+      "A recursive mutex used only in user space",
+      "A lock that yields CPU immediately upon contention",
+      "A deadlock prevention algorithm"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A spinlock busy-waits in a loop using atomic instructions, suitable for very brief lock holds in multiprocessor kernels.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_22",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "single",
+    "question": "Which software solution solves the critical section problem for two processes without hardware atomic instructions?",
+    "options": [
+      "Peterson’s Algorithm",
+      "Banker’s Algorithm",
+      "Dining Philosophers Solution",
+      "SSTF Algorithm"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Peterson’s algorithm achieves mutual exclusion, progress, and bounded waiting for two concurrent processes.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_23",
+    "subject": "OS",
+    "topic": "File Systems",
+    "type": "single",
+    "question": "What is a \"Hard Link\" in Unix file systems?",
+    "options": [
+      "A directory entry that points directly to an existing inode number",
+      "A file containing the pathname string of another file",
+      "A copy of a file stored in RAM",
+      "A shortcut created using desktop GUI"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A hard link is a directory entry referencing the same inode; deleting the original filename preserves data until all hard links are removed.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_24",
+    "subject": "OS",
+    "topic": "File Systems",
+    "type": "single",
+    "question": "What is a \"Symbolic (Soft) Link\"?",
+    "options": [
+      "A special file whose data content is the path to another target file or directory",
+      "A duplicate inode on disk",
+      "A direct memory pointer to the page cache",
+      "An unindexed file in root directory"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A soft link contains the pathname to target file; if target is deleted, the soft link becomes broken (dangling).",
+    "points": 5
+  },
+  {
+    "id": "qb_os_25",
+    "subject": "OS",
+    "topic": "System Calls",
+    "type": "single",
+    "question": "What happens to a child process that has terminated, but whose parent process has not yet called wait()?",
+    "options": [
+      "Zombie process",
+      "Orphan process",
+      "Daemon process",
+      "Init process"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "A zombie process has finished execution but retains an entry in the process table until the parent reaps its exit code.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_26",
+    "subject": "OS",
+    "topic": "System Calls",
+    "type": "single",
+    "question": "What happens to a running process when its parent process terminates before it does?",
+    "options": [
+      "It becomes an orphan process and is adopted by the init / systemd process (PID 1)",
+      "It is immediately killed by the kernel",
+      "It becomes a zombie process permanently",
+      "It enters kernel mode and halts the CPU"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Orphaned processes are adopted by init/systemd (PID 1), which periodically reaps terminated children.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_27",
+    "subject": "OS",
+    "topic": "Storage",
+    "type": "single",
+    "question": "Which RAID level provides striping with distributed parity across at least 3 drives?",
+    "options": [
+      "RAID 0",
+      "RAID 1",
+      "RAID 5",
+      "RAID 10"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "RAID 5 combines block striping with distributed parity, tolerating the failure of any single drive.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_28",
+    "subject": "OS",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "Which dynamic memory allocation strategy searches memory and allocates the smallest free block that is large enough?",
+    "options": [
+      "First-Fit",
+      "Best-Fit",
+      "Worst-Fit",
+      "Next-Fit"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Best-Fit selects the smallest available hole that fits the request, minimizing leftover wasted block space.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_29",
+    "subject": "OS",
+    "topic": "Process Management",
+    "type": "single",
+    "question": "What is the function of the OS Context Switch?",
+    "options": [
+      "Saving the state of the currently executing process and restoring the state of the next scheduled process",
+      "Switching disk scheduling algorithms at runtime",
+      "Translating virtual addresses to physical addresses",
+      "Rebuilding the interrupt vector table"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Context switching preserves current CPU register and stack state into the PCB and loads the next process state.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_30",
+    "subject": "OS",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "What is the turnaround time of a process in CPU scheduling?",
+    "options": [
+      "The total elapsed time from process submission to completion",
+      "The time a process spends waiting in the ready queue",
+      "The time between CPU allocation and first response",
+      "The burst time executed in user mode"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Turnaround time = Completion time - Arrival time.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_31",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "single",
+    "question": "What is the Working Set model in virtual memory management used for?",
+    "options": [
+      "Estimating the set of pages a process is actively referencing to prevent thrashing",
+      "Configuring printer spool queues",
+      "Measuring compiler optimization passes",
+      "Formatting hard drive partitions"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The working set model tracks pages referenced over a sliding time window (delta) to allocate sufficient frames.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_32",
+    "subject": "OS",
+    "topic": "Synchronization",
+    "type": "single",
+    "question": "What is Priority Inversion in real-time operating systems?",
+    "options": [
+      "A high-priority task is indirectly blocked by a low-priority task holding a shared resource",
+      "When background daemons take precedence over user clicks",
+      "When CPU clock speed drops below minimum threshold",
+      "When kernel interrupts are completely disabled"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Priority inversion happens when a medium-priority task preempts a low-priority task holding a lock needed by a high-priority task.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_33",
+    "subject": "OS",
+    "topic": "Synchronization",
+    "type": "single",
+    "question": "Which technique is commonly used to resolve the Priority Inversion problem?",
+    "options": [
+      "Priority Inheritance Protocol",
+      "Round Robin quantum reduction",
+      "Increasing physical RAM",
+      "Preemptive SJF"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Priority inheritance temporarily elevates the low-priority lock-holder’s priority to that of the highest waiting task.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_34",
+    "subject": "OS",
+    "topic": "Kernel Design",
+    "type": "single",
+    "question": "Which operating system architecture minimizes kernel code by moving drivers and file systems into user space?",
+    "options": [
+      "Monolithic Kernel",
+      "Microkernel",
+      "Hybrid Kernel",
+      "Layered Kernel"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Microkernels (e.g. Minix, seL4) keep only basic IPC, memory, and scheduling in kernel mode, running services in user space.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_35",
+    "subject": "OS",
+    "topic": "Storage",
+    "type": "single",
+    "question": "What is the Spooling technique in operating systems?",
+    "options": [
+      "Simultaneous Peripheral Operations On-Line (buffering data in disk files for slow devices like printers)",
+      "Paging virtual memory across network sockets",
+      "Compressing swap files on flash storage",
+      "Compiling kernel device modules on boot"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "SPOOLing buffers I/O jobs on disk so slow peripheral devices (like printers) can process them asynchronously.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_36",
+    "subject": "OS",
+    "topic": "Deadlocks",
+    "type": "multiple",
+    "question": "Which of the following conditions are necessary for a deadlock to occur? (Select all that apply)",
+    "options": [
+      "Mutual Exclusion",
+      "Hold and Wait",
+      "No Preemption",
+      "Circular Wait"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "All four Coffman conditions must hold simultaneously for a deadlock.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_37",
+    "subject": "OS",
+    "topic": "CPU Scheduling",
+    "type": "multiple",
+    "question": "Which of the following CPU scheduling algorithms are preemptive in nature? (Select all that apply)",
+    "options": [
+      "Round Robin (RR)",
+      "Shortest Remaining Time First (SRTF)",
+      "First-Come, First-Served (FCFS)",
+      "Preemptive Priority Scheduling"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "RR, SRTF, and Preemptive Priority can interrupt running processes. FCFS is strictly non-preemptive.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_38",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "multiple",
+    "question": "Which of the following are page replacement algorithms used in operating systems? (Select all that apply)",
+    "options": [
+      "Least Recently Used (LRU)",
+      "First-In, First-Out (FIFO)",
+      "Optimal Page Replacement (OPT)",
+      "Round Robin (RR)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "LRU, FIFO, and OPT are page replacement algorithms. Round Robin is a CPU scheduling algorithm.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_39",
+    "subject": "OS",
+    "topic": "Processes vs Threads",
+    "type": "multiple",
+    "question": "Which resources are private to each thread within a multithreaded process? (Select all that apply)",
+    "options": [
+      "Program Counter (PC)",
+      "CPU Registers",
+      "Thread Stack",
+      "Heap Memory"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Each thread possesses its own PC, register set, and execution stack. Heap memory is shared across all threads.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_40",
+    "subject": "OS",
+    "topic": "Inter-Process Communication",
+    "type": "multiple",
+    "question": "Which of the following are valid Inter-Process Communication (IPC) mechanisms? (Select all that apply)",
+    "options": [
+      "Shared Memory",
+      "Pipes / Named FIFO",
+      "Message Queues",
+      "CPU Registers"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Shared memory, pipes, and message queues allow processes to exchange data. CPU registers are hardware execution state.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_41",
+    "subject": "OS",
+    "topic": "File Systems",
+    "type": "multiple",
+    "question": "Which of the following attributes are typically stored inside an Inode in a Unix file system? (Select all that apply)",
+    "options": [
+      "File Size",
+      "Access Permissions & Ownership",
+      "Direct and Indirect Block Pointers",
+      "File Name in Directory"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "The inode stores size, permissions, timestamps, and block pointers. The filename is stored in directory entry data blocks.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_42",
+    "subject": "OS",
+    "topic": "Storage",
+    "type": "multiple",
+    "question": "Which of the following are disk scheduling algorithms? (Select all that apply)",
+    "options": [
+      "SSTF (Shortest Seek Time First)",
+      "SCAN (Elevator)",
+      "C-LOOK",
+      "Banker’s Algorithm"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "SSTF, SCAN, and C-LOOK optimize disk arm movement. Banker’s algorithm avoids deadlocks.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_43",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "multiple",
+    "question": "Which requirements must a valid solution to the Critical Section problem satisfy? (Select all that apply)",
+    "options": [
+      "Mutual Exclusion",
+      "Progress",
+      "Bounded Waiting",
+      "Hardware Multithreading"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "A critical section solution must guarantee Mutual Exclusion, Progress, and Bounded Waiting.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_44",
+    "subject": "OS",
+    "topic": "Memory Management",
+    "type": "multiple",
+    "question": "Which of the following techniques help address or eliminate external fragmentation in physical RAM? (Select all that apply)",
+    "options": [
+      "Paging",
+      "Compaction",
+      "Fixed-size Static Partitioning",
+      "Disabling swap space"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "Paging eliminates external fragmentation by using fixed-size frames. Compaction shifts memory segments together.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_45",
+    "subject": "OS",
+    "topic": "Kernel Design",
+    "type": "multiple",
+    "question": "Which operations require the processor to execute in privileged Kernel Mode? (Select all that apply)",
+    "options": [
+      "Directly accessing hardware I/O ports",
+      "Modifying CPU control registers and page table roots",
+      "Executing arithmetic additions in a loop",
+      "Disabling hardware CPU interrupts"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "I/O instructions, page directory register updates, and interrupt disabling are privileged kernel instructions.",
+    "points": 5
+  },
+  {
+    "id": "qb_os_46",
+    "subject": "OS",
+    "topic": "Process Synchronization",
+    "type": "paragraph",
+    "question": "Explain the Critical Section problem and detail the three requirements (Mutual Exclusion, Progress, Bounded Waiting) that any correct solution must satisfy.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The critical section accesses shared resources. Mutual Exclusion ensures only one process enters at a time. Progress guarantees that selection of who enters next cannot be postponed indefinitely if the section is free. Bounded Waiting ensures a limit on the number of times others enter before a waiting process is granted access.",
+    "points": 10
+  },
+  {
+    "id": "qb_os_47",
+    "subject": "OS",
+    "topic": "Deadlocks",
+    "type": "paragraph",
+    "question": "State the four Coffman conditions necessary for a deadlock. Explain how Banker’s algorithm prevents deadlocks by maintaining a safe state.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Coffman conditions: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait. Banker’s algorithm checks resource requests against available, max, and allocation vectors to verify that at least one sequence of process completions (safe state) exists before granting allocations.",
+    "points": 10
+  },
+  {
+    "id": "qb_os_48",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "type": "paragraph",
+    "question": "Describe how Demand Paging and Page Fault handling work in modern virtual memory systems from hardware trap to disk read and page replacement.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "When a page is accessed whose present bit is 0, the MMU fires a page fault trap. The OS kernel locates the missing page in swap space, selects a victim frame using a replacement algorithm (e.g., LRU/Clock), writes the victim to disk if dirty, reads the requested page into the frame, updates page table entries, and restarts the instruction.",
+    "points": 10
+  },
+  {
+    "id": "qb_os_49",
+    "subject": "OS",
+    "topic": "File Systems",
+    "type": "paragraph",
+    "question": "Explain the Inode architecture in Unix file systems. Differentiate between Direct, Single Indirect, Double Indirect, and Triple Indirect block pointers.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "An inode stores metadata and an array of disk block pointers. Direct pointers link directly to data blocks for small files. Indirect pointers point to blocks containing further block addresses, allowing Unix to scale file sizes from kilobytes to gigabytes and terabytes efficiently without excessive preallocated overhead.",
+    "points": 10
+  },
+  {
+    "id": "qb_os_50",
+    "subject": "OS",
+    "topic": "CPU Scheduling",
+    "type": "paragraph",
+    "question": "Compare Preemptive and Non-Preemptive CPU scheduling algorithms. Contrast Shortest Job First (SJF) with Round Robin (RR) in terms of turnaround time, response time, and starvation risk.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Preemptive schedulers can interrupt a running process (e.g. quantum expiration or higher priority arrival), whereas non-preemptive schedulers allow a process to run until it yields or terminates. SJF minimizes average turnaround time but risks starving long processes. RR ensures bounded response time and fairness, avoiding starvation at the expense of higher context switch overhead.",
+    "points": 10
+  },
+  {
+    "id": "qb_computer_networks_1",
+    "subject": "Computer Networks",
+    "topic": "OSI Model",
+    "type": "single",
+    "question": "Which OSI layer is responsible for logical IP addressing, routing, and packet forwarding across heterogeneous networks?",
+    "options": [
+      "Network Layer (Layer 3)",
+      "Transport Layer (Layer 4)",
+      "Data Link Layer (Layer 2)",
+      "Session Layer (Layer 5)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The Network layer (Layer 3) handles IP addressing, packet forwarding, and path selection across subnets.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_2",
+    "subject": "Computer Networks",
+    "topic": "OSI Model",
+    "type": "single",
+    "question": "Which OSI layer provides reliable end-to-end byte stream delivery, flow control, and error recovery?",
+    "options": [
+      "Transport Layer (Layer 4)",
+      "Network Layer (Layer 3)",
+      "Data Link Layer (Layer 2)",
+      "Physical Layer (Layer 1)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Transport layer protocols like TCP manage end-to-end sequencing, error checking, and flow control.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_3",
+    "subject": "Computer Networks",
+    "topic": "TCP/IP",
+    "type": "single",
+    "question": "How many packets are exchanged in a standard TCP connection establishment handshake?",
+    "options": [
+      "2 (SYN, ACK)",
+      "3 (SYN, SYN-ACK, ACK)",
+      "4 (SYN, SYN, ACK, ACK)",
+      "1 (CONNECT)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "TCP uses a 3-way handshake: SYN from client, SYN-ACK from server, and ACK from client.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_4",
+    "subject": "Computer Networks",
+    "topic": "TCP/IP",
+    "type": "single",
+    "question": "How many steps are typically involved in the standard termination of a TCP connection?",
+    "options": [
+      "2 steps",
+      "3 steps",
+      "4 steps (FIN, ACK, FIN, ACK)",
+      "1 step"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "TCP connection teardown uses a 4-way handshake: FIN, ACK, FIN, ACK for graceful duplex closure.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_5",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which transport layer protocol is connectionless, unreliable, and has minimal header overhead (8 bytes)?",
+    "options": [
+      "UDP",
+      "TCP",
+      "SCTP",
+      "ICMP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "UDP is connectionless and lightweight with an 8-byte header, widely used in DNS, VoIP, and video streaming.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_6",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "type": "single",
+    "question": "What is the default subnet mask for an IPv4 Class B network in legacy classful addressing?",
+    "options": [
+      "255.0.0.0 (/8)",
+      "255.255.0.0 (/16)",
+      "255.255.255.0 (/24)",
+      "255.255.255.255 (/32)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Class B addresses use a 16-bit network prefix: 255.255.0.0 (/16).",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_7",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "type": "single",
+    "question": "What is the bit length of an IPv6 address compared to an IPv4 address?",
+    "options": [
+      "IPv6 is 64 bits; IPv4 is 32 bits",
+      "IPv6 is 128 bits; IPv4 is 32 bits",
+      "IPv6 is 256 bits; IPv4 is 64 bits",
+      "IPv6 is 128 bits; IPv4 is 64 bits"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "IPv4 addresses are 32 bits long, while IPv6 addresses are 128 bits long.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_8",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which protocol translates an IP address into a local physical MAC hardware address on an Ethernet LAN?",
+    "options": [
+      "ARP (Address Resolution Protocol)",
+      "RARP",
+      "DHCP",
+      "DNS"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "ARP broadcasts on the local link to find the MAC address matching a destination IPv4 address.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_9",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which protocol dynamically assigns IP addresses, subnet masks, and default gateway configurations to network clients?",
+    "options": [
+      "DHCP",
+      "DNS",
+      "SNMP",
+      "NTP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "DHCP automatically leases IP addresses and network configuration parameters using DORA exchange.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_10",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which protocol translates human-readable domain names (e.g. google.com) into numerical IP addresses?",
+    "options": [
+      "DNS (Domain Name System)",
+      "DHCP",
+      "ARP",
+      "BGP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "DNS is the distributed naming system that resolves domain names to IP addresses.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_11",
+    "subject": "Computer Networks",
+    "topic": "Routing",
+    "type": "single",
+    "question": "Which interior gateway routing protocol uses Dijkstra’s shortest-path algorithm (SPF) and link-state advertisements?",
+    "options": [
+      "OSPF",
+      "RIP",
+      "BGP",
+      "EGP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "OSPF is a link-state routing protocol that uses Dijkstra’s algorithm to calculate the shortest path tree.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_12",
+    "subject": "Computer Networks",
+    "topic": "Routing",
+    "type": "single",
+    "question": "Which protocol is the standard exterior gateway protocol used for routing between Autonomous Systems on the global Internet?",
+    "options": [
+      "BGP (Border Gateway Protocol)",
+      "OSPF",
+      "RIP",
+      "IS-IS"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "BGP is a path-vector protocol that routes traffic between distinct Autonomous Systems (AS) across the Internet.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_13",
+    "subject": "Computer Networks",
+    "topic": "Routing",
+    "type": "single",
+    "question": "What is the maximum hop count permitted by the Routing Information Protocol (RIP) to prevent routing loops?",
+    "options": [
+      "15 hops (16 represents infinity)",
+      "30 hops",
+      "255 hops",
+      "64 hops"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "RIP limits hop count to 15; a hop count of 16 is considered unreachable to mitigate count-to-infinity.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_14",
+    "subject": "Computer Networks",
+    "topic": "Data Link Layer",
+    "type": "single",
+    "question": "Which multiple access method is utilized in standard wired Ethernet (IEEE 802.3) for collision handling?",
+    "options": [
+      "CSMA/CD",
+      "CSMA/CA",
+      "Token Ring",
+      "TDMA"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Wired Ethernet uses Carrier Sense Multiple Access with Collision Detection (CSMA/CD).",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_15",
+    "subject": "Computer Networks",
+    "topic": "Wireless",
+    "type": "single",
+    "question": "Which collision avoidance technique is used in Wi-Fi (IEEE 802.11) networks instead of collision detection?",
+    "options": [
+      "CSMA/CA",
+      "CSMA/CD",
+      "Slotted ALOHA",
+      "FDDI"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Wi-Fi uses CSMA/CA with optional RTS/CTS handshakes because radios cannot detect collisions while transmitting.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_16",
+    "subject": "Computer Networks",
+    "topic": "Flow Control",
+    "type": "single",
+    "question": "In the Go-Back-N ARQ protocol, what does the sender do if a frame’s acknowledgment timer expires?",
+    "options": [
+      "Retransmits only the single lost frame",
+      "Retransmits all frames in the current window starting from the lost frame",
+      "Halts transmission permanently",
+      "Increases the window size"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In Go-Back-N, the sender retransmits the unacknowledged frame and all subsequent frames sent in the window.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_17",
+    "subject": "Computer Networks",
+    "topic": "Flow Control",
+    "type": "single",
+    "question": "Which ARQ sliding window protocol retransmits ONLY the specific individual frame that was corrupted or lost?",
+    "options": [
+      "Selective Repeat ARQ",
+      "Go-Back-N ARQ",
+      "Stop-and-Wait ARQ",
+      "Pure ALOHA"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Selective Repeat maintains individual timers and buffers, retransmitting only the specific missing packets.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_18",
+    "subject": "Computer Networks",
+    "topic": "Congestion Control",
+    "type": "single",
+    "question": "What are the four core congestion control algorithms employed in TCP Tahoe/Reno?",
+    "options": [
+      "Slow Start, Congestion Avoidance, Fast Retransmit, Fast Recovery",
+      "Stop-and-Wait, Go-Back-N, Selective Repeat, Token Bucket",
+      "Dijkstra, Bellman-Ford, Floyd-Warshall, Prim",
+      "CRC, Parity, Hamming, Checksum"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "TCP congestion control employs Slow Start (exponential growth), Congestion Avoidance (linear), Fast Retransmit, and Fast Recovery.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_19",
+    "subject": "Computer Networks",
+    "topic": "Network Layer",
+    "type": "single",
+    "question": "What happens when an IPv4 packet’s Time-to-Live (TTL) field decrements to zero at a router?",
+    "options": [
+      "The router drops the packet and sends an ICMP Time Exceeded message back to the source",
+      "The packet is forwarded to the default gateway",
+      "The packet is stored in disk buffer",
+      "The router increments TTL back to 64"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "TTL prevents infinite packet circulation; when it reaches 0, the packet is discarded and an ICMP type 11 packet is returned.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_20",
+    "subject": "Computer Networks",
+    "topic": "Network Utilities",
+    "type": "single",
+    "question": "Which protocol powers the `ping` diagnostic utility by sending Echo Request and Echo Reply messages?",
+    "options": [
+      "ICMP (Internet Control Message Protocol)",
+      "IGMP",
+      "ARP",
+      "SNMP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Ping uses ICMP Echo Request (type 8) and Echo Reply (type 0) messages.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_21",
+    "subject": "Computer Networks",
+    "topic": "Application Layer",
+    "type": "single",
+    "question": "What is the default TCP port number used by secure HTTPS traffic?",
+    "options": [
+      "443",
+      "80",
+      "8080",
+      "22"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "HTTPS standard port is 443 (HTTP is 80, SSH is 22).",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_22",
+    "subject": "Computer Networks",
+    "topic": "Application Layer",
+    "type": "single",
+    "question": "Which protocol is used for securely transmitting terminal shell sessions and remote file transfers over port 22?",
+    "options": [
+      "SSH (Secure Shell)",
+      "Telnet",
+      "FTP",
+      "RDP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "SSH encrypts remote terminal sessions over TCP port 22, replacing unencrypted Telnet.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_23",
+    "subject": "Computer Networks",
+    "topic": "Network Devices",
+    "type": "single",
+    "question": "At which OSI layer does a standard network switch primarily operate to forward frames based on MAC addresses?",
+    "options": [
+      "Data Link Layer (Layer 2)",
+      "Network Layer (Layer 3)",
+      "Physical Layer (Layer 1)",
+      "Transport Layer (Layer 4)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Standard Layer 2 Ethernet switches forward frames based on destination MAC addresses in their MAC address table.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_24",
+    "subject": "Computer Networks",
+    "topic": "Network Devices",
+    "type": "single",
+    "question": "At which OSI layer does a network router operate to forward packets based on destination IP addresses?",
+    "options": [
+      "Network Layer (Layer 3)",
+      "Data Link Layer (Layer 2)",
+      "Transport Layer (Layer 4)",
+      "Session Layer (Layer 5)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Routers operate at Layer 3 (Network Layer) evaluating IP headers and routing tables.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_25",
+    "subject": "Computer Networks",
+    "topic": "Network Security",
+    "type": "single",
+    "question": "What technique allows multiple devices on a private local network to share a single public IPv4 address?",
+    "options": [
+      "Network Address Translation (NAT / PAT)",
+      "VLAN Tagging",
+      "Subnet Masking",
+      "Spanning Tree Protocol"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "NAT (specifically Port Address Translation) maps private RFC 1918 IP addresses and ports to a public IP.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_26",
+    "subject": "Computer Networks",
+    "topic": "Error Detection",
+    "type": "single",
+    "question": "Which error detection algorithm uses polynomial division to generate a checksum appended to Ethernet frames (FCS)?",
+    "options": [
+      "Cyclic Redundancy Check (CRC)",
+      "Hamming Code",
+      "Parity Bit Check",
+      "Checksum 16"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Ethernet uses CRC-32 polynomial division in the Frame Check Sequence (FCS) to detect frame transmission errors.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_27",
+    "subject": "Computer Networks",
+    "topic": "Spanning Tree",
+    "type": "single",
+    "question": "What is the primary purpose of the Spanning Tree Protocol (STP, IEEE 802.1D) in switched Ethernet networks?",
+    "options": [
+      "To prevent broadcast storms and bridge loops by blocking redundant switch paths",
+      "To encrypt Ethernet payload data",
+      "To calculate shortest IP routes",
+      "To assign VLAN tags dynamically"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "STP disables redundant bridge links to maintain a loop-free logical tree topology in Layer 2 networks.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_28",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "type": "single",
+    "question": "How many usable host IP addresses are available in an IPv4 subnet with a /26 prefix (e.g. 192.168.1.0/26)?",
+    "options": [
+      "62 hosts",
+      "64 hosts",
+      "126 hosts",
+      "30 hosts"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "/26 leaves 32 - 26 = 6 host bits: 2^6 - 2 (network & broadcast) = 62 usable host addresses.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_29",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "type": "single",
+    "question": "What is the broadcast address for the subnet 192.168.1.0/24?",
+    "options": [
+      "192.168.1.255",
+      "192.168.1.0",
+      "192.168.1.1",
+      "255.255.255.255"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "In a /24 subnet, setting all host bits (the last octet) to 1 gives the broadcast address 192.168.1.255.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_30",
+    "subject": "Computer Networks",
+    "topic": "Transmission Media",
+    "type": "single",
+    "question": "Which transmission impairment refers to the loss of signal energy as a wave propagates through a transmission medium over distance?",
+    "options": [
+      "Attenuation",
+      "Distortion",
+      "Noise",
+      "Jitter"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Attenuation is the reduction in signal strength as it travels through a transmission line, countered with repeaters.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_31",
+    "subject": "Computer Networks",
+    "topic": "Network Security",
+    "type": "single",
+    "question": "What is the primary difference between Symmetric and Asymmetric encryption in network security?",
+    "options": [
+      "Symmetric uses the same key for encryption and decryption; Asymmetric uses public-private key pairs",
+      "Symmetric is used only for Wi-Fi; Asymmetric is used for fiber optics",
+      "Symmetric does not require keys",
+      "Asymmetric is faster than Symmetric encryption"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Symmetric encryption (AES) shares a single key; asymmetric (RSA, ECC) uses separate public and private keys.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_32",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which protocol is used for sending outgoing emails from client to server and between mail transfer agents (MTAs)?",
+    "options": [
+      "SMTP (Port 25/587)",
+      "POP3",
+      "IMAP",
+      "HTTP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Simple Mail Transfer Protocol (SMTP) handles outgoing email dispatch and relaying.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_33",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "single",
+    "question": "Which protocol allows email clients to access and manage messages directly on a remote mail server with synchronization across multiple devices?",
+    "options": [
+      "IMAP (Internet Message Access Protocol)",
+      "POP3",
+      "SMTP",
+      "SNMP"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "IMAP stores messages on the server, syncing read/unread state and folders across all client devices.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_34",
+    "subject": "Computer Networks",
+    "topic": "Data Link Layer",
+    "type": "single",
+    "question": "What is the standard size of an Ethernet MAC address?",
+    "options": [
+      "48 bits (6 bytes)",
+      "32 bits (4 bytes)",
+      "64 bits (8 bytes)",
+      "128 bits (16 bytes)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "MAC addresses are 48 bits (6 bytes) long, represented in hexadecimal notation (e.g. 00:1A:2B:3C:4D:5E).",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_35",
+    "subject": "Computer Networks",
+    "topic": "TCP/IP",
+    "type": "single",
+    "question": "What field in the TCP header is used by the receiver to inform the sender of how many bytes it can accept before its buffer overflows (Flow Control)?",
+    "options": [
+      "Window Size (Receive Window)",
+      "Sequence Number",
+      "Acknowledgment Number",
+      "Urgent Pointer"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The TCP Receive Window field implements sliding-window flow control to prevent buffer overrun at the receiver.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_36",
+    "subject": "Computer Networks",
+    "topic": "OSI Model",
+    "type": "multiple",
+    "question": "Which layers belong to the standard 7-layer OSI Reference Model? (Select all that apply)",
+    "options": [
+      "Application Layer",
+      "Transport Layer",
+      "Network Layer",
+      "Internet Layer"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Application, Transport, and Network are OSI layers. Internet Layer is a tier in the 4-layer TCP/IP model.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_37",
+    "subject": "Computer Networks",
+    "topic": "Protocols",
+    "type": "multiple",
+    "question": "Which of the following application layer protocols run over UDP by default? (Select all that apply)",
+    "options": [
+      "DNS (Domain Name System Queries)",
+      "DHCP (Dynamic Host Configuration Protocol)",
+      "SNMP (Simple Network Management Protocol)",
+      "HTTPS (Hypertext Transfer Protocol Secure)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "DNS queries, DHCP, and SNMP typically use UDP for fast, stateless transmission. HTTPS runs over TCP.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_38",
+    "subject": "Computer Networks",
+    "topic": "TCP vs UDP",
+    "type": "multiple",
+    "question": "Which characteristics correctly describe TCP compared to UDP? (Select all that apply)",
+    "options": [
+      "Connection-oriented with a 3-way handshake",
+      "Guarantees in-order packet delivery using sequence numbers",
+      "Provides built-in flow control and congestion control",
+      "Lower latency and header overhead than UDP"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "TCP is connection-oriented, in-order, and has flow/congestion control, but higher overhead and latency than UDP.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_39",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing",
+    "type": "multiple",
+    "question": "Which of the following IPv4 address ranges are reserved for Private Networks (RFC 1918)? (Select all that apply)",
+    "options": [
+      "10.0.0.0 – 10.255.255.255 (/8)",
+      "172.16.0.0 – 172.31.255.255 (/12)",
+      "192.168.0.0 – 192.168.255.255 (/16)",
+      "8.8.8.0 – 8.8.8.255"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "RFC 1918 defines 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 as non-routable private IP blocks.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_40",
+    "subject": "Computer Networks",
+    "topic": "Routing",
+    "type": "multiple",
+    "question": "Which of the following are Interior Gateway Protocols (IGP) used within a single Autonomous System? (Select all that apply)",
+    "options": [
+      "OSPF (Open Shortest Path First)",
+      "RIP (Routing Information Protocol)",
+      "IS-IS (Intermediate System to Intermediate System)",
+      "BGP (Border Gateway Protocol)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "OSPF, RIP, and IS-IS are IGPs. BGP is an Exterior Gateway Protocol (EGP) connecting autonomous systems.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_41",
+    "subject": "Computer Networks",
+    "topic": "Network Security",
+    "type": "multiple",
+    "question": "Which security services are provided by the Transport Layer Security (TLS / SSL) protocol? (Select all that apply)",
+    "options": [
+      "Confidentiality via symmetric encryption",
+      "Data integrity via Message Authentication Codes (MAC / HMAC)",
+      "Peer endpoint authentication via digital X.509 certificates",
+      "Physical cable tamper prevention"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "TLS guarantees confidentiality (encryption), integrity (HMAC), and server/client authentication (certificates).",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_42",
+    "subject": "Computer Networks",
+    "topic": "Data Link Layer",
+    "type": "multiple",
+    "question": "Which of the following are functions performed by the Data Link Layer (Layer 2)? (Select all that apply)",
+    "options": [
+      "Framing physical bitstreams into frames",
+      "Media Access Control (MAC)",
+      "Physical error detection using CRC checksums",
+      "Inter-network dynamic path routing"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Framing, MAC addressing, and CRC error detection are Layer 2 duties. Dynamic routing belongs to Layer 3.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_43",
+    "subject": "Computer Networks",
+    "topic": "Network Hardware",
+    "type": "multiple",
+    "question": "Which of the following statements about switches vs hubs are TRUE? (Select all that apply)",
+    "options": [
+      "A switch creates separate collision domains for each connected port",
+      "A hub broadcasts incoming frames out to all other ports indiscriminately",
+      "A switch inspects MAC address tables before forwarding frames",
+      "A hub operates at Layer 3 of the OSI model"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Switches break collision domains and use MAC tables (Layer 2). Hubs are passive Layer 1 repeaters.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_44",
+    "subject": "Computer Networks",
+    "topic": "Subnetting",
+    "type": "multiple",
+    "question": "Which of the following are valid subnet masks in IPv4? (Select all that apply)",
+    "options": [
+      "255.255.255.0 (/24)",
+      "255.255.240.0 (/20)",
+      "255.255.255.192 (/26)",
+      "255.255.250.0"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Valid masks have contiguous 1s followed by contiguous 0s. 240 is 11110000; 192 is 11000000; 250 has non-contiguous bits.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_45",
+    "subject": "Computer Networks",
+    "topic": "Congestion Control",
+    "type": "multiple",
+    "question": "Which of the following techniques are used by TCP to handle or detect network congestion? (Select all that apply)",
+    "options": [
+      "Packet loss detection via Retransmission Timeout (RTO)",
+      "Reception of Triple Duplicate ACKs triggering Fast Retransmit",
+      "Slow Start Exponential Window Expansion",
+      "Explicit Congestion Notification (ECN) in IP/TCP headers"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "All of these are active congestion detection and control mechanisms in modern TCP/IP implementations.",
+    "points": 5
+  },
+  {
+    "id": "qb_computer_networks_46",
+    "subject": "Computer Networks",
+    "topic": "TCP/IP",
+    "type": "paragraph",
+    "question": "Explain the TCP 3-way Handshake and 4-way Teardown processes. Why is a 3-way handshake necessary instead of a 2-way handshake?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "In the 3-way handshake, client sends SYN(seq=x), server responds SYN-ACK(seq=y, ack=x+1), client acknowledges ACK(ack=y+1). Three steps are necessary to ensure both sides have synchronized sequence numbers and confirmed bi-directional channel delivery before data transmission. Teardown requires 4 steps (FIN, ACK, FIN, ACK) because TCP connections are full-duplex and may close each transmission direction independently.",
+    "points": 10
+  },
+  {
+    "id": "qb_computer_networks_47",
+    "subject": "Computer Networks",
+    "topic": "Routing",
+    "type": "paragraph",
+    "question": "Compare Distance-Vector routing (Bellman-Ford algorithm) with Link-State routing (Dijkstra algorithm). Explain how the Count-to-Infinity problem occurs and how Split Horizon addresses it.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Distance-Vector routers share routing table vectors with immediate neighbors periodically. Link-State routers flood topological link states so all nodes compute the entire shortest-path tree using Dijkstra. In Distance-Vector, broken links cause loops where nodes slowly increment metrics to infinity; Split Horizon prevents this by forbidding advertising a route back out the interface it was learned from.",
+    "points": 10
+  },
+  {
+    "id": "qb_computer_networks_48",
+    "subject": "Computer Networks",
+    "topic": "Flow & Congestion",
+    "type": "paragraph",
+    "question": "Explain the difference between Flow Control and Congestion Control in TCP. Detail the four phases of TCP congestion control: Slow Start, Congestion Avoidance, Fast Retransmit, and Fast Recovery.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Flow Control prevents a fast sender from overflowing a slow receiver buffer (enforced via the advertised Receive Window). Congestion Control prevents senders from overloading the intermediate network switches/routers. Slow Start exponentially doubles cwnd until ssthresh; Congestion Avoidance increments cwnd linearly per RTT; Triple Duplicate ACKs trigger Fast Retransmit (resending missing segment without waiting for timeout) and Fast Recovery (halving cwnd instead of resetting to 1).",
+    "points": 10
+  },
+  {
+    "id": "qb_computer_networks_49",
+    "subject": "Computer Networks",
+    "topic": "DNS & HTTP",
+    "type": "paragraph",
+    "question": "Describe the complete sequence of network operations that take place when a user types \"https://www.example.com\" into a web browser until the page renders, including DNS resolution, ARP, TCP handshake, TLS handshake, and HTTP GET.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "1. Browser checks local DNS cache, then queries recursive resolver using UDP port 53. 2. ARP resolves default gateway MAC if not cached. 3. TCP establishes connection via 3-way handshake (SYN, SYN-ACK, ACK) on port 443. 4. TLS handshake validates X.509 certificate and negotiates session keys. 5. Encrypted HTTP GET request is transmitted, server responds with HTML, browser parses DOM and fetches assets.",
+    "points": 10
+  },
+  {
+    "id": "qb_computer_networks_50",
+    "subject": "Computer Networks",
+    "topic": "IP Addressing & NAT",
+    "type": "paragraph",
+    "question": "Explain IPv4 Subnetting and Variable Length Subnet Masking (VLSM). How does Network Address Translation (NAT/PAT) conserve public IPv4 addresses while preserving end-to-end communication?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Subnetting divides a classful network into smaller subnetworks by borrowing bits from the host portion. VLSM allows custom subnet prefixes according to individual host density needs. NAT/PAT maps private RFC 1918 IPs and source ports to a single public IP, keeping translation states in a session table, conserving public IP exhaustion while protecting internal network topologies.",
+    "points": 10
+  },
+  {
+    "id": "qb_java_1",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is the size of the `int` primitive data type in Java?",
+    "options": [
+      "16 bits (2 bytes)",
+      "32 bits (4 bytes)",
+      "64 bits (8 bytes)",
+      "Depends on the underlying CPU architecture"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In Java, an `int` is strictly defined as a signed 32-bit (4-byte) integer across all platforms.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_2",
+    "subject": "Java",
+    "topic": "OOP Concepts",
+    "type": "single",
+    "question": "Which OOP principle is implemented in Java when a subclass provides a specific implementation of a method declared in its superclass?",
+    "options": [
+      "Method Overriding (Runtime Polymorphism)",
+      "Method Overloading (Compile-time Polymorphism)",
+      "Encapsulation",
+      "Data Hiding"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Method overriding occurs when a subclass overrides an inherited method signature, resolved dynamically at runtime.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_3",
+    "subject": "Java",
+    "topic": "OOP Concepts",
+    "type": "single",
+    "question": "Can multiple inheritance of classes be directly achieved in Java using the `extends` keyword?",
+    "options": [
+      "Yes, by separating class names with commas",
+      "No, Java does not support multiple inheritance of classes to prevent the diamond problem",
+      "Yes, but only for abstract classes",
+      "Yes, in Java 8 and above"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Java forbids multiple class inheritance with `extends` to avoid ambiguity (the diamond problem); interfaces are used instead.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_4",
+    "subject": "Java",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "In which memory area are objects allocated when created with the `new` keyword in Java?",
+    "options": [
+      "Java Heap",
+      "JVM Stack",
+      "Method Area",
+      "Program Counter Register"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "All Java objects and arrays are dynamically allocated on the shared Heap memory managed by the Garbage Collector.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_5",
+    "subject": "Java",
+    "topic": "Strings",
+    "type": "single",
+    "question": "Why are String objects immutable in Java?",
+    "options": [
+      "To ensure security, thread-safety, and allow String Pool caching",
+      "Because JVM memory cannot expand dynamically",
+      "To prevent inheritance from Object class",
+      "Because Java strings are stored in CPU registers"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "String immutability enables String Interning, security in classloading and network sockets, and safe multi-threaded sharing.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_6",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "single",
+    "question": "Which collection class implements a dynamic resizable array that maintains insertion order and allows duplicate elements?",
+    "options": [
+      "ArrayList",
+      "HashSet",
+      "TreeSet",
+      "HashMap"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "ArrayList is backed by an internal array that dynamically resizes, preserving element insertion order and duplicates.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_7",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "single",
+    "question": "Which Java Collection implementation guarantees elements are stored in ascending sorted natural order or custom Comparator order?",
+    "options": [
+      "TreeSet",
+      "HashSet",
+      "LinkedHashSet",
+      "ArrayList"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "TreeSet is backed by a Red-Black tree (NavigableSet), maintaining elements in sorted order with O(log N) operations.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_8",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "single",
+    "question": "What is the average time complexity of get() and put() operations in a standard `HashMap`?",
+    "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "HashMap provides O(1) average time complexity for key lookups and insertions via hashing.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_9",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "single",
+    "question": "Which keyword in Java ensures that a block of code or method can only be executed by one thread at a time for a given monitor lock?",
+    "options": [
+      "synchronized",
+      "volatile",
+      "transient",
+      "atomic"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The `synchronized` keyword acquires the intrinsic monitor lock of the object, guaranteeing mutual exclusion.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_10",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "single",
+    "question": "What is the purpose of the `volatile` keyword in Java?",
+    "options": [
+      "Guarantees memory visibility across threads by reading and writing directly to main memory instead of CPU caches",
+      "Locks the variable exclusively preventing read operations",
+      "Makes the object immutable",
+      "Serializes variable state to disk"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "`volatile` ensures that reads and writes to a variable are visible immediately to all threads without caching in CPU registers.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_11",
+    "subject": "Java",
+    "topic": "Exception Handling",
+    "type": "single",
+    "question": "Which of the following exceptions is a Checked Exception in Java?",
+    "options": [
+      "IOException",
+      "NullPointerException",
+      "ArrayIndexOutOfBoundsException",
+      "IllegalArgumentException"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "IOException extends Exception (not RuntimeException) and must be explicitly handled via try-catch or declared with throws.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_12",
+    "subject": "Java",
+    "topic": "Exception Handling",
+    "type": "single",
+    "question": "When is a `finally` block in a Java try-catch statement guaranteed NOT to execute?",
+    "options": [
+      "When `System.exit(0)` is invoked inside the try block",
+      "When an unhandled RuntimeException is thrown",
+      "When the catch block rethrows an exception",
+      "When a return statement occurs in the try block"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "System.exit() terminates the JVM process immediately, bypassing pending `finally` blocks.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_13",
+    "subject": "Java",
+    "topic": "JVM Architecture",
+    "type": "single",
+    "question": "What is the primary role of the Just-In-Time (JIT) compiler in the Java Virtual Machine?",
+    "options": [
+      "Compiling frequently executed bytecode (hot spots) into native machine code at runtime",
+      "Checking bytecode for security violations during class loading",
+      "Garbage collecting unreachable heap memory",
+      "Translating Java source (.java) files into bytecode (.class)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The JIT compiler profiles running bytecode and compiles high-frequency hotspots into optimized native machine instructions.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_14",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "Which keyword prevents a class from being subclassed (inherited)?",
+    "options": [
+      "final",
+      "static",
+      "sealed",
+      "abstract"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Declaring a class `final` prevents it from being extended by any subclass.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_15",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is the output of `System.out.println(10 + 20 + \"Java\");` in Java?",
+    "options": [
+      "30Java",
+      "1020Java",
+      "Java30",
+      "Compilation error"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Addition is evaluated left-to-right: 10 + 20 = 30, followed by string concatenation resulting in \"30Java\".",
+    "points": 5
+  },
+  {
+    "id": "qb_java_16",
+    "subject": "Java",
+    "topic": "Strings",
+    "type": "single",
+    "question": "What is the difference between `String`, `StringBuilder`, and `StringBuffer`?",
+    "options": [
+      "String is immutable; StringBuffer is mutable and thread-safe; StringBuilder is mutable and not thread-safe (faster)",
+      "String is mutable; StringBuilder is immutable; StringBuffer is deprecated",
+      "StringBuilder is thread-safe; StringBuffer is not",
+      "All three classes are identical in performance and synchronization"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "String is immutable; StringBuffer has synchronized methods; StringBuilder is unsynchronized for higher single-threaded speed.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_17",
+    "subject": "Java",
+    "topic": "Java 8+",
+    "type": "single",
+    "question": "What functional interface is used as the target for lambda expressions that take one argument and return a boolean?",
+    "options": [
+      "Predicate<T>",
+      "Function<T, R>",
+      "Consumer<T>",
+      "Supplier<T>"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Predicate<T> defines a single abstract method `boolean test(T t)`.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_18",
+    "subject": "Java",
+    "topic": "Java 8+",
+    "type": "single",
+    "question": "Which Stream API method in Java is an intermediate operation that transforms elements from one type to another?",
+    "options": [
+      "map()",
+      "collect()",
+      "forEach()",
+      "reduce()"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "map() is an intermediate operation that applies a Function to transform stream elements into a new stream.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_19",
+    "subject": "Java",
+    "topic": "Garbage Collection",
+    "type": "single",
+    "question": "Which area of the Java Heap stores newly instantiated objects?",
+    "options": [
+      "Eden space (Young Generation)",
+      "Tenured / Old Generation",
+      "Metaspace",
+      "Survivor Space S1"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "New objects are initially allocated in the Eden space of the Young Generation.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_20",
+    "subject": "Java",
+    "topic": "Garbage Collection",
+    "type": "single",
+    "question": "What happens when an object survives multiple Minor Garbage Collection cycles in the Young Generation?",
+    "options": [
+      "It is promoted to the Tenured / Old Generation",
+      "It is moved to the JVM Metaspace",
+      "It is converted into a primitive value",
+      "It is marked as a memory leak"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Objects that survive minor GCs reach the tenuring threshold and are promoted into the Old Generation.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_21",
+    "subject": "Java",
+    "topic": "Generics",
+    "type": "single",
+    "question": "What is Type Erasure in Java Generics?",
+    "options": [
+      "The compiler removes generic type parameters during compilation, replacing them with Object or bounds for backwards compatibility",
+      "The JVM cleans up unused types at runtime",
+      "Deleting generic classes from classpath",
+      "An error caused by casting unbounded wildcards"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Type erasure enforces type constraints at compile time and discards type arguments, producing bytecode compatible with pre-generics JVMs.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_22",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is the `transient` keyword used for in Java?",
+    "options": [
+      "Excludes a variable from serialization so its state is not written to byte stream",
+      "Ensures variable is synchronized across threads",
+      "Allocates variable on the CPU stack",
+      "Prevents variable modification after initialization"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "`transient` signals the Java serialization mechanism to ignore the field when saving object state.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_23",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "single",
+    "question": "If two objects are equal according to `equals()`, what MUST be true regarding their `hashCode()` in Java?",
+    "options": [
+      "Their hashCode() values must be identical",
+      "Their hashCode() values must be different",
+      "Their hashCode() must return negative integers",
+      "There is no requirement regarding hashCode()"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The Object contract requires that if a.equals(b) is true, then a.hashCode() == b.hashCode() must be true.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_24",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "single",
+    "question": "Which method is called on a `Thread` instance to begin execution on a new OS thread?",
+    "options": [
+      "start()",
+      "run()",
+      "init()",
+      "execute()"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Calling `start()` allocates a new call stack and spawns the thread; calling `run()` executes sequentially on the current thread.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_25",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "single",
+    "question": "Which interface in `java.util.concurrent` represents a task that can run asynchronously and return a value or throw an exception?",
+    "options": [
+      "Callable<V>",
+      "Runnable",
+      "Future<V>",
+      "Executor"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Callable<V> has `V call() throws Exception`, unlike Runnable which has `void run()`.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_26",
+    "subject": "Java",
+    "topic": "OOP Concepts",
+    "type": "single",
+    "question": "Can an `abstract class` in Java have constructors?",
+    "options": [
+      "Yes, called by subclass constructors via `super()`",
+      "No, abstract classes cannot have constructors",
+      "Only if the constructor is private",
+      "Only in Java 9 and above"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Abstract classes have constructors to initialize abstract class state when invoked by subclasses through super().",
+    "points": 5
+  },
+  {
+    "id": "qb_java_27",
+    "subject": "Java",
+    "topic": "OOP Concepts",
+    "type": "single",
+    "question": "Can an `interface` in Java have a method implementation starting in Java 8?",
+    "options": [
+      "Yes, using `default` or `static` methods",
+      "No, interfaces can never have method bodies",
+      "Only if the interface extends an abstract class",
+      "Only for private methods"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Java 8 introduced default and static methods with bodies in interfaces; Java 9 added private interface methods.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_28",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What does the `instanceof` operator check?",
+    "options": [
+      "Whether an object is an instance of a specified class, subclass, or interface",
+      "The physical memory address of an object",
+      "Whether two reference variables point to the same object",
+      "The total memory occupied by an instance"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "`instanceof` evaluates whether a runtime reference matches a given class or interface type.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_29",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is Autoboxing in Java?",
+    "options": [
+      "The automatic conversion between primitive types and their corresponding wrapper classes (e.g. int to Integer)",
+      "Serializing objects into JSON strings",
+      "Packing multiple threads into a thread pool",
+      "Constructing subclasses automatically"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Autoboxing automatically converts primitives (e.g. int) to wrapper objects (e.g. Integer); unboxing does the reverse.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_30",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is the default value of a boolean instance field in an uninitialized Java object?",
+    "options": [
+      "false",
+      "true",
+      "null",
+      "0"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Instance boolean variables default to `false` (numeric fields default to 0, objects to null).",
+    "points": 5
+  },
+  {
+    "id": "qb_java_31",
+    "subject": "Java",
+    "topic": "Design Patterns",
+    "type": "single",
+    "question": "Which design pattern guarantees that a class has only one instance and provides a global access point to it?",
+    "options": [
+      "Singleton Pattern",
+      "Factory Pattern",
+      "Prototype Pattern",
+      "Adapter Pattern"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "The Singleton pattern restricts class instantiation to a single unique object.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_32",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "single",
+    "question": "Which Map implementation is thread-safe and divides data into segments / buckets for concurrent lock-free reads and segmented writes?",
+    "options": [
+      "ConcurrentHashMap",
+      "Hashtable",
+      "Collections.synchronizedMap()",
+      "TreeMap"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "ConcurrentHashMap provides high concurrency using bucket-level CAS and synchronized nodes without locking the entire map.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_33",
+    "subject": "Java",
+    "topic": "Java 8+",
+    "type": "single",
+    "question": "What is the purpose of `Optional<T>` introduced in Java 8?",
+    "options": [
+      "To provide a type-level representation of an optional value to prevent NullPointerExceptions",
+      "To allow optional method parameters",
+      "To speed up JIT bytecode compilation",
+      "To replace the ternary operator"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Optional<T> represents a container that may or may not hold a non-null value, encouraging explicit null handling.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_34",
+    "subject": "Java",
+    "topic": "Exception Handling",
+    "type": "single",
+    "question": "Which base class is the superclass of all errors and exceptions in the Java language?",
+    "options": [
+      "Throwable",
+      "Exception",
+      "RuntimeException",
+      "Error"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "`java.lang.Throwable` is the top-level root of the Java exception hierarchy; Exception and Error extend it.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_35",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "single",
+    "question": "What is the purpose of the `super` keyword in Java?",
+    "options": [
+      "To refer to the direct parent class instance and invoke parent constructors or methods",
+      "To allocate memory in the top-level heap",
+      "To declare a superkey in Java database entities",
+      "To bypass private access specifiers"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "`super` references the immediate superclass, allowing access to overridden methods or superclass constructors.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_36",
+    "subject": "Java",
+    "topic": "OOP Concepts",
+    "type": "multiple",
+    "question": "Which of the following are fundamental pillars of Object-Oriented Programming in Java? (Select all that apply)",
+    "options": [
+      "Encapsulation",
+      "Inheritance",
+      "Polymorphism",
+      "Compilation"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "The four pillars of OOP are Encapsulation, Abstraction, Inheritance, and Polymorphism.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_37",
+    "subject": "Java",
+    "topic": "Access Modifiers",
+    "type": "multiple",
+    "question": "Which of the following are valid access modifiers in Java? (Select all that apply)",
+    "options": [
+      "public",
+      "protected",
+      "private",
+      "package-private (default)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Java provides public, protected, private, and default (package-private) access levels.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_38",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "multiple",
+    "question": "Which of the following interfaces extend or implement the `Collection` hierarchy in Java? (Select all that apply)",
+    "options": [
+      "List",
+      "Set",
+      "Queue",
+      "Map"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "List, Set, and Queue extend Collection. Map is a separate root interface.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_39",
+    "subject": "Java",
+    "topic": "Exception Handling",
+    "type": "multiple",
+    "question": "Which of the following are Unchecked Exceptions (inheriting from RuntimeException)? (Select all that apply)",
+    "options": [
+      "NullPointerException",
+      "ArithmeticException",
+      "ArrayIndexOutOfBoundsException",
+      "SQLException"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "NullPointerException, ArithmeticException, and ArrayIndexOutOfBoundsException are unchecked. SQLException is checked.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_40",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "multiple",
+    "question": "Which of the following states are part of a Java Thread life cycle (`Thread.State`)? (Select all that apply)",
+    "options": [
+      "NEW",
+      "RUNNABLE",
+      "BLOCKED",
+      "WAITING"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Java thread states are NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, and TERMINATED.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_41",
+    "subject": "Java",
+    "topic": "Java 8+",
+    "type": "multiple",
+    "question": "Which features were introduced in Java 8? (Select all that apply)",
+    "options": [
+      "Lambda Expressions",
+      "Stream API",
+      "Default & Static Methods in Interfaces",
+      "Virtual Threads (Project Loom)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Lambdas, Streams, and Default methods arrived in Java 8. Virtual Threads debuted in Java 21.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_42",
+    "subject": "Java",
+    "topic": "Memory Management",
+    "type": "multiple",
+    "question": "Which areas belong to the JVM runtime data areas? (Select all that apply)",
+    "options": [
+      "Heap",
+      "Method Area / Metaspace",
+      "JVM Stack",
+      "Direct Disk Partition"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "The JVM runtime memory comprises the Heap, Method Area/Metaspace, Stack, PC Registers, and Native Method Stack.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_43",
+    "subject": "Java",
+    "topic": "Core Java",
+    "type": "multiple",
+    "question": "Which of the following statements about `final` variables in Java are TRUE? (Select all that apply)",
+    "options": [
+      "A final primitive variable cannot have its value reassigned once initialized",
+      "A final reference variable cannot point to a different object, but the internal state of that object can be modified",
+      "A final method cannot be overridden by subclasses",
+      "A final class cannot implement interfaces"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Final prevents reassignment and method overriding. Final classes can implement interfaces without restriction.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_44",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "multiple",
+    "question": "Which methods belong to the `java.lang.Object` class and are used for inter-thread communication? (Select all that apply)",
+    "options": [
+      "wait()",
+      "notify()",
+      "notifyAll()",
+      "sleep()"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "wait(), notify(), and notifyAll() belong to Object; sleep() is a static method of Thread.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_45",
+    "subject": "Java",
+    "topic": "Collections",
+    "type": "multiple",
+    "question": "Which implementations of the `Set` interface maintain a specific ordering of their elements? (Select all that apply)",
+    "options": [
+      "TreeSet (sorted natural or comparator order)",
+      "LinkedHashSet (insertion order)",
+      "HashSet (no guaranteed order)",
+      "IdentityHashMap"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "TreeSet guarantees sorted order and LinkedHashSet maintains insertion order. HashSet has no order guarantees.",
+    "points": 5
+  },
+  {
+    "id": "qb_java_46",
+    "subject": "Java",
+    "topic": "JVM Architecture",
+    "type": "paragraph",
+    "question": "Explain the internal architecture of the Java Virtual Machine (JVM). Detail the ClassLoader subsystem, Runtime Data Areas (Heap, Stack, Metaspace), and the Execution Engine (Interpreter, JIT Compiler, Garbage Collector).",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The ClassLoader loads, links, and initializes bytecode into memory. The Runtime Data Areas comprise the Heap (shared object allocation), Thread Stacks (local variables and call frames), Metaspace (class metadata), and PC Registers. The Execution Engine interprets bytecode and compiles hot spots to native code via the JIT compiler, while the Garbage Collector reclaims dead heap memory.",
+    "points": 10
+  },
+  {
+    "id": "qb_java_47",
+    "subject": "Java",
+    "topic": "Multithreading",
+    "type": "paragraph",
+    "question": "Explain the Java Memory Model (JMM) and thread synchronization. Compare the `synchronized` keyword, `volatile` keyword, and atomic variables in the `java.util.concurrent.atomic` package.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The JMM governs how threads interact through memory and defines happens-before relationships. `synchronized` provides mutual exclusion and memory visibility using monitor locks. `volatile` enforces memory visibility and prevents instruction reordering without mutual exclusion. Atomic classes (e.g. AtomicInteger) utilize non-blocking hardware Compare-And-Swap (CAS) instructions for high-throughput thread-safe mutations.",
+    "points": 10
+  },
+  {
+    "id": "qb_java_48",
+    "subject": "Java",
+    "topic": "Collections & Hash Code",
+    "type": "paragraph",
+    "question": "Explain the internal working of `HashMap` in Java. Detail how hashing, buckets, hash collisions, and the `equals()` and `hashCode()` contract function, and explain the Java 8 treeification of buckets.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "HashMap uses an array of buckets. When a key is inserted, its hashCode() is computed and mapped to a bucket index. If collisions occur, entries are stored in a linked list. If a bucket reaches 8 elements (and table capacity >= 64), Java 8 transforms the linked list into a balanced Red-Black tree (TreeNode), improving worst-case search complexity from O(n) to O(log n).",
+    "points": 10
+  },
+  {
+    "id": "qb_java_49",
+    "subject": "Java",
+    "topic": "Garbage Collection",
+    "type": "paragraph",
+    "question": "Describe Generational Garbage Collection in Java. Explain the roles of the Young Generation (Eden, Survivor spaces S0/S1) and Old Generation, and contrast Minor GC with Full GC.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Generational GC relies on the weak generational hypothesis (most objects die young). New objects are allocated in Eden. Minor GC evacuates survivors between S0 and S1, incrementing their age. Once surviving age exceeds the tenuring threshold, objects are promoted to the Old Generation. Major/Full GC inspects the Old Generation, causing longer pause times than fast Minor GCs.",
+    "points": 10
+  },
+  {
+    "id": "qb_java_50",
+    "subject": "Java",
+    "topic": "Java 8+ Features",
+    "type": "paragraph",
+    "question": "Explain Functional Programming in Java 8+. Detail Lambda Expressions, Functional Interfaces, the Stream API (Intermediate vs Terminal operations), and the `Optional` class.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Java 8 introduces first-class functional capabilities via single abstract method (SAM) interfaces like Predicate and Function. Lambdas provide concise anonymous function syntax. The Stream API processes sequences declaratively: intermediate operations (map, filter) are lazily evaluated pipelines, while terminal operations (collect, reduce, forEach) trigger execution. Optional<T> provides a type-safe container representing nullable values.",
+    "points": 10
+  }
+]

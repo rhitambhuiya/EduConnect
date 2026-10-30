@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { 
   X, 
+  BookOpen, 
   HelpCircle, 
   Plus, 
   Trash2, 
@@ -14,11 +15,11 @@ import {
   ListOrdered
 } from 'lucide-react';
 import { apiRequest } from '../../utils/api';
+import QuestionBankPickerModal from './QuestionBankPickerModal';
 
 export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreated }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [durationMinutes, setDurationMinutes] = useState(30);
 
   // Set default start time to now and end time to 3 days later
   const now = new Date();
@@ -43,6 +44,31 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [bankModalOpen, setBankModalOpen] = useState(false);
+
+  const handleImportFromBank = (selectedFromBank) => {
+    if (!selectedFromBank || selectedFromBank.length === 0) return;
+
+    const formatted = selectedFromBank.map(bq => ({
+      id: `q_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      type: bq.type,
+      question: bq.question,
+      points: bq.points || (bq.type === 'paragraph' ? 10 : 5),
+      options: bq.type !== 'paragraph' 
+        ? (bq.options || []).map(opt => (typeof opt === 'string' ? opt : opt.text || ''))
+        : [],
+      correctAnswer: bq.type === 'single' ? bq.correctAnswer : null,
+      correctAnswers: bq.type === 'multiple' ? (bq.correctAnswers || []) : [],
+      explanation: bq.explanation || ''
+    }));
+
+    const hasOnlyInitialBlank = questions.length === 1 && !questions[0].question.trim();
+    if (hasOnlyInitialBlank) {
+      setQuestions(formatted);
+    } else {
+      setQuestions([...questions, ...formatted]);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -185,7 +211,7 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
         body: JSON.stringify({
           title,
           description,
-          durationMinutes: Number(durationMinutes) || 30,
+          durationMinutes: Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60))),
           startTime: new Date(startTime).toISOString(),
           endTime: new Date(endTime).toISOString(),
           questions
@@ -261,12 +287,12 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Provide guidelines for students (e.g. Total 30 mins, MCQs are auto-evaluated, paragraph questions will be graded by the instructor)."
+                placeholder="Provide guidelines for students (e.g. MCQs are auto-evaluated, paragraph questions will be graded by the instructor)."
                 className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-slate-500" />
@@ -294,22 +320,6 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-slate-500" />
-                  Duration (Minutes) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="5"
-                  max="300"
-                  required
-                  value={durationMinutes}
-                  onChange={(e) => setDurationMinutes(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
             </div>
           </div>
 
@@ -327,7 +337,17 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
               </div>
 
               {/* Add Question dropdown / buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setBankModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold rounded-lg transition-all shadow-xs cursor-pointer"
+                  title="Pick curated questions with verified answer keys for DBMS, OS, Computer Networks, and Java"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Pick from Question Bank (200)</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => handleAddQuestion('single')}
@@ -583,7 +603,7 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
           {/* Modal Footer */}
           <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
             <div className="text-xs text-slate-500">
-              {questions.length} questions &bull; {totalPoints} total marks &bull; {durationMinutes} mins
+              {questions.length} questions &bull; {totalPoints} total marks
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -604,6 +624,13 @@ export default function TeacherQuizModal({ isOpen, onClose, classId, onQuizCreat
           </div>
         </form>
       </div>
+
+      {/* Question Bank Picker Modal */}
+      <QuestionBankPickerModal
+        isOpen={bankModalOpen}
+        onClose={() => setBankModalOpen(false)}
+        onSelectQuestions={handleImportFromBank}
+      />
     </div>
   );
 }

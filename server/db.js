@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const DATA_DIR = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const QUESTION_BANK_FILE = path.join(DATA_DIR, 'question_bank.json');
 
 // Ensure directories exist
 if (!fs.existsSync(DATA_DIR)) {
@@ -690,6 +691,39 @@ class Database {
     return deleted;
   }
 
+  // --- Teacher Question Bank Operations ---
+  getQuestionBank({ subject, type, search } = {}) {
+    if (!this.questionBank) {
+      if (fs.existsSync(QUESTION_BANK_FILE)) {
+        try {
+          this.questionBank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, 'utf-8'));
+        } catch (e) {
+          console.error('Failed to load question bank:', e);
+          this.questionBank = [];
+        }
+      } else {
+        this.questionBank = [];
+      }
+    }
+
+    let results = [...this.questionBank];
+    if (subject && subject !== 'all') {
+      results = results.filter(q => q.subject.toLowerCase() === subject.toLowerCase());
+    }
+    if (type && type !== 'all') {
+      results = results.filter(q => q.type === type);
+    }
+    if (search && search.trim()) {
+      const qLower = search.trim().toLowerCase();
+      results = results.filter(q =>
+        q.question.toLowerCase().includes(qLower) ||
+        (q.topic && q.topic.toLowerCase().includes(qLower)) ||
+        (q.options && q.options.some(opt => (typeof opt === 'string' ? opt : opt.text || '').toLowerCase().includes(qLower)))
+      );
+    }
+    return results;
+  }
+
   // --- Submission Operations ---
   getSubmissionsByAssignment(assignmentId) {
     return (this.data.submissions || [])
@@ -760,6 +794,39 @@ class Database {
     }
     this.save();
     return deleted;
+  }
+
+  // --- Teacher Question Bank Operations ---
+  getQuestionBank({ subject, type, search } = {}) {
+    if (!this.questionBank) {
+      if (fs.existsSync(QUESTION_BANK_FILE)) {
+        try {
+          this.questionBank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, 'utf-8'));
+        } catch (e) {
+          console.error('Failed to load question bank:', e);
+          this.questionBank = [];
+        }
+      } else {
+        this.questionBank = [];
+      }
+    }
+
+    let results = [...this.questionBank];
+    if (subject && subject !== 'all') {
+      results = results.filter(q => q.subject.toLowerCase() === subject.toLowerCase());
+    }
+    if (type && type !== 'all') {
+      results = results.filter(q => q.type === type);
+    }
+    if (search && search.trim()) {
+      const qLower = search.trim().toLowerCase();
+      results = results.filter(q =>
+        q.question.toLowerCase().includes(qLower) ||
+        (q.topic && q.topic.toLowerCase().includes(qLower)) ||
+        (q.options && q.options.some(opt => (typeof opt === 'string' ? opt : opt.text || '').toLowerCase().includes(qLower)))
+      );
+    }
+    return results;
   }
 
   // Full roster submission review for teachers: enrolled students, who submitted vs who did not
@@ -930,6 +997,72 @@ class Database {
     return deleted;
   }
 
+  // --- Teacher Question Bank Operations ---
+  getQuestionBank({ subject, type, search } = {}) {
+    if (!this.questionBank) {
+      if (fs.existsSync(QUESTION_BANK_FILE)) {
+        try {
+          this.questionBank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, 'utf-8'));
+        } catch (e) {
+          console.error('Failed to load question bank:', e);
+          this.questionBank = [];
+        }
+      } else {
+        this.questionBank = [];
+      }
+    }
+
+    let results = [...(this.questionBank || [])];
+    if (subject && subject !== 'all') {
+      results = results.filter(q => q.subject.toLowerCase() === subject.toLowerCase());
+    }
+    if (type && type !== 'all') {
+      results = results.filter(q => q.type === type);
+    }
+    if (search && search.trim()) {
+      const qLower = search.trim().toLowerCase();
+      results = results.filter(q =>
+        q.question.toLowerCase().includes(qLower) ||
+        (q.topic && q.topic.toLowerCase().includes(qLower)) ||
+        (q.options && q.options.some(opt => (typeof opt === 'string' ? opt : opt.text || '').toLowerCase().includes(qLower)))
+      );
+    }
+    return results;
+  }
+
+  // --- Teacher Question Bank Operations ---
+  getQuestionBank({ subject, type, search } = {}) {
+    if (!this.questionBank) {
+      if (fs.existsSync(QUESTION_BANK_FILE)) {
+        try {
+          this.questionBank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, 'utf-8'));
+        } catch (e) {
+          console.error('Failed to load question bank:', e);
+          this.questionBank = [];
+        }
+      } else {
+        this.questionBank = [];
+      }
+    }
+
+    let results = [...this.questionBank];
+    if (subject && subject !== 'all') {
+      results = results.filter(q => q.subject.toLowerCase() === subject.toLowerCase());
+    }
+    if (type && type !== 'all') {
+      results = results.filter(q => q.type === type);
+    }
+    if (search && search.trim()) {
+      const qLower = search.trim().toLowerCase();
+      results = results.filter(q =>
+        q.question.toLowerCase().includes(qLower) ||
+        (q.topic && q.topic.toLowerCase().includes(qLower)) ||
+        (q.options && q.options.some(opt => (typeof opt === 'string' ? opt : opt.text || '').toLowerCase().includes(qLower)))
+      );
+    }
+    return results;
+  }
+
   // --- Quiz Attempt Operations ---
   getQuizAttempts(quizId) {
     return (this.data.quizAttempts || [])
@@ -1050,6 +1183,98 @@ class Database {
     this.data.quizAttempts.push(attempt);
     this.save();
     return attempt;
+  }
+
+  // Update quiz questions/correct options and immediately re-evaluate marks for all student attempts
+  updateQuizAnswerKey(quizId, updatedQuestions = []) {
+    const quiz = this.findQuizById(quizId);
+    if (!quiz) return null;
+
+    const updateMap = new Map();
+    (updatedQuestions || []).forEach(uq => {
+      if (uq && uq.id) {
+        updateMap.set(uq.id, uq);
+      }
+    });
+
+    // Update questions in the quiz
+    quiz.questions = (quiz.questions || []).map(q => {
+      const uq = updateMap.get(q.id);
+      if (!uq) return q;
+
+      const updated = { ...q };
+      if (q.type === 'single') {
+        if (uq.correctAnswer !== undefined && uq.correctAnswer !== null) {
+          updated.correctAnswer = Number(uq.correctAnswer);
+        }
+      } else if (q.type === 'multiple') {
+        if (Array.isArray(uq.correctAnswers)) {
+          updated.correctAnswers = uq.correctAnswers.map(Number).sort((a, b) => a - b);
+        }
+      }
+      if (uq.points !== undefined && !isNaN(Number(uq.points))) {
+        updated.points = Number(uq.points);
+      }
+      if (uq.explanation !== undefined) {
+        updated.explanation = uq.explanation;
+      }
+      return updated;
+    });
+
+    // Update total quiz points
+    quiz.totalPoints = (quiz.questions || []).reduce((sum, q) => sum + (Number(q.points) || 0), 0);
+
+    // Re-grade all existing student attempts for this quiz
+    const attempts = this.getQuizAttempts(quizId);
+    const qMap = new Map((quiz.questions || []).map(q => [q.id, q]));
+
+    attempts.forEach(attempt => {
+      let mcqScore = 0;
+      (attempt.answers || []).forEach(ans => {
+        const q = qMap.get(ans.questionId);
+        if (!q) return;
+
+        if (q.type === 'single') {
+          const isCorrect = ans.selectedOption !== null && ans.selectedOption !== undefined &&
+            Number(ans.selectedOption) === Number(q.correctAnswer);
+          const pointsEarned = isCorrect ? (Number(q.points) || 0) : 0;
+          ans.isCorrect = isCorrect;
+          ans.pointsEarned = pointsEarned;
+          ans.autoGraded = true;
+          mcqScore += pointsEarned;
+        } else if (q.type === 'multiple') {
+          const studentSelected = Array.isArray(ans.selectedOptions)
+            ? ans.selectedOptions.map(Number).sort((a, b) => a - b)
+            : [];
+          const correctSelected = Array.isArray(q.correctAnswers)
+            ? q.correctAnswers.map(Number).sort((a, b) => a - b)
+            : [];
+          const isCorrect = studentSelected.length > 0 &&
+            studentSelected.length === correctSelected.length &&
+            studentSelected.every((val, idx) => val === correctSelected[idx]);
+          const pointsEarned = isCorrect ? (Number(q.points) || 0) : 0;
+          ans.isCorrect = isCorrect;
+          ans.pointsEarned = pointsEarned;
+          ans.autoGraded = true;
+          mcqScore += pointsEarned;
+        }
+      });
+
+      const paragraphScore = (attempt.answers || [])
+        .filter(a => a.type === 'paragraph')
+        .reduce((sum, a) => sum + (Number(a.pointsEarned) || 0), 0);
+
+      attempt.mcqScore = mcqScore;
+      attempt.paragraphScore = paragraphScore;
+      attempt.totalScore = mcqScore + paragraphScore;
+      attempt.maxScore = quiz.totalPoints;
+    });
+
+    this.save();
+    return {
+      quiz,
+      affectedAttemptsCount: attempts.length
+    };
   }
 
   // Teacher grades paragraph answers, allots marks and provides remarks

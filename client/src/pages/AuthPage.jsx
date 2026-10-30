@@ -340,6 +340,39 @@ export default function AuthPage({ initialMode = 'login' }) {
                   </>
                 )}
               </button>
+
+              {/* Mode Switch Helper */}
+              <div className="text-center pt-1">
+                {isLogin ? (
+                  <p className="text-xs text-slate-500">
+                    No account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsLogin(false);
+                        setError('');
+                      }}
+                      className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer inline-flex items-center gap-0.5"
+                    >
+                      <span>Create one</span>
+                    </button>
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500">
+                    Already a user?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsLogin(true);
+                        setError('');
+                      }}
+                      className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer inline-flex items-center gap-0.5"
+                    >
+                      <span>Sign In</span>
+                    </button>
+                  </p>
+                )}
+              </div>
             </form>
 
             {/* Instant Demo Accounts */}

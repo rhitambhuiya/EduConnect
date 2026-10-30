@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '../../utils/api';
 
-export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, onGradesUpdated }) {
-  const [activeTab, setActiveTab] = useState('summary'); // 'summary' | 'roster' | 'grade'
+export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, initialTab = 'summary', onGradesUpdated }) {
+  const [activeTab, setActiveTab] = useState(initialTab); // 'summary' | 'roster' | 'grade' | 'keys'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [analytics, setAnalytics] = useState(null);
@@ -34,11 +34,85 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, onGrad
   const [savingGrades, setSavingGrades] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
+  const [keyQuestions, setKeyQuestions] = useState([]);
+  const [savingKey, setSavingKey] = useState(false);
+  const [keySuccessMsg, setKeySuccessMsg] = useState('');
+  const [keyErrorMsg, setKeyErrorMsg] = useState('');
+
   useEffect(() => {
     if (isOpen && quizId) {
+      if (initialTab) setActiveTab(initialTab);
       loadAnalytics();
+      loadQuizQuestions();
     }
-  }, [isOpen, quizId]);
+  }, [isOpen, quizId, initialTab]);
+
+  const loadQuizQuestions = async () => {
+    try {
+      const qData = await apiRequest(`/api/quizzes/${quizId}`);
+      if (qData && qData.questions) {
+        setKeyQuestions(qData.questions);
+      }
+    } catch (err) {
+      console.error('Failed to load quiz questions:', err);
+    }
+  };
+
+  const handleSetSingleCorrect = (qIndex, optionIndex) => {
+    const updated = [...keyQuestions];
+    updated[qIndex] = { ...updated[qIndex], correctAnswer: optionIndex };
+    setKeyQuestions(updated);
+    setKeySuccessMsg('');
+    setKeyErrorMsg('');
+  };
+
+  const handleToggleMultipleCorrect = (qIndex, optionIndex) => {
+    const updated = [...keyQuestions];
+    const current = updated[qIndex].correctAnswers || [];
+    let next;
+    if (current.includes(optionIndex)) {
+      if (current.length === 1) {
+        setKeyErrorMsg('At least one correct answer must remain selected for multiple-choice questions.');
+        return;
+      }
+      next = current.filter(i => i !== optionIndex);
+    } else {
+      next = [...current, optionIndex].sort((a, b) => a - b);
+    }
+    updated[qIndex] = { ...updated[qIndex], correctAnswers: next };
+    setKeyQuestions(updated);
+    setKeySuccessMsg('');
+    setKeyErrorMsg('');
+  };
+
+  const handleExplanationChange = (qIndex, text) => {
+    const updated = [...keyQuestions];
+    updated[qIndex] = { ...updated[qIndex], explanation: text };
+    setKeyQuestions(updated);
+    setKeySuccessMsg('');
+  };
+
+  const handleSaveAnswerKey = async () => {
+    setSavingKey(true);
+    setKeyErrorMsg('');
+    setKeySuccessMsg('');
+    try {
+      const res = await apiRequest(`/api/quizzes/${quizId}/answer-key`, {
+        method: 'PUT',
+        body: JSON.stringify({ questions: keyQuestions })
+      });
+      setKeySuccessMsg(res.message || 'Answer key updated and student marks re-evaluated successfully!');
+      await loadAnalytics();
+      if (selectedStudentId) {
+        await handleOpenStudentAttempt(selectedStudentId);
+      }
+      onGradesUpdated && onGradesUpdated();
+    } catch (err) {
+      setKeyErrorMsg(err.message || 'Failed to update answer key');
+    } finally {
+      setSavingKey(false);
+    }
+  };
 
   const loadAnalytics = async () => {
     setLoading(true);
@@ -172,6 +246,17 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, onGrad
           >
             <Users className="w-4 h-4" />
             Student Submissions Roster ({analytics?.totalAttempted || 0}/{analytics?.totalEnrolled || 0})
+          </button>
+          <button
+            onClick={() => setActiveTab('keys')}
+            className={`py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'keys'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <CheckSquare className="w-4 h-4" />
+            Answer Key & Re-grading
           </button>
           {selectedStudentId && (
             <button
@@ -697,6 +782,212 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, onGrad
                       </div>
                     </div>
                   ) : null}
+                </div>
+              )}
+
+              {/* TAB 4: EDIT ANSWER KEY & RE-GRADE */}
+              {activeTab === 'keys' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base">Quiz Questions & Answer Key</h3>
+                      <p className="text-xs text-slate-500">Click any option to set the correct answer</p>
+                    </div>
+                    <button
+                      onClick={handleSaveAnswerKey}
+                      disabled={savingKey}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{savingKey ? 'Saving...' : 'Save & Re-evaluate Marks'}</span>
+                    </button>
+                  </div>
+
+                  {keySuccessMsg && (
+                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs font-semibold text-emerald-800 animate-in fade-in">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>{keySuccessMsg}</span>
+                      </div>
+                      <button onClick={() => setKeySuccessMsg('')} className="text-emerald-700 hover:opacity-75">✕</button>
+                    </div>
+                  )}
+
+                  {keyErrorMsg && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs font-semibold text-red-700">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                      <span>{keyErrorMsg}</span>
+                    </div>
+                  )}
+
+                  {/* Question List */}
+                  <div className="space-y-4">
+                    {keyQuestions.map((q, qIdx) => {
+                      const isSingle = q.type === 'single';
+                      const isMultiple = q.type === 'multiple';
+                      const isParagraph = q.type === 'paragraph';
+
+                      return (
+                        <div
+                          key={q.id || qIdx}
+                          className="p-5 bg-white border border-slate-200 rounded-xl space-y-3.5 shadow-xs"
+                        >
+                          {/* Question Header */}
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 text-xs font-black flex items-center justify-center">
+                                {qIdx + 1}
+                              </span>
+                              <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
+                                isSingle 
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200' 
+                                  : isMultiple 
+                                  ? 'bg-purple-50 text-purple-700 border border-purple-200' 
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}>
+                                {isSingle ? 'Single Choice MCQ' : isMultiple ? 'Multiple Choice MCQ' : 'Paragraph Response'}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-500">
+                                {q.points || 0} Points
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-sm font-semibold text-slate-900 leading-snug">
+                            {q.question}
+                          </div>
+
+                          {/* MCQ Options */}
+                          {isSingle && (
+                            <div className="space-y-2 pt-1">
+                              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                Click an option below to set it as the correct answer:
+                              </div>
+                              {(q.options || []).map((opt, optIdx) => {
+                                const optText = typeof opt === 'object' ? opt.text : opt;
+                                const isCorrect = Number(q.correctAnswer) === optIdx;
+
+                                return (
+                                  <div
+                                    key={optIdx}
+                                    onClick={() => handleSetSingleCorrect(qIdx, optIdx)}
+                                    className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                                      isCorrect
+                                        ? 'bg-emerald-50/80 border-emerald-300 ring-1 ring-emerald-200 text-emerald-950 font-semibold'
+                                        : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-700'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                        isCorrect
+                                          ? 'border-emerald-600 bg-emerald-600 text-white'
+                                          : 'border-slate-300 text-slate-400 bg-white'
+                                      }`}>
+                                        {isCorrect ? '✓' : String.fromCharCode(65 + optIdx)}
+                                      </div>
+                                      <span className="text-xs sm:text-sm">{optText}</span>
+                                    </div>
+
+                                    {isCorrect ? (
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <CheckCircle className="w-3 h-3" />
+                                        <span>Correct Answer</span>
+                                      </span>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400 font-medium hover:text-indigo-600">
+                                        Click to set as correct
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {isMultiple && (
+                            <div className="space-y-2 pt-1">
+                              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                Select all correct options (Multiple allowed):
+                              </div>
+                              {(q.options || []).map((opt, optIdx) => {
+                                const optText = typeof opt === 'object' ? opt.text : opt;
+                                const isCorrect = Array.isArray(q.correctAnswers) && q.correctAnswers.includes(optIdx);
+
+                                return (
+                                  <div
+                                    key={optIdx}
+                                    onClick={() => handleToggleMultipleCorrect(qIdx, optIdx)}
+                                    className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                                      isCorrect
+                                        ? 'bg-emerald-50/80 border-emerald-300 ring-1 ring-emerald-200 text-emerald-950 font-semibold'
+                                        : 'bg-white border-slate-200 hover:border-purple-300 hover:bg-slate-50 text-slate-700'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs font-bold ${
+                                        isCorrect
+                                          ? 'border-emerald-600 bg-emerald-600 text-white'
+                                          : 'border-slate-300 text-slate-400 bg-white'
+                                      }`}>
+                                        {isCorrect ? '✓' : ''}
+                                      </div>
+                                      <span className="text-xs sm:text-sm">{optText}</span>
+                                    </div>
+
+                                    {isCorrect ? (
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <CheckCircle className="w-3 h-3" />
+                                        <span>Correct Option</span>
+                                      </span>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400 font-medium">
+                                        Click to select
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {isParagraph && (
+                            <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-800">
+                              <span className="font-semibold">Subjective Question:</span> Paragraph responses are evaluated individually. You can review submissions and assign customized marks and remarks in the <strong>Student Review & Grading</strong> tab.
+                            </div>
+                          )}
+
+                          {/* Explanation field */}
+                          <div className="pt-2 border-t border-slate-100">
+                            <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">
+                              Answer Explanation (Visible to students during review)
+                            </label>
+                            <input
+                              type="text"
+                              value={q.explanation || ''}
+                              onChange={(e) => handleExplanationChange(qIdx, e.target.value)}
+                              placeholder="Explain why this option is correct..."
+                              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:ring-1 focus:ring-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Bottom Save Bar */}
+                  <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+                    <p className="text-xs text-slate-500">
+                      Saving will immediately re-evaluate all {analytics?.totalAttempted || 0} student attempt(s) and update their scores.
+                    </p>
+                    <button
+                      onClick={handleSaveAnswerKey}
+                      disabled={savingKey}
+                      className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-sm font-bold shadow-xs flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{savingKey ? 'Re-evaluating Submissions...' : 'Save & Re-evaluate Marks'}</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </>

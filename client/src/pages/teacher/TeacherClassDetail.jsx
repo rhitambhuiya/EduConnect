@@ -76,6 +76,7 @@ export default function TeacherClassDetail() {
   const [quizzes, setQuizzes] = useState([]);
   const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [reviewQuizId, setReviewQuizId] = useState(null);
+  const [reviewQuizTab, setReviewQuizTab] = useState('summary');
   const [quizToDelete, setQuizToDelete] = useState(null);
   const [isDeletingQuiz, setIsDeletingQuiz] = useState(false);
   const [quizMsg, setQuizMsg] = useState({ text: '', type: '' });
@@ -1212,7 +1213,21 @@ export default function TeacherClassDetail() {
 
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => setReviewQuizId(quiz.id)}
+                            onClick={() => {
+                              setReviewQuizTab('keys');
+                              setReviewQuizId(quiz.id);
+                            }}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 text-xs font-semibold rounded-xl transition-colors border border-slate-200 flex items-center gap-1.5"
+                            title="Change correct option & re-grade"
+                          >
+                            <CheckSquare className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>Edit Key</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setReviewQuizTab('summary');
+                              setReviewQuizId(quiz.id);
+                            }}
                             className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1.5"
                           >
                             <BarChart2 className="w-3.5 h-3.5" />
@@ -1467,6 +1482,7 @@ export default function TeacherClassDetail() {
         isOpen={!!reviewQuizId}
         onClose={() => setReviewQuizId(null)}
         quizId={reviewQuizId}
+        initialTab={reviewQuizTab}
         onGradesUpdated={async () => {
           const updated = await apiRequest(`/api/quizzes/class/${id}`).catch(() => []);
           setQuizzes(updated);

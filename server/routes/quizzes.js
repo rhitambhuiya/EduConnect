@@ -26,6 +26,21 @@ function sanitizeQuestions(questions = []) {
   });
 }
 
+// GET /api/quizzes/question-bank - Strictly for teachers to browse and select curated questions for DBMS, OS, CN, and Java
+router.get('/question-bank', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const { subject, type, search } = req.query;
+    const questions = db.getQuestionBank({ subject, type, search });
+    return res.json({
+      total: questions.length,
+      questions
+    });
+  } catch (err) {
+    console.error('Error fetching question bank:', err);
+    return res.status(500).json({ error: 'Failed to fetch question bank' });
+  }
+});
+
 // GET /api/quizzes/my-pending - Student views pending quizzes across all enrolled classes
 router.get('/my-pending', authenticate, requireRole('student'), (req, res) => {
   try {
@@ -233,7 +248,8 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), (req, res) 
       return res.status(400).json({ error: 'End time must be after start time' });
     }
 
-    const duration = Math.max(1, parseInt(durationMinutes, 10) || 30);
+    const calculatedDuration = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
+    const duration = Math.max(1, parseInt(durationMinutes, 10) || calculatedDuration);
 
     if (!Array.isArray(questions) || questions.length === 0) {
       return res.status(400).json({ error: 'Quiz must contain at least one question' });
@@ -566,6 +582,40 @@ router.put('/attempts/:attemptId/grade', authenticate, requireRole('teacher'), (
   } catch (err) {
     console.error('Error grading attempt:', err);
     return res.status(500).json({ error: err.message || 'Failed to grade attempt' });
+  }
+});
+
+// PUT /api/quizzes/:id/answer-key - Teacher updates correct options and automatically re-evaluates all student attempts
+router.put('/:id/answer-key', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const quiz = db.findQuizById(req.params.id);
+    if (!quiz) {
+      return res.status(404).json({ error: 'Quiz not found' });
+    }
+
+    const cls = db.findClassById(quiz.classId);
+    if (!cls || cls.teacherId !== req.user.id) {
+      return res.status(403).json({ error: 'Only the class teacher can modify the quiz answer key' });
+    }
+
+    const { questions } = req.body;
+    if (!Array.isArray(questions)) {
+      return res.status(400).json({ error: 'Questions array is required' });
+    }
+
+    const result = db.updateQuizAnswerKey(quiz.id, questions);
+    if (!result) {
+      return res.status(500).json({ error: 'Failed to update answer key' });
+    }
+
+    return res.json({
+      message: `Answer key updated successfully. Re-graded ${result.affectedAttemptsCount} student submission(s).`,
+      quiz: result.quiz,
+      affectedAttemptsCount: result.affectedAttemptsCount
+    });
+  } catch (err) {
+    console.error('Error updating quiz answer key:', err);
+    return res.status(500).json({ error: err.message || 'Failed to update quiz answer key' });
   }
 });
 

@@ -109,137 +109,94 @@ export default function StudentDashboard() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-            <BookOpen className="w-6 h-6" />
+        {/* Enrolled Classes Metric */}
+        <Link
+          to="/student/classes"
+          className="bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-xs p-4 sm:p-4.5 transition-all group flex items-center gap-3 sm:gap-3.5"
+        >
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 group-hover:scale-105 transition-transform shrink-0">
+            <BookOpen className="w-5 h-5" />
           </div>
-          <div>
-            <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-semibold uppercase text-slate-400 tracking-wide leading-tight">
               Enrolled Classes
             </div>
-            <div className="text-2xl font-bold text-slate-900 mt-0.5">
-              {loading ? '—' : enrolledClasses.length}
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900 leading-none">
+                {loading ? '—' : enrolledClasses.length}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-lg bg-blue-50 text-blue-700 border border-blue-200/80 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all shrink-0">
+                <span>View</span>
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Pending Assignments Metric */}
         <Link
           to="/student/assignments"
-          className="bg-white rounded-xl border border-slate-200 hover:border-amber-300 p-5 shadow-xs flex items-center justify-between transition-all group"
+          className="bg-white rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-xs p-4 sm:p-4.5 transition-all group flex items-center gap-3 sm:gap-3.5"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 group-hover:scale-105 transition-transform">
-              <Clock className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 group-hover:scale-105 transition-transform shrink-0">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-semibold uppercase text-slate-400 tracking-wide leading-tight">
+              Pending Assignments
             </div>
-            <div>
-              <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
-                Pending Assignments
-              </div>
-              <div className="text-2xl font-bold text-slate-900 mt-0.5">
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900 leading-none">
                 {loading ? '—' : pendingAssignments.length}
-              </div>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all shrink-0">
+                <span>View</span>
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
             </div>
           </div>
-          <span className="text-xs font-bold text-amber-600 group-hover:underline flex items-center gap-1">
-            <span>View</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </span>
         </Link>
 
         {/* Pending Quizzes Metric */}
         <Link
           to="/student/quizzes"
-          className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 p-5 shadow-xs flex items-center justify-between transition-all group"
+          className="bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-xs p-4 sm:p-4.5 transition-all group flex items-center gap-3 sm:gap-3.5"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200 group-hover:scale-105 transition-transform">
-              <CheckSquare className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200 group-hover:scale-105 transition-transform shrink-0">
+            <CheckSquare className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-semibold uppercase text-slate-400 tracking-wide leading-tight">
+              Pending Quizzes
             </div>
-            <div>
-              <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
-                Pending Quizzes
-              </div>
-              <div className="text-2xl font-bold text-slate-900 mt-0.5">
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900 leading-none">
                 {loading ? '—' : pendingQuizzes.length}
-              </div>
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/80 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all shrink-0">
+                <span>View</span>
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </span>
             </div>
           </div>
-          <span className="text-xs font-bold text-indigo-600 group-hover:underline flex items-center gap-1">
-            <span>View</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </span>
         </Link>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-            <CheckCircle2 className="w-6 h-6" />
+        {/* Enrollment Status */}
+        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-4.5 shadow-xs flex items-center gap-3 sm:gap-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
           </div>
-          <div>
-            <div className="text-xs font-semibold uppercase text-slate-400 tracking-wider">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs font-semibold uppercase text-slate-400 tracking-wide leading-tight">
               Enrollment Status
             </div>
-            <div className="text-sm font-bold text-emerald-700 mt-1">
+            <div className="text-sm sm:text-base font-bold text-emerald-700 mt-1 leading-tight">
               Active Student
             </div>
-            <span className="text-[11px] text-slate-400">Regular Semester Term</span>
+            <span className="text-[11px] text-slate-400 block mt-0.5 leading-tight">Regular Semester Term</span>
           </div>
         </div>
       </div>
-
-      {/* Pending Quizzes Section */}
-      {pendingQuizzes.length > 0 && (
-        <div className="bg-white rounded-2xl border border-indigo-200 p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                <CheckSquare className="w-4 h-4" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-slate-900">Upcoming & Pending Quizzes</h2>
-                <p className="text-xs text-slate-500">Timed assessments waiting for your attempt</p>
-              </div>
-            </div>
-            <Link
-              to="/student/quizzes"
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-            >
-              <span>View All ({pendingQuizzes.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {pendingQuizzes.slice(0, 2).map(quiz => (
-              <div
-                key={quiz.id}
-                className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/30 flex items-center justify-between gap-4"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 uppercase">
-                      {quiz.classCode}
-                    </span>
-                    <span className="text-xs text-slate-500">{quiz.totalPoints} Marks &bull; {quiz.durationMinutes} mins</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-slate-900 truncate">{quiz.title}</h4>
-                  <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>Due: {new Date(quiz.endTime).toLocaleDateString()}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setTakingQuizId(quiz.id)}
-                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors shrink-0"
-                >
-                  Take Quiz
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Prominent Pending Assignments Section */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
