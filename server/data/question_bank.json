@@ -1,5 +1,22 @@
 [
   {
+    "id": "qb_1793371207019_9fdlc",
+    "subject": "Data Structures & Algorithms",
+    "type": "single",
+    "question": "What is the time complexity of pushing an element onto a stack?",
+    "options": [
+      "O(1)",
+      "O(n)",
+      "O(log n)",
+      "O(n^2)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "points": 5,
+    "explanation": "Push operation on a stack takes constant time O(1).",
+    "rubric": ""
+  },
+  {
     "id": "qb_dbms_1",
     "subject": "DBMS",
     "topic": "Transactions",
@@ -866,7 +883,7 @@
   },
   {
     "id": "qb_os_1",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Management",
     "type": "single",
     "question": "What data structure does the operating system kernel use to store state information about an active process?",
@@ -883,7 +900,7 @@
   },
   {
     "id": "qb_os_2",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Scheduling",
     "type": "single",
     "question": "Which CPU scheduling algorithm is non-preemptive and can cause the \"convoy effect\"?",
@@ -900,7 +917,7 @@
   },
   {
     "id": "qb_os_3",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Scheduling",
     "type": "single",
     "question": "Which scheduling algorithm assigns each process a fixed time slice (quantum) in circular order?",
@@ -917,7 +934,7 @@
   },
   {
     "id": "qb_os_4",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "single",
     "question": "What is a critical section in concurrent programming?",
@@ -934,7 +951,7 @@
   },
   {
     "id": "qb_os_5",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "single",
     "question": "What are the two atomic operations provided by Dijkstra’s counting semaphore?",
@@ -951,7 +968,7 @@
   },
   {
     "id": "qb_os_6",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Deadlocks",
     "type": "single",
     "question": "Which deadlock handling algorithm tests for a safe state by simulating resource allocation?",
@@ -968,7 +985,7 @@
   },
   {
     "id": "qb_os_7",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Memory Management",
     "type": "single",
     "question": "What hardware component translates virtual page addresses into physical frame addresses?",
@@ -985,7 +1002,7 @@
   },
   {
     "id": "qb_os_8",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Memory Management",
     "type": "single",
     "question": "What high-speed hardware cache is used inside the MMU to store recent virtual-to-physical page translations?",
@@ -1002,7 +1019,7 @@
   },
   {
     "id": "qb_os_9",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "What occurs when a process attempts to access a virtual memory page that is not currently loaded in physical RAM?",
@@ -1019,7 +1036,7 @@
   },
   {
     "id": "qb_os_10",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "Which page replacement algorithm suffers from Belady’s Anomaly, where increasing the number of page frames can increase page faults?",
@@ -1036,7 +1053,7 @@
   },
   {
     "id": "qb_os_11",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "What is \"Thrashing\" in an operating system?",
@@ -1053,7 +1070,7 @@
   },
   {
     "id": "qb_os_12",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "File Systems",
     "type": "single",
     "question": "In Unix-like file systems, what data structure stores file metadata such as file size, permissions, and disk block pointers?",
@@ -1070,7 +1087,7 @@
   },
   {
     "id": "qb_os_13",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "I/O & Storage",
     "type": "single",
     "question": "Which disk scheduling algorithm services I/O requests by sweeping the head back and forth across cylinders like an elevator?",
@@ -1087,7 +1104,7 @@
   },
   {
     "id": "qb_os_14",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "System Calls",
     "type": "single",
     "question": "Which Unix system call creates an exact duplicate child process of the calling parent process?",
@@ -1104,7 +1121,7 @@
   },
   {
     "id": "qb_os_15",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Processes vs Threads",
     "type": "single",
     "question": "What is shared between multiple threads belonging to the same process?",
@@ -1121,7 +1138,7 @@
   },
   {
     "id": "qb_os_16",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Inter-Process Communication",
     "type": "single",
     "question": "Which IPC mechanism provides asynchronous notification sent directly to a process when a specific event occurs (e.g. SIGINT)?",
@@ -1138,7 +1155,7 @@
   },
   {
     "id": "qb_os_17",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process States",
     "type": "single",
     "question": "When a process is waiting for I/O completion or a mutex lock, which state is it in?",
@@ -1155,7 +1172,7 @@
   },
   {
     "id": "qb_os_18",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Modes",
     "type": "single",
     "question": "Which mechanism switches the CPU execution level from unprivileged User Mode to privileged Kernel Mode?",
@@ -1172,7 +1189,7 @@
   },
   {
     "id": "qb_os_19",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "What is internal fragmentation in memory allocation?",
@@ -1189,7 +1206,7 @@
   },
   {
     "id": "qb_os_20",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "What is external fragmentation?",
@@ -1206,7 +1223,7 @@
   },
   {
     "id": "qb_os_21",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "single",
     "question": "What is a Spinlock in kernel synchronization?",
@@ -1223,7 +1240,7 @@
   },
   {
     "id": "qb_os_22",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "single",
     "question": "Which software solution solves the critical section problem for two processes without hardware atomic instructions?",
@@ -1240,7 +1257,7 @@
   },
   {
     "id": "qb_os_23",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "File Systems",
     "type": "single",
     "question": "What is a \"Hard Link\" in Unix file systems?",
@@ -1257,7 +1274,7 @@
   },
   {
     "id": "qb_os_24",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "File Systems",
     "type": "single",
     "question": "What is a \"Symbolic (Soft) Link\"?",
@@ -1274,7 +1291,7 @@
   },
   {
     "id": "qb_os_25",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "System Calls",
     "type": "single",
     "question": "What happens to a child process that has terminated, but whose parent process has not yet called wait()?",
@@ -1291,7 +1308,7 @@
   },
   {
     "id": "qb_os_26",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "System Calls",
     "type": "single",
     "question": "What happens to a running process when its parent process terminates before it does?",
@@ -1308,7 +1325,7 @@
   },
   {
     "id": "qb_os_27",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Storage",
     "type": "single",
     "question": "Which RAID level provides striping with distributed parity across at least 3 drives?",
@@ -1325,7 +1342,7 @@
   },
   {
     "id": "qb_os_28",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Memory Management",
     "type": "single",
     "question": "Which dynamic memory allocation strategy searches memory and allocates the smallest free block that is large enough?",
@@ -1342,7 +1359,7 @@
   },
   {
     "id": "qb_os_29",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Management",
     "type": "single",
     "question": "What is the function of the OS Context Switch?",
@@ -1359,7 +1376,7 @@
   },
   {
     "id": "qb_os_30",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Scheduling",
     "type": "single",
     "question": "What is the turnaround time of a process in CPU scheduling?",
@@ -1376,7 +1393,7 @@
   },
   {
     "id": "qb_os_31",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "single",
     "question": "What is the Working Set model in virtual memory management used for?",
@@ -1393,7 +1410,7 @@
   },
   {
     "id": "qb_os_32",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Synchronization",
     "type": "single",
     "question": "What is Priority Inversion in real-time operating systems?",
@@ -1410,7 +1427,7 @@
   },
   {
     "id": "qb_os_33",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Synchronization",
     "type": "single",
     "question": "Which technique is commonly used to resolve the Priority Inversion problem?",
@@ -1427,7 +1444,7 @@
   },
   {
     "id": "qb_os_34",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Kernel Design",
     "type": "single",
     "question": "Which operating system architecture minimizes kernel code by moving drivers and file systems into user space?",
@@ -1444,7 +1461,7 @@
   },
   {
     "id": "qb_os_35",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Storage",
     "type": "single",
     "question": "What is the Spooling technique in operating systems?",
@@ -1461,7 +1478,7 @@
   },
   {
     "id": "qb_os_36",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Deadlocks",
     "type": "multiple",
     "question": "Which of the following conditions are necessary for a deadlock to occur? (Select all that apply)",
@@ -1483,7 +1500,7 @@
   },
   {
     "id": "qb_os_37",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Scheduling",
     "type": "multiple",
     "question": "Which of the following CPU scheduling algorithms are preemptive in nature? (Select all that apply)",
@@ -1504,7 +1521,7 @@
   },
   {
     "id": "qb_os_38",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "multiple",
     "question": "Which of the following are page replacement algorithms used in operating systems? (Select all that apply)",
@@ -1525,7 +1542,7 @@
   },
   {
     "id": "qb_os_39",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Processes vs Threads",
     "type": "multiple",
     "question": "Which resources are private to each thread within a multithreaded process? (Select all that apply)",
@@ -1546,7 +1563,7 @@
   },
   {
     "id": "qb_os_40",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Inter-Process Communication",
     "type": "multiple",
     "question": "Which of the following are valid Inter-Process Communication (IPC) mechanisms? (Select all that apply)",
@@ -1567,7 +1584,7 @@
   },
   {
     "id": "qb_os_41",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "File Systems",
     "type": "multiple",
     "question": "Which of the following attributes are typically stored inside an Inode in a Unix file system? (Select all that apply)",
@@ -1588,7 +1605,7 @@
   },
   {
     "id": "qb_os_42",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Storage",
     "type": "multiple",
     "question": "Which of the following are disk scheduling algorithms? (Select all that apply)",
@@ -1609,7 +1626,7 @@
   },
   {
     "id": "qb_os_43",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "multiple",
     "question": "Which requirements must a valid solution to the Critical Section problem satisfy? (Select all that apply)",
@@ -1630,7 +1647,7 @@
   },
   {
     "id": "qb_os_44",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Memory Management",
     "type": "multiple",
     "question": "Which of the following techniques help address or eliminate external fragmentation in physical RAM? (Select all that apply)",
@@ -1650,7 +1667,7 @@
   },
   {
     "id": "qb_os_45",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Kernel Design",
     "type": "multiple",
     "question": "Which operations require the processor to execute in privileged Kernel Mode? (Select all that apply)",
@@ -1671,7 +1688,7 @@
   },
   {
     "id": "qb_os_46",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Process Synchronization",
     "type": "paragraph",
     "question": "Explain the Critical Section problem and detail the three requirements (Mutual Exclusion, Progress, Bounded Waiting) that any correct solution must satisfy.",
@@ -1683,7 +1700,7 @@
   },
   {
     "id": "qb_os_47",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Deadlocks",
     "type": "paragraph",
     "question": "State the four Coffman conditions necessary for a deadlock. Explain how Banker’s algorithm prevents deadlocks by maintaining a safe state.",
@@ -1695,7 +1712,7 @@
   },
   {
     "id": "qb_os_48",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "Virtual Memory",
     "type": "paragraph",
     "question": "Describe how Demand Paging and Page Fault handling work in modern virtual memory systems from hardware trap to disk read and page replacement.",
@@ -1707,7 +1724,7 @@
   },
   {
     "id": "qb_os_49",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "File Systems",
     "type": "paragraph",
     "question": "Explain the Inode architecture in Unix file systems. Differentiate between Direct, Single Indirect, Double Indirect, and Triple Indirect block pointers.",
@@ -1719,7 +1736,7 @@
   },
   {
     "id": "qb_os_50",
-    "subject": "OS",
+    "subject": "Operating Systems",
     "topic": "CPU Scheduling",
     "type": "paragraph",
     "question": "Compare Preemptive and Non-Preemptive CPU scheduling algorithms. Contrast Shortest Job First (SJF) with Round Robin (RR) in terms of turnaround time, response time, and starvation risk.",

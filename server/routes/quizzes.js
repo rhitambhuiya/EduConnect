@@ -28,7 +28,7 @@ function sanitizeQuestions(questions = []) {
   });
 }
 
-// GET /api/quizzes/question-bank - Strictly for teachers to browse and select curated questions for DBMS, OS, CN, and Java
+// GET /api/quizzes/question-bank - Strictly for teachers to browse and select questions
 router.get('/question-bank', authenticate, requireRole('teacher'), (req, res) => {
   try {
     const { subject, type, search } = req.query;
@@ -40,6 +40,89 @@ router.get('/question-bank', authenticate, requireRole('teacher'), (req, res) =>
   } catch (err) {
     console.error('Error fetching question bank:', err);
     return res.status(500).json({ error: 'Failed to fetch question bank' });
+  }
+});
+
+// GET /api/quizzes/question-bank/sections - List all sections/subjects in the question bank
+router.get('/question-bank/sections', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const sections = db.getQuestionBankSections();
+    return res.json({ sections });
+  } catch (err) {
+    console.error('Error fetching question bank sections:', err);
+    return res.status(500).json({ error: 'Failed to fetch sections' });
+  }
+});
+
+// POST /api/quizzes/question-bank/sections - Create a new section/subject in the question bank
+router.post('/question-bank/sections', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Section name cannot be empty.' });
+    }
+    const section = db.addQuestionBankSection(name.trim());
+    const allSections = db.getQuestionBankSections();
+    return res.status(201).json({
+      message: `Section "${section}" created successfully.`,
+      section,
+      sections: allSections
+    });
+  } catch (err) {
+    console.error('Error creating question bank section:', err);
+    return res.status(500).json({ error: 'Failed to create section' });
+  }
+});
+
+// POST /api/quizzes/question-bank - Teacher adds a question to a specific section in the question bank
+router.post('/question-bank', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const { subject, type, question, options, correctAnswer, correctAnswers, points, explanation, rubric } = req.body;
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({ error: 'Section/Subject is required.' });
+    }
+    if (!question || !question.trim()) {
+      return res.status(400).json({ error: 'Question text is required.' });
+    }
+    if (!['single', 'multiple', 'paragraph'].includes(type)) {
+      return res.status(400).json({ error: 'Valid question type (single, multiple, paragraph) is required.' });
+    }
+
+    if (type === 'single') {
+      if (!Array.isArray(options) || options.length < 2) {
+        return res.status(400).json({ error: 'Single choice MCQ must have at least 2 options.' });
+      }
+      if (correctAnswer === undefined || correctAnswer === null || correctAnswer < 0 || correctAnswer >= options.length) {
+        return res.status(400).json({ error: 'A valid correct option must be selected.' });
+      }
+    } else if (type === 'multiple') {
+      if (!Array.isArray(options) || options.length < 2) {
+        return res.status(400).json({ error: 'Multiple choice MCQ must have at least 2 options.' });
+      }
+      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
+        return res.status(400).json({ error: 'At least one correct answer must be selected.' });
+      }
+    }
+
+    const added = db.addQuestionToBank({
+      subject: subject.trim(),
+      type,
+      question: question.trim(),
+      options,
+      correctAnswer,
+      correctAnswers,
+      points: Number(points) || (type === 'paragraph' ? 10 : 5),
+      explanation: explanation || '',
+      rubric: rubric || ''
+    });
+
+    return res.status(201).json({
+      message: 'Question added to Question Bank successfully.',
+      question: added
+    });
+  } catch (err) {
+    console.error('Error adding question to bank:', err);
+    return res.status(500).json({ error: 'Failed to add question to bank' });
   }
 });
 
@@ -333,6 +416,27 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), (req, res) 
       questions
     });
 
+    // Save any newly created questions marked for question bank
+    for (const q of (questions || [])) {
+      if (q.saveToBank && q.bankSection) {
+        try {
+          db.addQuestionToBank({
+            subject: q.bankSection.trim(),
+            type: q.type,
+            question: q.questionText || q.question || '',
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            correctAnswers: q.correctAnswers,
+            points: q.points,
+            explanation: q.explanation,
+            rubric: q.rubric
+          });
+        } catch (e) {
+          console.error('Failed to auto-save question to bank:', e);
+        }
+      }
+    }
+
     return res.status(201).json(created);
   } catch (err) {
     console.error('Error creating quiz:', err);
@@ -396,6 +500,30 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
     }
 
     const updated = db.updateQuiz(quiz.id, req.body);
+
+    // Save any newly created questions marked for question bank
+    if (Array.isArray(questions)) {
+      for (const q of questions) {
+        if (q.saveToBank && q.bankSection) {
+          try {
+            db.addQuestionToBank({
+              subject: q.bankSection.trim(),
+              type: q.type,
+              question: q.questionText || q.question || '',
+              options: q.options,
+              correctAnswer: q.correctAnswer,
+              correctAnswers: q.correctAnswers,
+              points: q.points,
+              explanation: q.explanation,
+              rubric: q.rubric
+            });
+          } catch (e) {
+            console.error('Failed to auto-save question to bank:', e);
+          }
+        }
+      }
+    }
+
     return res.json(updated);
   } catch (err) {
     console.error('Error updating quiz:', err);

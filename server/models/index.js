@@ -161,6 +161,12 @@ const QuestionBankSchema = new mongoose.Schema({
   rubric: { type: String, default: '' }
 }, { collection: 'questionBank', timestamps: false });
 
+// 11. Question Bank Section Schema
+const QuestionBankSectionSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  createdAt: { type: String, default: () => new Date().toISOString() }
+}, { collection: 'questionBankSections', timestamps: false });
+
 module.exports = {
   User: mongoose.models.User || mongoose.model('User', UserSchema),
   Class: mongoose.models.Class || mongoose.model('Class', ClassSchema),
@@ -171,6 +177,7 @@ module.exports = {
   Submission: mongoose.models.Submission || mongoose.model('Submission', SubmissionSchema),
   Quiz: mongoose.models.Quiz || mongoose.model('Quiz', QuizSchema),
   QuizAttempt: mongoose.models.QuizAttempt || mongoose.model('QuizAttempt', QuizAttemptSchema),
-  QuestionBank: mongoose.models.QuestionBank || mongoose.model('QuestionBank', QuestionBankSchema)
+  QuestionBank: mongoose.models.QuestionBank || mongoose.model('QuestionBank', QuestionBankSchema),
+  QuestionBankSection: mongoose.models.QuestionBankSection || mongoose.model('QuestionBankSection', QuestionBankSectionSchema)
 };
 

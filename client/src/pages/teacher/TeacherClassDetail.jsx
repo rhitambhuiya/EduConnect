@@ -32,6 +32,7 @@ import TeacherAssignmentModal from './TeacherAssignmentModal';
 import TeacherSubmissionsModal from './TeacherSubmissionsModal';
 import TeacherQuizModal from './TeacherQuizModal';
 import TeacherQuizReviewModal from './TeacherQuizReviewModal';
+import QuestionBankPickerModal from './QuestionBankPickerModal';
 
 export default function TeacherClassDetail() {
   const { id } = useParams();
@@ -81,6 +82,7 @@ export default function TeacherClassDetail() {
   const [quizToDelete, setQuizToDelete] = useState(null);
   const [isDeletingQuiz, setIsDeletingQuiz] = useState(false);
   const [quizMsg, setQuizMsg] = useState({ text: '', type: '' });
+  const [bankManagerOpen, setBankManagerOpen] = useState(false);
 
   const loadAllData = async () => {
     try {
@@ -1105,16 +1107,26 @@ export default function TeacherClassDetail() {
                 Create timed quizzes with single-correct MCQs, multi-correct MCQs (auto-graded), and paragraph questions with manual marks allotment.
               </p>
             </div>
-            <button
-              onClick={() => {
-                setEditingQuiz(null);
-                setQuizModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors shrink-0"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Create Quiz</span>
-            </button>
+            <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+              <button
+                onClick={() => setBankManagerOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                title="Manage Question Bank: browse subjects, create custom sections, and add questions"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Question Bank Manager</span>
+              </button>
+              <button
+                onClick={() => {
+                  setEditingQuiz(null);
+                  setQuizModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors shrink-0 cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Create Quiz</span>
+              </button>
+            </div>
           </div>
 
           {/* Quizzes List */}
@@ -1526,6 +1538,12 @@ export default function TeacherClassDetail() {
           const updated = await apiRequest(`/api/quizzes/class/${id}`).catch(() => []);
           setQuizzes(updated);
         }}
+      />
+
+      {/* Standalone Question Bank Manager Modal */}
+      <QuestionBankPickerModal
+        isOpen={bankManagerOpen}
+        onClose={() => setBankManagerOpen(false)}
       />
 
       {/* Quiz Delete Confirmation Modal */}
