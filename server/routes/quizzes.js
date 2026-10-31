@@ -638,12 +638,14 @@ router.get('/:id/review', authenticate, (req, res) => {
     const reviewQuestions = (quiz.questions || []).map((q, idx) => {
       const studentAns = answersMap.get(q.id) || null;
       const isMcq = q.type === 'single' || q.type === 'multiple';
+      const qText = (q.questionText || q.question || '').trim();
 
       return {
         questionId: q.id,
         index: idx + 1,
         type: q.type,
-        question: q.question,
+        question: qText,
+        questionText: qText,
         points: q.points || 0,
         options: q.options || [],
         correctAnswer: q.correctAnswer,

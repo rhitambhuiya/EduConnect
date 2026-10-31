@@ -518,7 +518,7 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
 
                       {/* Question text */}
                       <div className="text-sm font-semibold text-slate-900 leading-relaxed">
-                        {q.question}
+                        {q.question || q.questionText}
                       </div>
 
                       {/* Question options / input */}

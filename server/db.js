@@ -898,17 +898,21 @@ class Database {
   }
 
   createQuiz({ classId, teacherId, teacherName, title, description, durationMinutes, startTime, endTime, questions = [] }) {
-    const formattedQuestions = (questions || []).map((q, idx) => ({
-      id: q.id || generateId('q'),
-      type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-      questionText: (q.questionText || q.question || '').trim(),
-      options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-      correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-      correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-      points: Number(q.points) || 1,
-      explanation: (q.explanation || '').trim(),
-      rubric: (q.rubric || '').trim()
-    }));
+    const formattedQuestions = (questions || []).map((q, idx) => {
+      const qText = (q.questionText || q.question || '').trim();
+      return {
+        id: q.id || generateId('q'),
+        type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
+        question: qText,
+        questionText: qText,
+        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+        points: Number(q.points) || 1,
+        explanation: (q.explanation || '').trim(),
+        rubric: (q.rubric || '').trim()
+      };
+    });
 
     const totalPoints = formattedQuestions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
 
@@ -958,17 +962,21 @@ class Database {
     }
 
     if (updates.questions !== undefined) {
-      quiz.questions = updates.questions.map(q => ({
-        id: q.id || generateId('q'),
-        type: q.type || 'single',
-        questionText: (q.questionText || q.question || '').trim(),
-        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-        points: Number(q.points) || 1,
-        explanation: (q.explanation || '').trim(),
-        rubric: (q.rubric || '').trim()
-      }));
+      quiz.questions = updates.questions.map(q => {
+        const qText = (q.questionText || q.question || '').trim();
+        return {
+          id: q.id || generateId('q'),
+          type: q.type || 'single',
+          question: qText,
+          questionText: qText,
+          options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+          correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+          correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+          points: Number(q.points) || 1,
+          explanation: (q.explanation || '').trim(),
+          rubric: (q.rubric || '').trim()
+        };
+      });
       quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
     }
 
@@ -1087,17 +1095,21 @@ class Database {
   }
 
   createQuiz({ classId, teacherId, teacherName, title, description, durationMinutes, startTime, endTime, questions = [] }) {
-    const formattedQuestions = (questions || []).map((q, idx) => ({
-      id: q.id || generateId('q'),
-      type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-      questionText: (q.questionText || q.question || '').trim(),
-      options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-      correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-      correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-      points: Number(q.points) || 1,
-      explanation: (q.explanation || '').trim(),
-      rubric: (q.rubric || '').trim()
-    }));
+    const formattedQuestions = (questions || []).map((q, idx) => {
+      const qText = (q.questionText || q.question || '').trim();
+      return {
+        id: q.id || generateId('q'),
+        type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
+        question: qText,
+        questionText: qText,
+        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+        points: Number(q.points) || 1,
+        explanation: (q.explanation || '').trim(),
+        rubric: (q.rubric || '').trim()
+      };
+    });
 
     const totalPoints = formattedQuestions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
 
@@ -1147,17 +1159,21 @@ class Database {
     }
 
     if (updates.questions !== undefined) {
-      quiz.questions = updates.questions.map(q => ({
-        id: q.id || generateId('q'),
-        type: q.type || 'single',
-        questionText: (q.questionText || q.question || '').trim(),
-        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-        points: Number(q.points) || 1,
-        explanation: (q.explanation || '').trim(),
-        rubric: (q.rubric || '').trim()
-      }));
+      quiz.questions = updates.questions.map(q => {
+        const qText = (q.questionText || q.question || '').trim();
+        return {
+          id: q.id || generateId('q'),
+          type: q.type || 'single',
+          question: qText,
+          questionText: qText,
+          options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+          correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+          correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+          points: Number(q.points) || 1,
+          explanation: (q.explanation || '').trim(),
+          rubric: (q.rubric || '').trim()
+        };
+      });
       quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
     }
 
@@ -1469,17 +1485,21 @@ class Database {
   }
 
   createQuiz({ classId, teacherId, teacherName, title, description, durationMinutes, startTime, endTime, questions = [] }) {
-    const formattedQuestions = (questions || []).map((q, idx) => ({
-      id: q.id || generateId('q'),
-      type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-      questionText: (q.questionText || q.question || '').trim(),
-      options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-      correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-      correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-      points: Number(q.points) || 1,
-      explanation: (q.explanation || '').trim(),
-      rubric: (q.rubric || '').trim()
-    }));
+    const formattedQuestions = (questions || []).map((q, idx) => {
+      const qText = (q.questionText || q.question || '').trim();
+      return {
+        id: q.id || generateId('q'),
+        type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
+        question: qText,
+        questionText: qText,
+        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+        points: Number(q.points) || 1,
+        explanation: (q.explanation || '').trim(),
+        rubric: (q.rubric || '').trim()
+      };
+    });
 
     const totalPoints = formattedQuestions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
 
@@ -1529,17 +1549,21 @@ class Database {
     }
 
     if (updates.questions !== undefined) {
-      quiz.questions = updates.questions.map(q => ({
-        id: q.id || generateId('q'),
-        type: q.type || 'single',
-        questionText: (q.questionText || q.question || '').trim(),
-        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-        points: Number(q.points) || 1,
-        explanation: (q.explanation || '').trim(),
-        rubric: (q.rubric || '').trim()
-      }));
+      quiz.questions = updates.questions.map(q => {
+        const qText = (q.questionText || q.question || '').trim();
+        return {
+          id: q.id || generateId('q'),
+          type: q.type || 'single',
+          question: qText,
+          questionText: qText,
+          options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
+          correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
+          correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
+          points: Number(q.points) || 1,
+          explanation: (q.explanation || '').trim(),
+          rubric: (q.rubric || '').trim()
+        };
+      });
       quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
     }
 

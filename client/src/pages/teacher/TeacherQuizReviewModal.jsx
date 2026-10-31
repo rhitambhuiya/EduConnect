@@ -613,7 +613,7 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, initia
 
                               {/* Question prompt */}
                               <div className="py-3 text-sm font-semibold text-slate-900">
-                                {q.question}
+                                {q.question || q.questionText}
                               </div>
 
                               {/* MCQ Single Choice breakdown */}
@@ -854,7 +854,7 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, initia
                           </div>
 
                           <div className="text-sm font-semibold text-slate-900 leading-snug">
-                            {q.question}
+                            {q.question || q.questionText}
                           </div>
 
                           {/* MCQ Options */}

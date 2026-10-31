@@ -216,7 +216,7 @@ export default function QuizResultsModal({ isOpen, onClose, quizId }) {
 
                           {/* Question text */}
                           <div className="py-3 text-sm font-semibold text-slate-900 leading-relaxed">
-                            {q.question}
+                            {q.question || q.questionText}
                           </div>
 
                           {/* Single Choice MCQ Verification */}
