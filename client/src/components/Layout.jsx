@@ -34,6 +34,8 @@ export default function Layout({ children }) {
   const teacherNavItems = [
     { label: 'Dashboard', to: '/teacher/dashboard', icon: LayoutDashboard },
     { label: 'My Classes', to: '/teacher/classes', icon: BookOpen },
+    { label: 'Assignments', to: '/teacher/assignments', icon: Calendar },
+    { label: 'Quizzes', to: '/teacher/quizzes', icon: CheckSquare },
     { 
       label: 'Create Class', 
       onClick: () => {

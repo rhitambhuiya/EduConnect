@@ -1,22 +1,5 @@
 [
   {
-    "id": "qb_1793371207019_9fdlc",
-    "subject": "Data Structures & Algorithms",
-    "type": "single",
-    "question": "What is the time complexity of pushing an element onto a stack?",
-    "options": [
-      "O(1)",
-      "O(n)",
-      "O(log n)",
-      "O(n^2)"
-    ],
-    "correctAnswer": 0,
-    "correctAnswers": [],
-    "points": 5,
-    "explanation": "Push operation on a stack takes constant time O(1).",
-    "rubric": ""
-  },
-  {
     "id": "qb_dbms_1",
     "subject": "DBMS",
     "topic": "Transactions",
@@ -3476,6 +3459,871 @@
     "correctAnswer": null,
     "correctAnswers": [],
     "explanation": "Java 8 introduces first-class functional capabilities via single abstract method (SAM) interfaces like Predicate and Function. Lambdas provide concise anonymous function syntax. The Stream API processes sequences declaratively: intermediate operations (map, filter) are lazily evaluated pipelines, while terminal operations (collect, reduce, forEach) trigger execution. Optional<T> provides a type-safe container representing nullable values.",
+    "points": 10
+  },
+  {
+    "id": "qb_dsa_1",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Asymptotic Analysis",
+    "type": "single",
+    "question": "What is the worst-case time complexity of searching for an element in a balanced Binary Search Tree (AVL tree) with n nodes?",
+    "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Because an AVL tree is height-balanced with height bounded by O(log n), searching requires at most O(log n) comparisons in the worst case.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_2",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "single",
+    "question": "Which sorting algorithm has a worst-case time complexity of O(n^2) but an average-case time complexity of O(n log n)?",
+    "options": [
+      "Merge Sort",
+      "Heap Sort",
+      "Quick Sort",
+      "Radix Sort"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "Quick Sort achieves O(n log n) on average, but if unbalanced pivots (e.g., minimum or maximum) are consistently chosen, it degrades to O(n^2).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_3",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Linked Lists",
+    "type": "single",
+    "question": "Which algorithm is used to detect a cycle in a singly linked list in O(n) time and O(1) auxiliary space?",
+    "options": [
+      "Dijkstra's Algorithm",
+      "Floyd's Cycle-Finding Algorithm (Tortoise and Hare)",
+      "Tarjan's Algorithm",
+      "Kadane's Algorithm"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Floyd's Cycle-Finding algorithm uses two pointers moving at different speeds (1 step and 2 steps) to detect cycles with O(1) space.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_4",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Stacks & Queues",
+    "type": "single",
+    "question": "What is the minimum number of queues required to implement a Last-In-First-Out (LIFO) Stack?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "Not possible with standard FIFO queues"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Two queues are required to simulate stack operations by transferring elements to maintain the LIFO order.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_5",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Hashing",
+    "type": "single",
+    "question": "What is the primary drawback of Linear Probing in open-address hash tables?",
+    "options": [
+      "Secondary Clustering",
+      "Primary Clustering",
+      "Excessive dynamic memory allocation",
+      "Inability to store negative keys"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Linear probing suffers from primary clustering, where contiguous occupied slots form long blocks that increase search times.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_6",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Trees",
+    "type": "single",
+    "question": "Which tree traversal of a Binary Search Tree produces elements in strictly ascending sorted order?",
+    "options": [
+      "Preorder Traversal",
+      "Inorder Traversal",
+      "Postorder Traversal",
+      "Level-order Traversal"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "An Inorder traversal visits left subtree, root, then right subtree, which matches the ordering definition of a BST.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_7",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Heaps",
+    "type": "single",
+    "question": "What is the time complexity to build a Max Heap from an arbitrary array of n elements using the bottom-up build-heap algorithm?",
+    "options": [
+      "O(log n)",
+      "O(n)",
+      "O(n log n)",
+      "O(n^2)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Bottom-up heap construction runs in O(n) linear time because the sum of heights of all nodes forms a convergent geometric series.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_8",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "single",
+    "question": "Which graph traversal algorithm uses a First-In-First-Out (FIFO) queue and finds the shortest path in an unweighted graph?",
+    "options": [
+      "Depth First Search (DFS)",
+      "Breadth First Search (BFS)",
+      "Topological Sort",
+      "Bellman-Ford Algorithm"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "BFS explores nodes level-by-level using a FIFO queue, guaranteeing shortest path distances in unweighted graphs.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_9",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "single",
+    "question": "Which of the following algorithms CANNOT handle graphs with negative edge weights even without negative cycles?",
+    "options": [
+      "Bellman-Ford Algorithm",
+      "Floyd-Warshall Algorithm",
+      "Dijkstra's Algorithm",
+      "Johnson's Algorithm"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "Dijkstra's greedy approach assumes that adding edges can only increase path distance; negative edge weights invalidate this invariant.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_10",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Minimum Spanning Trees",
+    "type": "single",
+    "question": "Which data structure is typically used to optimize Kruskal's Algorithm to achieve an O(E log V) running time?",
+    "options": [
+      "AVL Tree",
+      "Disjoint Set Union (Union-Find) with path compression",
+      "Suffix Trie",
+      "B-Tree"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Disjoint Set Union (DSU) checks cycle creation across edges in nearly O(1) amortized time using union by rank and path compression.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_11",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Dynamic Programming",
+    "type": "single",
+    "question": "What is the time complexity of the standard dynamic programming solution for the 0/1 Knapsack problem with n items and capacity W?",
+    "options": [
+      "O(n log W)",
+      "O(n * W)",
+      "O(2^n)",
+      "O(n + W)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "The 0/1 Knapsack DP table has (n + 1) * (W + 1) states, each taking O(1) transition time, yielding pseudo-polynomial O(n * W) time.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_12",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "single",
+    "question": "What is the theoretical lower bound for the number of comparisons required to sort n arbitrary elements in a comparison-based sorting model?",
+    "options": [
+      "Omega(n)",
+      "Omega(n log n)",
+      "Omega(n^2)",
+      "Omega(log n)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Any comparison-based sort can be modeled as a decision tree with n! leaves. The height of such tree is at least log2(n!) = Omega(n log n).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_13",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Arrays",
+    "type": "single",
+    "question": "Which algorithm finds the maximum sum contiguous subarray in an array in O(n) time and O(1) extra space?",
+    "options": [
+      "Kadane's Algorithm",
+      "Boyer-Moore Voting Algorithm",
+      "Manacher's Algorithm",
+      "KMP Algorithm"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Kadane's algorithm keeps a running local maximum sum and updates the global maximum in a single linear pass.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_14",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Strings",
+    "type": "single",
+    "question": "What is the auxiliary array constructed during the pre-processing phase of the Knuth-Morris-Pratt (KMP) pattern searching algorithm?",
+    "options": [
+      "Suffix Array",
+      "Longest Prefix which is also Suffix (LPS) array",
+      "Z-Array",
+      "Burrows-Wheeler Transform"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "KMP precomputes the LPS array to skip redundant comparisons when a pattern mismatch occurs.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_15",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Balanced Trees",
+    "type": "single",
+    "question": "In an AVL tree, what are the permissible values for the balance factor (height(left) - height(right)) of any node?",
+    "options": [
+      "Only 0",
+      "-1, 0, or 1",
+      "-2, -1, 0, 1, or 2",
+      "Any non-negative integer"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "An AVL tree enforces that for every node, the heights of its left and right subtrees differ by at most 1 (i.e. balance factor in {-1, 0, 1}).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_16",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Balanced Trees",
+    "type": "single",
+    "question": "In a Red-Black Tree, what is the maximum possible height of a tree containing n internal nodes?",
+    "options": [
+      "log2(n)",
+      "2 * log2(n + 1)",
+      "3 * log2(n)",
+      "n / 2"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "The longest path from root to a leaf in a Red-Black Tree contains alternating red and black nodes, bounding height to at most 2 * log2(n + 1).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_17",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "single",
+    "question": "Topological sorting is strictly defined for which family of graphs?",
+    "options": [
+      "Undirected Acyclic Graphs",
+      "Directed Acyclic Graphs (DAGs)",
+      "Complete Graphs",
+      "Bipartite Graphs with cycles"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Topological sorting linearly orders vertices such that for every directed edge (u, v), u comes before v. This requires the graph to be a DAG.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_18",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "single",
+    "question": "Which of the following sorting algorithms is inherently STABLE and achieves O(n log n) worst-case time complexity?",
+    "options": [
+      "Heap Sort",
+      "Merge Sort",
+      "Quick Sort",
+      "Selection Sort"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Merge Sort splits and merges arrays preserving relative order of duplicate keys, guaranteeing O(n log n) time and stability.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_19",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Stacks",
+    "type": "single",
+    "question": "What data structure is used to evaluate an arithmetic expression in Reverse Polish Notation (Postfix notation)?",
+    "options": [
+      "Queue",
+      "Stack",
+      "Binary Heap",
+      "Hash Table"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Operands are pushed onto a stack; whenever an operator is encountered, the top two operands are popped and evaluated.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_20",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Heaps",
+    "type": "single",
+    "question": "In a 0-indexed binary array representation of a complete binary tree, what is the index of the parent of a node at index i (where i > 0)?",
+    "options": [
+      "floor((i - 1) / 2)",
+      "floor(i / 2)",
+      "2 * i + 1",
+      "2 * i + 2"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "For 0-based indexing, the left child is 2*i + 1, the right child is 2*i + 2, and the parent is at floor((i - 1) / 2).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_21",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Asymptotic Analysis",
+    "type": "single",
+    "question": "What is the solution to the recurrence relation T(n) = 2T(n/2) + O(n) according to the Master Theorem?",
+    "options": [
+      "O(n)",
+      "O(n log n)",
+      "O(n^2)",
+      "O(log n)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Here a = 2, b = 2, and f(n) = O(n). Since log_b(a) = log_2(2) = 1 and f(n) = Theta(n^1), Master Theorem Case 2 applies: T(n) = O(n log n).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_22",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Dynamic Programming",
+    "type": "single",
+    "question": "What is the optimal substructure formulation for finding the Longest Common Subsequence (LCS) of strings X[0..m-1] and Y[0..n-1] when X[m-1] == Y[n-1]?",
+    "options": [
+      "1 + LCS(X[0..m-2], Y[0..n-2])",
+      "max(LCS(X[0..m-2], Y), LCS(X, Y[0..n-2]))",
+      "LCS(X[0..m-2], Y[0..n-2])",
+      "2 * LCS(X[0..m-2], Y[0..n-2])"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "When the last characters match, they contribute 1 to the subsequence length, reducing the problem to LCS of the remaining prefixes: 1 + LCS(X[0..m-2], Y[0..n-2]).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_23",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "single",
+    "question": "What is the time complexity of the Floyd-Warshall all-pairs shortest path algorithm on a graph with V vertices?",
+    "options": [
+      "O(V^2)",
+      "O(V^3)",
+      "O(V * E log V)",
+      "O(E^2)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Floyd-Warshall executes three nested loops from 1 to V, considering each vertex k as an intermediate node, resulting in O(V^3) time.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_24",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Linked Lists",
+    "type": "single",
+    "question": "What is the time complexity to insert a new node at the beginning of a singly linked list with head pointer?",
+    "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Prepending to a linked list simply requires updating the new node's next pointer to head and updating head to the new node, running in O(1) constant time.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_25",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Binary Search",
+    "type": "single",
+    "question": "Given a sorted rotated array without duplicates, what is the time complexity to find the minimum element using modified binary search?",
+    "options": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Comparing mid with high allows halving the search space each step, locating the pivot/minimum in O(log n) time.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_26",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Trees",
+    "type": "single",
+    "question": "What is the maximum number of nodes in a binary tree of height h (where a tree with single root node has height 0)?",
+    "options": [
+      "2^h",
+      "2^(h + 1) - 1",
+      "2^h - 1",
+      "h^2"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A full binary tree has 1 + 2 + 4 + ... + 2^h = 2^(h + 1) - 1 nodes.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_27",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Greedy Algorithms",
+    "type": "single",
+    "question": "In the Fractional Knapsack problem, which greedy strategy yields the globally optimal value?",
+    "options": [
+      "Select items in decreasing order of absolute value",
+      "Select items in increasing order of weight",
+      "Select items in decreasing order of value-to-weight ratio (v_i / w_i)",
+      "Select items in random order"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "Sorting items by value-to-weight ratio and taking as much of the highest ratio items as possible guarantees the optimal fractional knapsack solution.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_28",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Hashing",
+    "type": "single",
+    "question": "In separate chaining hash tables with n keys and m slots, what is the expected search time assuming simple uniform hashing?",
+    "options": [
+      "O(n)",
+      "O(1 + alpha) where alpha = n/m is the load factor",
+      "O(m log n)",
+      "O(n^2)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Under simple uniform hashing, the average list length is alpha = n/m. Thus search time is O(1 + alpha). When m = Theta(n), search is O(1).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_29",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "single",
+    "question": "What does finding a back-edge during Depth First Search (DFS) on a directed graph signify?",
+    "options": [
+      "The graph is bipartite",
+      "The graph contains a directed cycle",
+      "The graph is a tree",
+      "The graph has no sink vertex"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A back edge points from a descendant to an ancestor in the DFS tree, which directly establishes the presence of a directed cycle.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_30",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Queues",
+    "type": "single",
+    "question": "In a circular queue implemented using an array of capacity N with front and rear pointers, which condition typically represents a FULL queue?",
+    "options": [
+      "front == rear",
+      "(rear + 1) % N == front",
+      "rear == N - 1",
+      "front == 0"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Leaving one slot empty differentiates full from empty. The queue is full when the next position of rear wraps around to front: (rear + 1) % N == front.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_31",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Trees",
+    "type": "single",
+    "question": "What is the relationship between the number of leaves (L) and the number of internal nodes with two children (I_2) in any non-empty proper (strict) binary tree?",
+    "options": [
+      "L = I_2",
+      "L = I_2 + 1",
+      "L = 2 * I_2",
+      "I_2 = L + 1"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In any strictly binary tree where every node has either 0 or 2 children, the number of leaf nodes L is always exactly I_2 + 1.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_32",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Disjoint Sets",
+    "type": "single",
+    "question": "What is the nearly linear amortized time complexity of m operations on a Disjoint Set Union (Union-Find) structure with n elements using both union by rank and path compression?",
+    "options": [
+      "O(m log n)",
+      "O(m * alpha(n)) where alpha is the inverse Ackermann function",
+      "O(m * n)",
+      "O(n log m)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Combining union by rank with path compression yields an amortized cost per operation of O(alpha(n)), where alpha(n) <= 4 for all practical universe sizes.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_33",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "single",
+    "question": "Which of the following non-comparison sorting algorithms sorts n integers in range [0, k] in O(n + k) time?",
+    "options": [
+      "Counting Sort",
+      "Merge Sort",
+      "Quick Sort",
+      "Tournament Sort"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Counting sort counts frequency of each integer in range [0, k], running in O(n + k) time without element-to-element comparisons.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_34",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Strings",
+    "type": "single",
+    "question": "A Trie (Prefix Tree) containing n English lowercase keys of maximum length L has which worst-case lookup time complexity for a word of length L?",
+    "options": [
+      "O(n * L)",
+      "O(L)",
+      "O(log n)",
+      "O(26^L)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In a Trie, each step matches one character of the query string. Finding or verifying a word of length L takes exactly O(L) steps, independent of n.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_35",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Dynamic Programming",
+    "type": "single",
+    "question": "What is the optimal substructure recurrence for the Longest Increasing Subsequence (LIS) ending at index i?",
+    "options": [
+      "LIS[i] = 1 + max({LIS[j] for all 0 <= j < i and arr[j] < arr[i]} U {0})",
+      "LIS[i] = LIS[i - 1] + 1",
+      "LIS[i] = max(LIS[i - 1], LIS[i - 2])",
+      "LIS[i] = 2 * LIS[i - 1]"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "To find the LIS ending at index i, we check all preceding indices j < i where arr[j] < arr[i], taking 1 plus the maximum LIS[j] found.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_36",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "multiple",
+    "question": "Which of the following sorting algorithms have a worst-case time complexity of O(n log n)? (Select all that apply)",
+    "options": [
+      "Merge Sort",
+      "Heap Sort",
+      "Quick Sort",
+      "Tim Sort"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Merge Sort, Heap Sort, and Tim Sort all guarantee O(n log n) worst-case time. Quick Sort can degrade to O(n^2).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_37",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "multiple",
+    "question": "Which of the following problems can be solved in polynomial time on general graphs? (Select all that apply)",
+    "options": [
+      "Single-Source Shortest Paths (Dijkstra/Bellman-Ford)",
+      "Minimum Spanning Tree (Kruskal/Prim)",
+      "Traveling Salesperson Problem (TSP)",
+      "Bipartite Graph 2-Coloring Check (BFS/DFS)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Shortest paths, MST, and 2-coloring checks are P problems solvable in O(V+E) or O(E log V). TSP is an NP-hard problem.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_38",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Trees",
+    "type": "multiple",
+    "question": "Which of the following are self-balancing Binary Search Trees? (Select all that apply)",
+    "options": [
+      "AVL Tree",
+      "Red-Black Tree",
+      "Splay Tree",
+      "Binary Heap"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "AVL, Red-Black, and Splay trees are self-balancing BSTs. A Binary Heap is a complete binary tree satisfying the heap property, not a BST.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_39",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Dynamic Programming",
+    "type": "multiple",
+    "question": "Which two key properties are essential for a problem to be solvable via Dynamic Programming? (Select all that apply)",
+    "options": [
+      "Optimal Substructure",
+      "Overlapping Subproblems",
+      "Greedy Choice Property",
+      "Linear Independence"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1
+    ],
+    "explanation": "Dynamic programming requires optimal substructure (optimal solution contains optimal sub-solutions) and overlapping subproblems (recomputed states).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_40",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Stacks & Queues",
+    "type": "multiple",
+    "question": "Which of the following applications typically employ a Stack data structure? (Select all that apply)",
+    "options": [
+      "Syntax parsing and parenthesis matching",
+      "Function call execution and recursion tracking",
+      "Printer spooler job scheduling",
+      "Undo/Redo history mechanisms in text editors"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Syntax matching, call stacks, and undo/redo stacks operate in LIFO order. Printer spooling uses a FIFO queue.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_41",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Hashing",
+    "type": "multiple",
+    "question": "Which of the following techniques are used for collision resolution in Hash Tables? (Select all that apply)",
+    "options": [
+      "Separate Chaining",
+      "Linear Probing",
+      "Quadratic Probing",
+      "Double Hashing"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Separate chaining uses linked lists for colliding buckets, while linear probing, quadratic probing, and double hashing are open-addressing schemes.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_42",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Graphs",
+    "type": "multiple",
+    "question": "Which algorithms can be used to find a Minimum Spanning Tree of a connected, weighted, undirected graph? (Select all that apply)",
+    "options": [
+      "Prim's Algorithm",
+      "Kruskal's Algorithm",
+      "Boruvka's Algorithm",
+      "Floyd-Warshall Algorithm"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Prim's, Kruskal's, and Boruvka's are all greedy algorithms for finding an MST. Floyd-Warshall finds all-pairs shortest paths.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_43",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "multiple",
+    "question": "Which of the following sorting algorithms are STABLE in their standard implementations? (Select all that apply)",
+    "options": [
+      "Insertion Sort",
+      "Merge Sort",
+      "Quick Sort",
+      "Bubble Sort"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Insertion sort, Merge sort, and Bubble sort do not swap identical keys unnecessarily, preserving stability. Quick sort's partition step is unstable.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_44",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Asymptotic Analysis",
+    "type": "multiple",
+    "question": "Which of the following asymptotic relations are TRUE for functions f(n) and g(n)? (Select all that apply)",
+    "options": [
+      "2^(n + 1) = O(2^n)",
+      "2^(2n) = O(2^n)",
+      "log(n!) = Theta(n log n)",
+      "n^2 = O(n^3)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      2,
+      3
+    ],
+    "explanation": "2^(n+1) = 2 * 2^n = O(2^n). log(n!) = Theta(n log n) by Stirling's formula. n^2 <= n^3 so n^2 = O(n^3). However, 2^(2n) = 4^n != O(2^n).",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_45",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Linked Lists",
+    "type": "multiple",
+    "question": "What advantages does a Doubly Linked List have over a Singly Linked List? (Select all that apply)",
+    "options": [
+      "Can be traversed in both forward and backward directions",
+      "Deletion of a given node (pointer to node known) takes O(1) without needing predecessor search",
+      "Consumes less memory per node than singly linked lists",
+      "Simplifies implementation of LRU Cache and Deque structures"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "Doubly linked lists store previous pointers, allowing bidirectional traversal, O(1) node removal when given the node pointer, and LRU cache deque operations. They consume more memory due to the extra pointer.",
+    "points": 5
+  },
+  {
+    "id": "qb_dsa_46",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Sorting",
+    "type": "paragraph",
+    "question": "Explain the working mechanism of Quick Sort. Why does its performance degrade to O(n^2) in the worst case, and what strategies (such as randomized pivot or median-of-three) can be used to prevent this degradation?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Quick Sort chooses a pivot, partitions elements into values smaller and greater than the pivot, and recursively sorts subarrays. The worst case O(n^2) occurs when the pivot consistently produces extreme unbalanced partitions (e.g., already sorted array with first/last element pivot). Techniques like randomized pivot selection or median-of-three (median of first, middle, last) ensure balanced partitioning with high probability, maintaining O(n log n) expected time.",
+    "points": 10
+  },
+  {
+    "id": "qb_dsa_47",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Balanced Trees",
+    "type": "paragraph",
+    "question": "Compare AVL Trees and Red-Black Trees. Highlight the differences in their height balancing criteria, lookup performance, insertion/deletion overhead, and discuss real-world scenarios where each is preferred.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "AVL trees are more strictly balanced with balance factor strictly in {-1, 0, 1}, bounding height to approximately 1.44 log n. Red-Black trees allow paths to differ by up to a factor of 2, bounding height to 2 log n. Consequently, AVL trees provide faster lookup times, ideal for search-intensive applications. However, Red-Black trees require fewer rotations during insertions (at most 2) and deletions (at most 3), making them superior for write-heavy workloads like Java's TreeMap and the Linux kernel CFS scheduler.",
+    "points": 10
+  },
+  {
+    "id": "qb_dsa_48",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Shortest Paths",
+    "type": "paragraph",
+    "question": "Contrast Dijkstra's Algorithm and the Bellman-Ford Algorithm for single-source shortest paths. Why does Dijkstra fail on graphs with negative edge weights, and how does Bellman-Ford detect negative weight cycles?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Dijkstra uses a greedy approach with a priority queue in O((V + E) log V) time. Once a vertex is extracted, its distance is finalized under the assumption that path lengths only increase. Negative edges violate this invariant, causing Dijkstra to produce incorrect distances. Bellman-Ford relaxes all E edges V - 1 times using dynamic programming in O(V * E) time. If a subsequent V-th relaxation pass still decreases any distance, a reachable negative weight cycle is detected.",
+    "points": 10
+  },
+  {
+    "id": "qb_dsa_49",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Dynamic Programming",
+    "type": "paragraph",
+    "question": "Distinguish between the 0/1 Knapsack Problem and the Fractional Knapsack Problem. Why can Fractional Knapsack be solved with a greedy approach, while 0/1 Knapsack requires dynamic programming?",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "In Fractional Knapsack, items can be broken down into arbitrary fractions. The greedy strategy of sorting by value-to-weight ratio (v/w) guarantees global optimality because empty capacity can be filled with fractional portions. In 0/1 Knapsack, items are atomic (take all or none). Taking the highest ratio item might leave wasted space that prevents a more valuable combination of smaller items from being included. Hence, 0/1 Knapsack lacks the greedy-choice property and must be solved using Dynamic Programming or branch-and-bound.",
+    "points": 10
+  },
+  {
+    "id": "qb_dsa_50",
+    "subject": "Data Structures and Algorithms",
+    "topic": "Disjoint Sets & MST",
+    "type": "paragraph",
+    "question": "Explain the Disjoint Set Union (DSU / Union-Find) data structure. Detail the optimizations of 'Union by Rank' and 'Path Compression', and explain how they achieve nearly linear amortized time complexity in Kruskal's algorithm.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "DSU manages a collection of disjoint sets supporting find(x) (find set representative) and union(x, y) (merge sets). Without optimization, trees can degenerate into linear chains of height O(n). 'Union by Rank' always attaches the shorter tree to the root of the taller tree, keeping tree height O(log n). 'Path Compression' flattens the tree during find(x) by pointing all visited nodes directly to the root. Together, they bound the amortized cost per operation to O(alpha(n)), where alpha is the extremely slow-growing inverse Ackermann function, enabling Kruskal's algorithm to run in O(E log V) dominated only by edge sorting.",
     "points": 10
   }
 ]

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
   Users, 
@@ -36,6 +36,7 @@ import QuestionBankPickerModal from './QuestionBankPickerModal';
 
 export default function TeacherClassDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview'); // overview | notes | announcements | assignments | students
   const [cls, setCls] = useState(null);
   const [notes, setNotes] = useState([]);
@@ -44,6 +45,24 @@ export default function TeacherClassDetail() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Delete Class State
+  const [deleteClassModalOpen, setDeleteClassModalOpen] = useState(false);
+  const [isDeletingClass, setIsDeletingClass] = useState(false);
+  const [deleteClassError, setDeleteClassError] = useState('');
+
+  const handleDeleteClass = async () => {
+    if (!cls) return;
+    setIsDeletingClass(true);
+    setDeleteClassError('');
+    try {
+      await apiRequest(`/api/classes/${cls.id}`, { method: 'DELETE' });
+      navigate('/teacher/classes');
+    } catch (err) {
+      setDeleteClassError(err.message || 'Failed to delete class');
+      setIsDeletingClass(false);
+    }
+  };
 
   // Upload Note State
   const [noteTitle, setNoteTitle] = useState('');
@@ -63,6 +82,8 @@ export default function TeacherClassDetail() {
   const [annContent, setAnnContent] = useState('');
   const [postingAnn, setPostingAnn] = useState(false);
   const [annMsg, setAnnMsg] = useState({ text: '', type: '' });
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
+  const [isDeletingAnnouncement, setIsDeletingAnnouncement] = useState(false);
 
   // Assignment Modals & Action State
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
@@ -175,6 +196,24 @@ export default function TeacherClassDetail() {
       setAnnMsg({ text: err.message || 'Failed to post announcement', type: 'error' });
     } finally {
       setPostingAnn(false);
+    }
+  };
+
+  const handleDeleteAnnouncement = async () => {
+    if (!announcementToDelete) return;
+    try {
+      setIsDeletingAnnouncement(true);
+      await apiRequest(`/api/classes/${id}/announcements/${announcementToDelete.id}`, {
+        method: 'DELETE'
+      });
+      setAnnouncements(prev => prev.filter(a => a.id !== announcementToDelete.id));
+      setAnnMsg({ text: `Announcement "${announcementToDelete.title}" was deleted successfully!`, type: 'success' });
+      setAnnouncementToDelete(null);
+      setTimeout(() => setAnnMsg({ text: '', type: '' }), 4000);
+    } catch (err) {
+      setAnnMsg({ text: err.message || 'Failed to delete announcement', type: 'error' });
+    } finally {
+      setIsDeletingAnnouncement(false);
     }
   };
 
@@ -393,12 +432,27 @@ export default function TeacherClassDetail() {
             </p>
           </div>
 
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3.5 bg-slate-50 rounded-xl border border-slate-200 shrink-0">
-            <span className="text-xs font-semibold uppercase text-slate-400">Enrolled Students</span>
-            <div className="flex items-center gap-1.5 text-xl font-bold text-slate-900">
-              <Users className="w-5 h-5 text-blue-600" />
-              <span>{students.length}</span>
+          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 shrink-0">
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center sm:items-end w-full sm:w-auto">
+              <span className="text-xs font-semibold uppercase text-slate-400">Enrolled Students</span>
+              <div className="flex items-center gap-1.5 text-xl font-bold text-slate-900">
+                <Users className="w-5 h-5 text-blue-600" />
+                <span>{students.length}</span>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteClassError('');
+                setDeleteClassModalOpen(true);
+              }}
+              className="px-3 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 shadow-2xs hover:shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              title="Permanently delete this class"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Class</span>
+            </button>
           </div>
         </div>
       </div>
@@ -695,9 +749,18 @@ export default function TeacherClassDetail() {
                     <div key={ann.id} className="p-5 sm:p-6 space-y-2">
                       <div className="flex items-center justify-between gap-2">
                         <h4 className="text-sm font-bold text-slate-900">{ann.title}</h4>
-                        <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                          <Clock className="w-3 h-3" />
-                          <span>{formatDateTime(ann.createdAt)}</span>
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                            <Clock className="w-3 h-3" />
+                            <span>{formatDateTime(ann.createdAt)}</span>
+                          </div>
+                          <button
+                            onClick={() => setAnnouncementToDelete(ann)}
+                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                            title="Delete Announcement"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                       <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
@@ -918,15 +981,17 @@ export default function TeacherClassDetail() {
                             setEditingAssignment(asg);
                             setAssignmentModalOpen(true);
                           }}
-                          className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-slate-200"
+                          className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors border border-blue-200 shadow-2xs hover:shadow-xs"
                           title="Edit Assignment"
+                          aria-label="Edit Assignment"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setAssignmentToDelete(asg)}
-                          className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-slate-200"
+                          className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors border border-rose-200 shadow-2xs hover:shadow-xs"
                           title="Delete Assignment"
+                          aria-label="Delete Assignment"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1273,8 +1338,9 @@ export default function TeacherClassDetail() {
                           </button>
                           <button
                             onClick={() => setQuizToDelete(quiz)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors border border-rose-200 shadow-2xs hover:shadow-xs"
                             title="Delete Quiz"
+                            aria-label="Delete Quiz"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1286,6 +1352,64 @@ export default function TeacherClassDetail() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Special Delete Announcement Confirmation Modal */}
+      {announcementToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            onClick={() => !isDeletingAnnouncement && setAnnouncementToDelete(null)}
+          />
+          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden z-10 p-6 transition-all space-y-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900">Delete Announcement</h3>
+                  <button
+                    onClick={() => !isDeletingAnnouncement && setAnnouncementToDelete(null)}
+                    disabled={isDeletingAnnouncement}
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-40"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                  Are you sure you want to permanently delete announcement <strong className="text-slate-800 font-semibold">"{announcementToDelete.title}"</strong>?
+                </p>
+                <div className="mt-3 p-2.5 bg-amber-50/80 border border-amber-200/70 rounded-xl text-[11px] text-amber-700">
+                  Enrolled students in <strong>{cls.code}</strong> will immediately lose access to this notice. This action cannot be reversed.
+                </div>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isDeletingAnnouncement}
+                onClick={() => setAnnouncementToDelete(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingAnnouncement}
+                onClick={handleDeleteAnnouncement}
+                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-2xs hover:shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {isDeletingAnnouncement ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                <span>{isDeletingAnnouncement ? 'Deleting...' : 'Delete Announcement'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1582,6 +1706,91 @@ export default function TeacherClassDetail() {
                   <Trash2 className="w-3.5 h-3.5" />
                 )}
                 <span>{isDeletingQuiz ? 'Deleting...' : 'Delete Quiz'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Class Confirmation Modal */}
+      {deleteClassModalOpen && cls && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            onClick={() => !isDeletingClass && setDeleteClassModalOpen(false)}
+          />
+          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden z-10 p-6 transition-all space-y-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900">Delete Class</h3>
+                  <button
+                    onClick={() => !isDeletingClass && setDeleteClassModalOpen(false)}
+                    disabled={isDeletingClass}
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-40"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Are you sure you want to permanently delete this course?
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-red-50/70 border border-red-200/70 rounded-xl space-y-2">
+              <div className="font-bold text-sm text-red-900">
+                {cls.name} ({cls.code})
+              </div>
+              <p className="text-xs text-red-700 leading-relaxed">
+                <strong>Warning:</strong> Deleting this class will permanently remove all associated:
+              </p>
+              <ul className="text-xs text-red-700 list-disc list-inside space-y-0.5 ml-1">
+                <li>Student enrollments ({students.length} students enrolled)</li>
+                <li>Announcements ({announcements.length}) and study materials ({notes.length})</li>
+                <li>Assignments ({assignments.length}) and student submissions</li>
+                <li>Scheduled quizzes ({quizzes.length}) and attempt grades</li>
+              </ul>
+              <p className="text-[11px] text-red-800 font-semibold pt-1">
+                This action cannot be undone.
+              </p>
+            </div>
+
+            {deleteClassError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
+                {deleteClassError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDeleteClassModalOpen(false)}
+                disabled={isDeletingClass}
+                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteClass}
+                disabled={isDeletingClass}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+              >
+                {isDeletingClass ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Class</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

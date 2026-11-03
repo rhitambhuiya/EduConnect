@@ -74,6 +74,31 @@ router.post('/question-bank/sections', authenticate, requireRole('teacher'), (re
   }
 });
 
+// DELETE /api/quizzes/question-bank/sections/:name - Teacher deletes a section and its questions from the question bank
+router.delete('/question-bank/sections/:name', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const rawName = req.params.name;
+    if (!rawName || !rawName.trim()) {
+      return res.status(400).json({ error: 'Section name cannot be empty.' });
+    }
+    const sectionName = decodeURIComponent(rawName).trim();
+    const result = db.deleteQuestionBankSection(sectionName);
+    if (!result) {
+      return res.status(404).json({ error: 'Section not found.' });
+    }
+    const allSections = db.getQuestionBankSections();
+    return res.json({
+      message: `Section "${result.deletedSection}" and its ${result.deletedQuestionsCount} questions were deleted successfully.`,
+      deletedSection: result.deletedSection,
+      deletedQuestionsCount: result.deletedQuestionsCount,
+      sections: allSections
+    });
+  } catch (err) {
+    console.error('Error deleting question bank section:', err);
+    return res.status(500).json({ error: 'Failed to delete section' });
+  }
+});
+
 // POST /api/quizzes/question-bank - Teacher adds a question to a specific section in the question bank
 router.post('/question-bank', authenticate, requireRole('teacher'), (req, res) => {
   try {
@@ -104,6 +129,14 @@ router.post('/question-bank', authenticate, requireRole('teacher'), (req, res) =
       }
     }
 
+    const dup = db.findDuplicateInBank(question.trim());
+    if (dup) {
+      return res.status(409).json({
+        error: `Duplicate question: A question with this exact text already exists in the "${dup.subject}" section of the Question Bank.`,
+        existingQuestion: dup
+      });
+    }
+
     const added = db.addQuestionToBank({
       subject: subject.trim(),
       type,
@@ -122,7 +155,89 @@ router.post('/question-bank', authenticate, requireRole('teacher'), (req, res) =
     });
   } catch (err) {
     console.error('Error adding question to bank:', err);
-    return res.status(500).json({ error: 'Failed to add question to bank' });
+    if (err.code === 'DUPLICATE_QUESTION') {
+      return res.status(409).json({ error: err.message, existingQuestion: err.existingQuestion });
+    }
+    return res.status(500).json({ error: err.message || 'Failed to add question to bank' });
+  }
+});
+
+// PUT /api/quizzes/question-bank/:id - Teacher edits a question and its answers in the question bank
+router.put('/question-bank/:id', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const { id } = req.params;
+    const { subject, type, question, options, correctAnswer, correctAnswers, points, explanation, rubric } = req.body;
+
+    if (subject !== undefined && !subject.trim()) {
+      return res.status(400).json({ error: 'Section/Subject cannot be empty.' });
+    }
+    if (question !== undefined && !question.trim()) {
+      return res.status(400).json({ error: 'Question text cannot be empty.' });
+    }
+    if (type && !['single', 'multiple', 'paragraph'].includes(type)) {
+      return res.status(400).json({ error: 'Valid question type (single, multiple, paragraph) is required.' });
+    }
+
+    if (type === 'single') {
+      if (!Array.isArray(options) || options.length < 2) {
+        return res.status(400).json({ error: 'Single choice MCQ must have at least 2 options.' });
+      }
+      if (correctAnswer === undefined || correctAnswer === null || correctAnswer < 0 || correctAnswer >= options.length) {
+        return res.status(400).json({ error: 'A valid correct option must be selected.' });
+      }
+    } else if (type === 'multiple') {
+      if (!Array.isArray(options) || options.length < 2) {
+        return res.status(400).json({ error: 'Multiple choice MCQ must have at least 2 options.' });
+      }
+      if (!Array.isArray(correctAnswers) || correctAnswers.length === 0) {
+        return res.status(400).json({ error: 'At least one correct answer must be selected.' });
+      }
+    }
+
+    if (question && question.trim()) {
+      const dup = db.findDuplicateInBank(question.trim(), id);
+      if (dup) {
+        return res.status(409).json({
+          error: `Duplicate question: Another question with this exact text already exists in the "${dup.subject}" section of the Question Bank.`,
+          existingQuestion: dup
+        });
+      }
+    }
+
+    const updated = db.updateQuestionInBank(id, req.body);
+    if (!updated) {
+      return res.status(404).json({ error: 'Question not found in question bank.' });
+    }
+
+    return res.json({
+      message: 'Question updated successfully.',
+      question: updated
+    });
+  } catch (err) {
+    console.error('Error updating question in bank:', err);
+    if (err.code === 'DUPLICATE_QUESTION') {
+      return res.status(409).json({ error: err.message, existingQuestion: err.existingQuestion });
+    }
+    return res.status(500).json({ error: err.message || 'Failed to update question in bank' });
+  }
+});
+
+// DELETE /api/quizzes/question-bank/:id - Teacher deletes a question from the question bank
+router.delete('/question-bank/:id', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const { id } = req.params;
+    const success = db.deleteQuestionFromBank(id);
+    if (!success) {
+      return res.status(404).json({ error: 'Question not found in question bank.' });
+    }
+
+    return res.json({
+      message: 'Question deleted successfully from question bank.',
+      id
+    });
+  } catch (err) {
+    console.error('Error deleting question from bank:', err);
+    return res.status(500).json({ error: 'Failed to delete question from bank' });
   }
 });
 
@@ -231,6 +346,59 @@ router.get('/class/:classId', authenticate, (req, res) => {
   } catch (err) {
     console.error('Error fetching class quizzes:', err);
     return res.status(500).json({ error: 'Failed to fetch class quizzes' });
+  }
+});
+
+// GET /api/quizzes/teacher/all - Teacher views all quizzes across all classes they teach
+router.get('/teacher/all', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const teacherClasses = db.getClassesByTeacher(req.user.id);
+    const classMap = new Map(teacherClasses.map(c => [c.id, c]));
+    const classIds = new Set(teacherClasses.map(c => c.id));
+
+    const quizzes = (db.data.quizzes || []).filter(q => classIds.has(q.classId));
+    const now = new Date();
+
+    const result = quizzes.map(q => {
+      const cls = classMap.get(q.classId);
+      const attempts = db.getQuizAttempts(q.id);
+      const totalEnrolled = db.getEnrollmentCount(q.classId);
+
+      const startTime = new Date(q.startTime);
+      const endTime = new Date(q.endTime);
+      const isUpcoming = now < startTime;
+      const isExpired = now > endTime;
+
+      let status = 'active';
+      if (isUpcoming) status = 'upcoming';
+      else if (isExpired) status = 'expired';
+
+      return {
+        id: q.id,
+        classId: q.classId,
+        className: cls ? cls.name : 'Unknown Class',
+        classCode: cls ? cls.code : '',
+        title: q.title,
+        description: q.description,
+        durationMinutes: q.durationMinutes,
+        startTime: q.startTime,
+        endTime: q.endTime,
+        totalPoints: q.totalPoints,
+        questionCount: (q.questions || []).length,
+        questions: q.questions,
+        totalEnrolled,
+        attemptCount: attempts.length,
+        attemptsCount: attempts.length,
+        status,
+        isUpcoming,
+        isExpired
+      };
+    }).sort((a, b) => new Date(b.startTime || b.endTime || 0) - new Date(a.startTime || a.endTime || 0));
+
+    return res.json(result);
+  } catch (err) {
+    console.error('Error fetching teacher quizzes:', err);
+    return res.status(500).json({ error: 'Failed to fetch quizzes' });
   }
 });
 

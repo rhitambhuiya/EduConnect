@@ -119,7 +119,7 @@ export default function StudentSubmitModal({ isOpen, onClose, assignment, onSubm
                 <Unlock className="w-4 h-4 shrink-0 text-blue-600 mt-0.5" />
                 <div>
                   <span className="font-semibold block">Re-uploads are allowed</span>
-                  <span>You can delete and replace your submission any time before the deadline.</span>
+                  <span>You can delete and replace your submission before the deadline, provided it has not yet been evaluated by your instructor.</span>
                 </div>
               </>
             ) : (

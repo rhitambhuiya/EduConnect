@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Megaphone, BookOpen, Clock, PlusCircle, ArrowRight } from 'lucide-react';
+import { 
+  Megaphone, 
+  BookOpen, 
+  Clock, 
+  PlusCircle, 
+  ArrowRight, 
+  Trash2, 
+  AlertCircle, 
+  CheckCircle2, 
+  X 
+} from 'lucide-react';
 import { apiRequest, formatDateTime } from '../../utils/api';
 
 export default function TeacherAnnouncements() {
@@ -9,37 +19,61 @@ export default function TeacherAnnouncements() {
   const [loading, setLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState('all');
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const myClasses = await apiRequest('/api/classes/my');
-        setClasses(myClasses);
+  // Deletion modal state
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [bannerMsg, setBannerMsg] = useState({ text: '', type: '' });
 
-        // Fetch announcements for each class
-        const allAnnouncementsNested = await Promise.all(
-          myClasses.map(async (c) => {
-            try {
-              const ann = await apiRequest(`/api/classes/${c.id}/announcements`);
-              return ann.map(item => ({ ...item, classCode: c.code, className: c.name }));
-            } catch (err) {
-              return [];
-            }
-          })
-        );
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const myClasses = await apiRequest('/api/classes/my');
+      setClasses(myClasses);
 
-        const flattened = allAnnouncementsNested
-          .flat()
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setAnnouncements(flattened);
-      } catch (err) {
-        console.error('Failed to load announcements:', err);
-      } finally {
-        setLoading(false);
-      }
+      // Fetch announcements for each class
+      const allAnnouncementsNested = await Promise.all(
+        myClasses.map(async (c) => {
+          try {
+            const ann = await apiRequest(`/api/classes/${c.id}/announcements`);
+            return ann.map(item => ({ ...item, classCode: c.code, className: c.name }));
+          } catch (err) {
+            return [];
+          }
+        })
+      );
+
+      const flattened = allAnnouncementsNested
+        .flat()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setAnnouncements(flattened);
+    } catch (err) {
+      console.error('Failed to load announcements:', err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
+
+  const handleDeleteAnnouncement = async () => {
+    if (!announcementToDelete) return;
+    try {
+      setIsDeleting(true);
+      await apiRequest(`/api/classes/announcements/${announcementToDelete.id}`, {
+        method: 'DELETE'
+      });
+      setAnnouncements(prev => prev.filter(a => a.id !== announcementToDelete.id));
+      setBannerMsg({ text: `Announcement "${announcementToDelete.title}" deleted successfully.`, type: 'success' });
+      setAnnouncementToDelete(null);
+      setTimeout(() => setBannerMsg({ text: '', type: '' }), 4000);
+    } catch (err) {
+      setBannerMsg({ text: err.message || 'Failed to delete announcement', type: 'error' });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filteredAnnouncements = selectedClassId === 'all'
     ? announcements
@@ -47,6 +81,7 @@ export default function TeacherAnnouncements() {
 
   return (
     <div className="space-y-6">
+      {/* Page Title & Class Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Announcements</h1>
@@ -62,7 +97,7 @@ export default function TeacherAnnouncements() {
             <select
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
-              className="px-3 py-1.5 text-xs font-medium bg-white border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-xs"
+              className="px-3 py-1.5 text-xs font-medium bg-white border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-xs cursor-pointer"
             >
               <option value="all">All Courses ({announcements.length})</option>
               {classes.map(c => (
@@ -74,6 +109,26 @@ export default function TeacherAnnouncements() {
           </div>
         )}
       </div>
+
+      {/* Banner Feedback */}
+      {bannerMsg.text && (
+        <div className={`p-4 rounded-xl border flex items-center justify-between ${
+          bannerMsg.type === 'error' 
+            ? 'bg-red-50 border-red-200 text-red-800' 
+            : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+        }`}>
+          <div className="flex items-center gap-2.5 text-sm font-medium">
+            {bannerMsg.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+            <span>{bannerMsg.text}</span>
+          </div>
+          <button 
+            onClick={() => setBannerMsg({ text: '', type: '' })}
+            className="text-xs font-semibold underline ml-4 hover:opacity-80"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="p-12 text-center">
@@ -104,7 +159,7 @@ export default function TeacherAnnouncements() {
           {filteredAnnouncements.map((ann) => (
             <div
               key={ann.id}
-              className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-slate-300 transition-all space-y-2"
+              className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-slate-300 transition-all space-y-2 group"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -113,9 +168,21 @@ export default function TeacherAnnouncements() {
                   </span>
                   <h3 className="text-base font-bold text-slate-900">{ann.title}</h3>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-slate-400">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{formatDateTime(ann.createdAt)}</span>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 text-xs text-slate-400">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{formatDateTime(ann.createdAt)}</span>
+                  </div>
+
+                  {/* Delete Announcement Button */}
+                  <button
+                    onClick={() => setAnnouncementToDelete(ann)}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                    title="Delete Announcement"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
@@ -135,6 +202,39 @@ export default function TeacherAnnouncements() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Announcement Modal */}
+      {announcementToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-slate-900">Delete Announcement</h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Are you sure you want to delete <span className="font-semibold text-slate-800">"{announcementToDelete.title}"</span>? Enrolled students will no longer see this broadcast in <span className="font-semibold text-slate-800">{announcementToDelete.className || announcementToDelete.classCode}</span>.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                disabled={isDeleting}
+                onClick={() => setAnnouncementToDelete(null)}
+                className="flex-1 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isDeleting}
+                onClick={handleDeleteAnnouncement}
+                className="flex-1 py-2.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Announcement'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

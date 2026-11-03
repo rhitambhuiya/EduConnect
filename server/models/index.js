@@ -98,6 +98,7 @@ const AssignmentSchema = new mongoose.Schema({
 const SubmissionSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   assignmentId: { type: String, required: true },
+  classId: { type: String, default: '' },
   studentId: { type: String, required: true },
   studentName: { type: String, required: true },
   studentEmail: { type: String, default: '' },

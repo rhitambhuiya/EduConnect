@@ -175,9 +175,16 @@ class Database {
 
       if (this.models.QuestionBank) {
         const cloudQuestions = await this.models.QuestionBank.find({}).lean();
-        if (cloudQuestions.length > 0) {
-          this.questionBank = cloudQuestions;
+        const localQuestions = this.getQuestionBank();
+        const cloudMap = new Map((cloudQuestions || []).map(q => [q.id, q]));
+        const merged = [...(cloudQuestions || [])];
+        for (const lq of localQuestions) {
+          if (!cloudMap.has(lq.id)) {
+            merged.push(lq);
+            this.models.QuestionBank.findOneAndUpdate({ id: lq.id }, { $set: lq }, { upsert: true }).catch(() => {});
+          }
         }
+        this.questionBank = merged;
       }
       if (this.models.QuestionBankSection) {
         const cloudSections = await this.models.QuestionBankSection.find({}).lean();
@@ -594,6 +601,90 @@ class Database {
     return newClass;
   }
 
+  deleteClass(id) {
+    const index = (this.data.classes || []).findIndex(c => c.id === id);
+    if (index === -1) return null;
+    const [deletedClass] = this.data.classes.splice(index, 1);
+
+    // 1. Remove all enrollments for this class
+    this.data.enrollments = (this.data.enrollments || []).filter(e => e.classId !== id);
+
+    // 2. Remove all study materials (notes) and their files
+    const remainingNotes = [];
+    (this.data.notes || []).forEach(n => {
+      if (n.classId === id) {
+        if (n.fileName) {
+          const filePath = path.join(UPLOADS_DIR, n.fileName);
+          if (fs.existsSync(filePath)) {
+            try { fs.unlinkSync(filePath); } catch (err) { console.error('Error removing note file:', err); }
+          }
+        }
+      } else {
+        remainingNotes.push(n);
+      }
+    });
+    this.data.notes = remainingNotes;
+
+    // 3. Remove all announcements for this class
+    this.data.announcements = (this.data.announcements || []).filter(a => a.classId !== id);
+
+    // 4. Remove all assignments and their submissions & files for this class
+    const remainingAssignments = [];
+    (this.data.assignments || []).forEach(asg => {
+      if (asg.classId === id) {
+        if (asg.attachment && asg.attachment.fileName) {
+          const filePath = path.join(UPLOADS_DIR, asg.attachment.fileName);
+          if (fs.existsSync(filePath)) {
+            try { fs.unlinkSync(filePath); } catch (err) { console.error('Error removing assignment file:', err); }
+          }
+        }
+      } else {
+        remainingAssignments.push(asg);
+      }
+    });
+    this.data.assignments = remainingAssignments;
+
+    const remainingSubmissions = [];
+    (this.data.submissions || []).forEach(sub => {
+      if (sub.classId === id) {
+        if (sub.fileName) {
+          const sPath = path.join(UPLOADS_DIR, sub.fileName);
+          if (fs.existsSync(sPath)) {
+            try { fs.unlinkSync(sPath); } catch (err) { console.error('Error removing submission file:', err); }
+          }
+        }
+      } else {
+        remainingSubmissions.push(sub);
+      }
+    });
+    this.data.submissions = remainingSubmissions;
+
+    // 5. Remove all quizzes and quiz attempts for this class
+    const deletedQuizIds = new Set(
+      (this.data.quizzes || []).filter(q => q.classId === id).map(q => q.id)
+    );
+    this.data.quizzes = (this.data.quizzes || []).filter(q => q.classId !== id);
+    this.data.quizAttempts = (this.data.quizAttempts || []).filter(
+      a => a.classId !== id && !deletedQuizIds.has(a.quizId)
+    );
+
+    this.save();
+
+    // 6. MongoDB Atlas cascade if connected
+    if (this.isMongoConnected && this.models) {
+      if (this.models.Class) this.models.Class.deleteOne({ id }).catch(e => console.error('[MongoDB Atlas] Error deleting class:', e.message));
+      if (this.models.Enrollment) this.models.Enrollment.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.Note) this.models.Note.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.Announcement) this.models.Announcement.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.Assignment) this.models.Assignment.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.Submission) this.models.Submission.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.Quiz) this.models.Quiz.deleteMany({ classId: id }).catch(() => {});
+      if (this.models.QuizAttempt) this.models.QuizAttempt.deleteMany({ classId: id }).catch(() => {});
+    }
+
+    return deletedClass;
+  }
+
   // --- Enrollment Operations ---
   isEnrolled(studentId, classId) {
     return this.data.enrollments.some(e => e.studentId === studentId && e.classId === classId);
@@ -719,6 +810,18 @@ class Database {
     return announcement;
   }
 
+  findAnnouncementById(id) {
+    return (this.data.announcements || []).find(a => a.id === id);
+  }
+
+  deleteAnnouncement(id) {
+    const index = (this.data.announcements || []).findIndex(a => a.id === id);
+    if (index === -1) return null;
+    const [deleted] = this.data.announcements.splice(index, 1);
+    this.save();
+    return deleted;
+  }
+
   // --- Assignment Operations ---
   getAssignmentsByClass(classId) {
     return (this.data.assignments || [])
@@ -756,7 +859,7 @@ class Database {
     if (updates.title !== undefined) assignment.title = updates.title.trim();
     if (updates.description !== undefined) assignment.description = updates.description.trim();
     if (updates.dueDate !== undefined) assignment.dueDate = new Date(updates.dueDate).toISOString();
-    if (updates.allowReupload !== undefined) assignment.allowReupload = Boolean(updates.allowReupload);
+    if (updates.allowReupload !== undefined) assignment.allowReupload = updates.allowReupload === false || updates.allowReupload === 'false' ? false : true;
     if (updates.totalPoints !== undefined) assignment.totalPoints = Number(updates.totalPoints);
     if (updates.attachment !== undefined) assignment.attachment = updates.attachment;
     this.save();
@@ -1200,18 +1303,34 @@ class Database {
 
   // --- Teacher Question Bank Operations ---
   getQuestionBankSections() {
-    const defaults = ['DBMS', 'Operating Systems', 'Computer Networks', 'Java'];
+    const defaults = ['DBMS', 'Operating Systems', 'Computer Networks', 'Java', 'Data Structures and Algorithms'];
+    const deleted = new Set((this.data.deletedQuestionBankSections || []).map(s => (s || '').toLowerCase()));
     const custom = (this.data.questionBankSections || []);
     const fromQuestions = (this.getQuestionBank() || []).map(q => q.subject).filter(Boolean);
-    const set = new Set([...defaults, ...custom, ...fromQuestions]);
-    return Array.from(set);
+    const all = [...defaults, ...custom, ...fromQuestions];
+    const unique = [];
+    const seen = new Set();
+    for (const s of all) {
+      if (s && !seen.has(s.toLowerCase()) && !deleted.has(s.toLowerCase())) {
+        seen.add(s.toLowerCase());
+        unique.push(s);
+      }
+    }
+    return unique;
   }
 
   addQuestionBankSection(name) {
     if (!name || !name.trim()) return null;
     const trimmed = name.trim();
+    const lower = trimmed.toLowerCase();
+
+    // If previously deleted, un-blacklist it
+    this.data.deletedQuestionBankSections = (this.data.deletedQuestionBankSections || []).filter(
+      s => (s || '').toLowerCase() !== lower
+    );
+
     this.data.questionBankSections = this.data.questionBankSections || [];
-    if (!this.data.questionBankSections.includes(trimmed)) {
+    if (!this.data.questionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
       this.data.questionBankSections.push(trimmed);
       this.save();
     }
@@ -1223,6 +1342,59 @@ class Database {
       ).catch(e => console.error('[MongoDB Atlas] Error saving section:', e.message));
     }
     return trimmed;
+  }
+
+  deleteQuestionBankSection(name) {
+    if (!name || !name.trim()) return null;
+    const trimmed = name.trim();
+    const lower = trimmed.toLowerCase();
+
+    this.data.deletedQuestionBankSections = this.data.deletedQuestionBankSections || [];
+    if (!this.data.deletedQuestionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
+      this.data.deletedQuestionBankSections.push(trimmed);
+    }
+
+    this.data.questionBankSections = (this.data.questionBankSections || []).filter(
+      s => (s || '').toLowerCase() !== lower
+    );
+
+    if (!this.questionBank) {
+      this.getQuestionBank();
+    }
+    const questionsToDelete = (this.questionBank || []).filter(
+      q => (q.subject || '').toLowerCase() === lower ||
+           (lower === 'operating systems' && (q.subject || '').toLowerCase() === 'os') ||
+           (lower === 'os' && (q.subject || '').toLowerCase() === 'operating systems')
+    );
+    const deleteIds = new Set(questionsToDelete.map(q => q.id));
+
+    this.questionBank = (this.questionBank || []).filter(q => !deleteIds.has(q.id));
+
+    const qbFile = path.join(__dirname, 'data', 'question_bank.json');
+    try {
+      fs.writeFileSync(qbFile, JSON.stringify(this.questionBank, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write question_bank.json:', err);
+    }
+
+    this.save();
+
+    if (this.isMongoConnected && this.models) {
+      if (this.models.QuestionBankSection) {
+        this.models.QuestionBankSection.deleteMany({
+          name: { $regex: new RegExp('^' + trimmed + String.fromCharCode(36), 'i') }
+        }).catch(e => console.error('[MongoDB Atlas] Error deleting section:', e.message));
+      }
+      if (this.models.QuestionBank && deleteIds.size > 0) {
+        this.models.QuestionBank.deleteMany({ id: { $in: Array.from(deleteIds) } })
+          .catch(e => console.error('[MongoDB Atlas] Error deleting section questions:', e.message));
+      }
+    }
+
+    return {
+      deletedSection: trimmed,
+      deletedQuestionsCount: deleteIds.size
+    };
   }
 
   getQuestionBank({ subject, type, search } = {}) {
@@ -1257,6 +1429,23 @@ class Database {
     return results;
   }
 
+  findDuplicateInBank(questionText, excludeId = null) {
+    if (!this.questionBank) {
+      this.getQuestionBank();
+    }
+    if (!questionText || !questionText.trim()) return null;
+
+    const normalize = (t) => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const targetKey = normalize(questionText);
+    if (!targetKey) return null;
+
+    return (this.questionBank || []).find(q => {
+      if (excludeId && q.id === excludeId) return false;
+      const qKey = normalize(q.question || q.questionText);
+      return qKey === targetKey;
+    }) || null;
+  }
+
   addQuestionToBank(qData) {
     if (!this.questionBank) {
       this.getQuestionBank();
@@ -1265,6 +1454,15 @@ class Database {
     const { subject, type, question, options, correctAnswer, correctAnswers, points, explanation, rubric } = qData;
     const qText = (qData.questionText || question || '').trim();
     const sub = (subject || 'General').trim();
+
+    // Check if duplicate question exists across bank
+    const duplicate = this.findDuplicateInBank(qText, qData.id);
+    if (duplicate) {
+      const err = new Error(`Duplicate question: A question with this exact text already exists in the "${duplicate.subject}" section.`);
+      err.code = 'DUPLICATE_QUESTION';
+      err.existingQuestion = duplicate;
+      throw err;
+    }
 
     // Ensure section is registered
     this.addQuestionBankSection(sub);
@@ -1284,17 +1482,7 @@ class Database {
       rubric: (rubric || '').trim()
     };
 
-    // Check if duplicate question exists
-    const existsIndex = this.questionBank.findIndex(q => 
-      q.id === newQ.id || 
-      (q.subject.toLowerCase() === newQ.subject.toLowerCase() && q.question.toLowerCase() === newQ.question.toLowerCase())
-    );
-
-    if (existsIndex === -1) {
-      this.questionBank.unshift(newQ);
-    } else {
-      this.questionBank[existsIndex] = newQ;
-    }
+    this.questionBank.unshift(newQ);
 
     // Save to question_bank.json
     try {
@@ -1313,6 +1501,90 @@ class Database {
     }
 
     return newQ;
+  }
+
+  updateQuestionInBank(id, qData) {
+    if (!this.questionBank) {
+      this.getQuestionBank();
+    }
+    const index = (this.questionBank || []).findIndex(q => q.id === id);
+    if (index === -1) {
+      return null;
+    }
+    const existing = this.questionBank[index];
+    const { subject, type, question, options, correctAnswer, correctAnswers, points, explanation, rubric } = qData;
+    const qText = (qData.questionText || question || existing.question || '').trim();
+    const sub = (subject || existing.subject || 'General').trim();
+
+    // Check if duplicate question exists under a different id
+    const duplicate = this.findDuplicateInBank(qText, id);
+    if (duplicate) {
+      const err = new Error(`Duplicate question: Another question with this exact text already exists in the "${duplicate.subject}" section.`);
+      err.code = 'DUPLICATE_QUESTION';
+      err.existingQuestion = duplicate;
+      throw err;
+    }
+
+    this.addQuestionBankSection(sub);
+
+    const updatedQ = {
+      ...existing,
+      id,
+      subject: sub,
+      type: type || existing.type || 'single',
+      question: qText,
+      questionText: qText,
+      options: (type || existing.type) !== 'paragraph'
+        ? (options || existing.options || []).map(opt => typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())
+        : [],
+      correctAnswer: (type || existing.type) === 'single'
+        ? (correctAnswer !== undefined && correctAnswer !== null ? Number(correctAnswer) : existing.correctAnswer)
+        : null,
+      correctAnswers: (type || existing.type) === 'multiple'
+        ? (Array.isArray(correctAnswers) ? correctAnswers.map(Number) : existing.correctAnswers || [])
+        : [],
+      points: Number(points) || existing.points || ((type || existing.type) === 'paragraph' ? 10 : 5),
+      explanation: explanation !== undefined ? String(explanation).trim() : (existing.explanation || ''),
+      rubric: rubric !== undefined ? String(rubric).trim() : (existing.rubric || '')
+    };
+
+    this.questionBank[index] = updatedQ;
+    try {
+      fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(this.questionBank, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write question_bank.json:', err);
+    }
+
+    if (this.isMongoConnected && this.models && this.models.QuestionBank) {
+      this.models.QuestionBank.findOneAndUpdate(
+        { id },
+        { $set: updatedQ },
+        { upsert: true }
+      ).catch(err => console.error('[MongoDB Atlas] Error updating question in bank:', err.message));
+    }
+
+    return updatedQ;
+  }
+
+  deleteQuestionFromBank(id) {
+    if (!this.questionBank) {
+      this.getQuestionBank();
+    }
+    const index = (this.questionBank || []).findIndex(q => q.id === id);
+    if (index === -1) {
+      return false;
+    }
+    this.questionBank.splice(index, 1);
+    try {
+      fs.writeFileSync(QUESTION_BANK_FILE, JSON.stringify(this.questionBank, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write question_bank.json:', err);
+    }
+    if (this.isMongoConnected && this.models && this.models.QuestionBank) {
+      this.models.QuestionBank.deleteOne({ id })
+        .catch(err => console.error('[MongoDB Atlas] Error deleting question from bank:', err.message));
+    }
+    return true;
   }
 
 
@@ -1590,18 +1862,34 @@ class Database {
 
   // --- Teacher Question Bank Operations ---
   getQuestionBankSections() {
-    const defaults = ['DBMS', 'Operating Systems', 'Computer Networks', 'Java'];
+    const defaults = ['DBMS', 'Operating Systems', 'Computer Networks', 'Java', 'Data Structures and Algorithms'];
+    const deleted = new Set((this.data.deletedQuestionBankSections || []).map(s => (s || '').toLowerCase()));
     const custom = (this.data.questionBankSections || []);
     const fromQuestions = (this.getQuestionBank() || []).map(q => q.subject).filter(Boolean);
-    const set = new Set([...defaults, ...custom, ...fromQuestions]);
-    return Array.from(set);
+    const all = [...defaults, ...custom, ...fromQuestions];
+    const unique = [];
+    const seen = new Set();
+    for (const s of all) {
+      if (s && !seen.has(s.toLowerCase()) && !deleted.has(s.toLowerCase())) {
+        seen.add(s.toLowerCase());
+        unique.push(s);
+      }
+    }
+    return unique;
   }
 
   addQuestionBankSection(name) {
     if (!name || !name.trim()) return null;
     const trimmed = name.trim();
+    const lower = trimmed.toLowerCase();
+
+    // If previously deleted, un-blacklist it
+    this.data.deletedQuestionBankSections = (this.data.deletedQuestionBankSections || []).filter(
+      s => (s || '').toLowerCase() !== lower
+    );
+
     this.data.questionBankSections = this.data.questionBankSections || [];
-    if (!this.data.questionBankSections.includes(trimmed)) {
+    if (!this.data.questionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
       this.data.questionBankSections.push(trimmed);
       this.save();
     }
@@ -1613,6 +1901,59 @@ class Database {
       ).catch(e => console.error('[MongoDB Atlas] Error saving section:', e.message));
     }
     return trimmed;
+  }
+
+  deleteQuestionBankSection(name) {
+    if (!name || !name.trim()) return null;
+    const trimmed = name.trim();
+    const lower = trimmed.toLowerCase();
+
+    this.data.deletedQuestionBankSections = this.data.deletedQuestionBankSections || [];
+    if (!this.data.deletedQuestionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
+      this.data.deletedQuestionBankSections.push(trimmed);
+    }
+
+    this.data.questionBankSections = (this.data.questionBankSections || []).filter(
+      s => (s || '').toLowerCase() !== lower
+    );
+
+    if (!this.questionBank) {
+      this.getQuestionBank();
+    }
+    const questionsToDelete = (this.questionBank || []).filter(
+      q => (q.subject || '').toLowerCase() === lower ||
+           (lower === 'operating systems' && (q.subject || '').toLowerCase() === 'os') ||
+           (lower === 'os' && (q.subject || '').toLowerCase() === 'operating systems')
+    );
+    const deleteIds = new Set(questionsToDelete.map(q => q.id));
+
+    this.questionBank = (this.questionBank || []).filter(q => !deleteIds.has(q.id));
+
+    const qbFile = path.join(__dirname, 'data', 'question_bank.json');
+    try {
+      fs.writeFileSync(qbFile, JSON.stringify(this.questionBank, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to write question_bank.json:', err);
+    }
+
+    this.save();
+
+    if (this.isMongoConnected && this.models) {
+      if (this.models.QuestionBankSection) {
+        this.models.QuestionBankSection.deleteMany({
+          name: { $regex: new RegExp('^' + trimmed + String.fromCharCode(36), 'i') }
+        }).catch(e => console.error('[MongoDB Atlas] Error deleting section:', e.message));
+      }
+      if (this.models.QuestionBank && deleteIds.size > 0) {
+        this.models.QuestionBank.deleteMany({ id: { $in: Array.from(deleteIds) } })
+          .catch(e => console.error('[MongoDB Atlas] Error deleting section questions:', e.message));
+      }
+    }
+
+    return {
+      deletedSection: trimmed,
+      deletedQuestionsCount: deleteIds.size
+    };
   }
 
   getQuestionBank({ subject, type, search } = {}) {

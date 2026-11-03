@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, UploadCloud, Calendar, Clock, Award, AlertCircle, FileText, CheckCircle2 } from 'lucide-react';
 import { apiRequest, formatDateTime } from '../../utils/api';
 
-export default function TeacherAssignmentModal({ isOpen, onClose, classId, assignment = null, onSaved }) {
+export default function TeacherAssignmentModal({ isOpen, onClose, classId, assignment = null, onSaved, classes = [] }) {
+  const [selectedClassId, setSelectedClassId] = useState(classId || (classes[0]?.id || ''));
   const isEditing = !!assignment;
 
   const [title, setTitle] = useState('');
@@ -14,41 +15,50 @@ export default function TeacherAssignmentModal({ isOpen, onClose, classId, assig
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // Helper to format ISO date to datetime-local input string
-  const toDatetimeLocal = (isoString) => {
-    if (!isoString) {
-      // Default: 7 days from now at 11:59 PM
-      const d = new Date();
-      d.setDate(d.getDate() + 7);
-      d.setHours(23, 59, 0, 0);
-      return d.toISOString().slice(0, 16);
-    }
-    const d = new Date(isoString);
-    const offset = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 16);
+  // Helper to format date to local YYYY-MM-DDTHH:mm input string
+  const toLocalDatetimeInput = (dateInput) => {
+    if (!dateInput) return '';
+    const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    const year = d.getFullYear();
+    const month = pad(d.getMonth() + 1);
+    const day = pad(d.getDate());
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const getDefaultDueDate = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    d.setHours(23, 59, 0, 0);
+    return toLocalDatetimeInput(d);
   };
 
   useEffect(() => {
-    if (isOpen) {
-      setError('');
-      if (assignment) {
-        setTitle(assignment.title || '');
-        setDescription(assignment.description || '');
-        setDueDate(toDatetimeLocal(assignment.dueDate));
-        setTotalPoints(assignment.totalPoints || 100);
-        setAllowReupload(assignment.allowReupload !== false);
-        setFile(null);
-      } else {
-        setTitle('');
-        setDescription('');
-        setDueDate(toDatetimeLocal(null));
-        setTotalPoints(100);
-        setAllowReupload(true);
-        setFile(null);
-      }
+    if (!isOpen) return;
+
+    setError('');
+    if (assignment) {
+      setTitle(assignment.title || '');
+      setDescription(assignment.description || '');
+      setDueDate(toLocalDatetimeInput(assignment.dueDate));
+      setTotalPoints(assignment.totalPoints || 100);
+      setAllowReupload(assignment.allowReupload !== false);
+      setFile(null);
+      if (assignment.classId) setSelectedClassId(assignment.classId);
+    } else {
+      setTitle('');
+      setDescription('');
+      setDueDate(getDefaultDueDate());
+      setTotalPoints(100);
+      setAllowReupload(true);
+      setFile(null);
+      if (classId) setSelectedClassId(classId);
+      else if (classes && classes.length > 0) setSelectedClassId(classes[0].id);
     }
-  }, [isOpen, assignment]);
+  }, [isOpen, assignment?.id]);
 
   if (!isOpen) return null;
 
@@ -89,7 +99,13 @@ export default function TeacherAssignmentModal({ isOpen, onClose, classId, assig
           formData.append('file', file);
         }
 
-        const res = await apiRequest(`/api/assignments/class/${classId}`, {
+        const targetClassId = classId || selectedClassId;
+        if (!targetClassId) {
+          setError('Please select a class for this assignment.');
+          setSaving(false);
+          return;
+        }
+        const res = await apiRequest(`/api/assignments/class/${targetClassId}`, {
           method: 'POST',
           body: formData
         });
@@ -133,6 +149,26 @@ export default function TeacherAssignmentModal({ isOpen, onClose, classId, assig
             </div>
           )}
 
+          {(!classId && classes && classes.length > 0 && !isEditing) && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Select Class / Course <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedClassId}
+                onChange={(e) => setSelectedClassId(e.target.value)}
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 font-medium"
+                required
+              >
+                {classes.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.code ? `${c.code} - ${c.name}` : c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Assignment Title <span className="text-red-500">*</span>
@@ -172,11 +208,35 @@ export default function TeacherAssignmentModal({ isOpen, onClose, classId, assig
                 required
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900"
+                className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 cursor-text"
               />
-              <span className="text-[11px] text-slate-400 block mt-1">
-                Students cannot submit once this timeline passes.
-              </span>
+              <div className="flex items-center justify-between gap-1 mt-1.5">
+                <span className="text-[11px] text-slate-400">
+                  Type with keyboard or use calendar icon.
+                </span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { label: '+1d', days: 1 },
+                    { label: '+3d', days: 3 },
+                    { label: '+1w', days: 7 }
+                  ].map(preset => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        d.setDate(d.getDate() + preset.days);
+                        d.setHours(23, 59, 0, 0);
+                        setDueDate(toLocalDatetimeInput(d));
+                      }}
+                      className="px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 rounded border border-slate-200 transition-colors"
+                      title={`Set deadline to ${preset.days} day(s) from now`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div>
@@ -190,29 +250,36 @@ export default function TeacherAssignmentModal({ isOpen, onClose, classId, assig
                 max="1000"
                 value={totalPoints}
                 onChange={(e) => setTotalPoints(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900"
+                className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900"
               />
             </div>
           </div>
 
           {/* Re-upload Toggle Setting */}
-          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={allowReupload}
-                onChange={(e) => setAllowReupload(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 transition"
-              />
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">
-                  Allow students to delete and re-upload submissions before deadline
-                </span>
-                <span className="text-[11px] text-slate-500 leading-normal block mt-0.5">
-                  When enabled, students can remove their uploaded file and resubmit as many times as needed before the deadline. You can also toggle this setting at any time.
-                </span>
-              </div>
-            </label>
+          <div 
+            onClick={() => setAllowReupload(!allowReupload)}
+            className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
+              allowReupload 
+                ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-300/40' 
+                : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
+            }`}
+          >
+            <input
+              type="checkbox"
+              id="allowReuploadCheckbox"
+              checked={!!allowReupload}
+              onChange={(e) => setAllowReupload(e.target.checked)}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-0.5 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 transition cursor-pointer"
+            />
+            <div className="flex-1">
+              <span className="text-xs font-bold text-slate-800 block">
+                Allow students to delete and re-upload submissions before deadline
+              </span>
+              <span className="text-[11px] text-slate-500 leading-normal block mt-0.5">
+                When enabled, students can remove their uploaded file and resubmit as many times as needed before the deadline. You can also toggle this setting at any time.
+              </span>
+            </div>
           </div>
 
           {/* Optional Attachment (for new assignments) */}

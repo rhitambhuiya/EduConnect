@@ -10,6 +10,8 @@ import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherClasses from './pages/teacher/TeacherClasses';
 import TeacherClassDetail from './pages/teacher/TeacherClassDetail';
 import TeacherAnnouncements from './pages/teacher/TeacherAnnouncements';
+import TeacherAssignments from './pages/teacher/TeacherAssignments';
+import TeacherQuizzes from './pages/teacher/TeacherQuizzes';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -71,6 +73,26 @@ export default function App() {
           <ProtectedRoute allowedRole="teacher">
             <Layout>
               <TeacherAnnouncements />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/assignments"
+        element={
+          <ProtectedRoute allowedRole="teacher">
+            <Layout>
+              <TeacherAssignments />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/quizzes"
+        element={
+          <ProtectedRoute allowedRole="teacher">
+            <Layout>
+              <TeacherQuizzes />
             </Layout>
           </ProtectedRoute>
         }

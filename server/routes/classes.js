@@ -108,6 +108,30 @@ router.get('/:id', authenticate, (req, res) => {
   });
 });
 
+// DELETE /api/classes/:id - Teacher deletes a class they created
+router.delete('/:id', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const cls = db.findClassById(req.params.id);
+    if (!cls) {
+      return res.status(404).json({ error: 'Class not found' });
+    }
+
+    // Only the teacher who created the class can delete it
+    if (cls.teacherId !== req.user.id) {
+      return res.status(403).json({ error: 'You are only authorized to delete classes you created.' });
+    }
+
+    const deleted = db.deleteClass(cls.id);
+    return res.json({
+      message: `Class "${deleted.name}" (${deleted.code}) was deleted successfully.`,
+      deletedClass: deleted
+    });
+  } catch (err) {
+    console.error('Error deleting class:', err);
+    return res.status(500).json({ error: 'Failed to delete class' });
+  }
+});
+
 // POST /api/classes/:id/enroll - Student enrolls in class
 router.post('/:id/enroll', authenticate, requireRole('student'), (req, res) => {
   const cls = db.findClassById(req.params.id);
@@ -295,6 +319,48 @@ router.post('/:id/announcements', authenticate, requireRole('teacher'), (req, re
   } catch (err) {
     console.error('Error creating announcement:', err);
     return res.status(500).json({ error: 'Failed to create announcement' });
+  }
+});
+
+// DELETE /api/classes/announcements/:announcementId - Teacher deletes announcement globally
+router.delete('/announcements/:announcementId', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const announcement = db.findAnnouncementById(req.params.announcementId);
+    if (!announcement) {
+      return res.status(404).json({ error: 'Announcement not found' });
+    }
+
+    const cls = db.findClassById(announcement.classId);
+    if (announcement.teacherId !== req.user.id && (!cls || cls.teacherId !== req.user.id)) {
+      return res.status(403).json({ error: 'You are not authorized to delete this announcement.' });
+    }
+
+    const deleted = db.deleteAnnouncement(announcement.id);
+    return res.json({ message: 'Announcement deleted successfully', announcement: deleted });
+  } catch (err) {
+    console.error('Error deleting announcement:', err);
+    return res.status(500).json({ error: 'Failed to delete announcement' });
+  }
+});
+
+// DELETE /api/classes/:id/announcements/:announcementId - Teacher deletes announcement within a class
+router.delete('/:id/announcements/:announcementId', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const announcement = db.findAnnouncementById(req.params.announcementId);
+    if (!announcement) {
+      return res.status(404).json({ error: 'Announcement not found' });
+    }
+
+    const cls = db.findClassById(req.params.id || announcement.classId);
+    if (announcement.teacherId !== req.user.id && (!cls || cls.teacherId !== req.user.id)) {
+      return res.status(403).json({ error: 'You are not authorized to delete this announcement.' });
+    }
+
+    const deleted = db.deleteAnnouncement(announcement.id);
+    return res.json({ message: 'Announcement deleted successfully', announcement: deleted });
+  } catch (err) {
+    console.error('Error deleting announcement:', err);
+    return res.status(500).json({ error: 'Failed to delete announcement' });
   }
 });
 

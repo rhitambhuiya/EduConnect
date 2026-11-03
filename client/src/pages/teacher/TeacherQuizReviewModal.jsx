@@ -21,7 +21,12 @@ import {
 import { apiRequest } from '../../utils/api';
 
 export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, initialTab = 'summary', onGradesUpdated }) {
-  const [activeTab, setActiveTab] = useState(initialTab); // 'summary' | 'roster' | 'grade' | 'keys'
+  const normalizeTab = (tab) => {
+    if (tab === 'attempts' || tab === 'submissions') return 'roster';
+    const valid = ['summary', 'roster', 'grade', 'keys'];
+    return valid.includes(tab) ? tab : 'roster';
+  };
+  const [activeTab, setActiveTab] = useState(normalizeTab(initialTab));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [analytics, setAnalytics] = useState(null);
@@ -41,7 +46,7 @@ export default function TeacherQuizReviewModal({ isOpen, onClose, quizId, initia
 
   useEffect(() => {
     if (isOpen && quizId) {
-      if (initialTab) setActiveTab(initialTab);
+      if (initialTab) setActiveTab(normalizeTab(initialTab));
       loadAnalytics();
       loadQuizQuestions();
     }

@@ -23,6 +23,43 @@ router.get('/my-all', authenticate, requireRole('student'), (req, res) => {
   return res.json(allStudentAssignments);
 });
 
+// GET /api/assignments/teacher/all - Teacher views all assignments across all courses they teach
+router.get('/teacher/all', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const teacherClasses = db.getClassesByTeacher(req.user.id);
+    const classMap = new Map(teacherClasses.map(c => [c.id, c]));
+    const classIds = new Set(teacherClasses.map(c => c.id));
+
+    const assignments = (db.data.assignments || []).filter(a => classIds.has(a.classId));
+    const now = new Date();
+
+    const result = assignments.map(a => {
+      const cls = classMap.get(a.classId);
+      const submissions = db.getSubmissionsByAssignment(a.id);
+      const totalEnrolled = db.getEnrollmentCount(a.classId);
+      const gradedCount = submissions.filter(s => s.marks !== null && s.marks !== undefined).length;
+      const isExpired = now > new Date(a.dueDate);
+
+      return {
+        ...a,
+        className: cls ? cls.name : 'Unknown Class',
+        classCode: cls ? cls.code : '',
+        totalEnrolled,
+        submittedCount: submissions.length,
+        submissionCount: submissions.length,
+        gradedCount,
+        pendingCount: Math.max(0, totalEnrolled - submissions.length),
+        isExpired
+      };
+    }).sort((a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0));
+
+    return res.json(result);
+  } catch (err) {
+    console.error('Error fetching teacher assignments:', err);
+    return res.status(500).json({ error: 'Failed to fetch assignments' });
+  }
+});
+
 // GET /api/assignments/class/:classId - View all assignments for a class
 router.get('/class/:classId', authenticate, (req, res) => {
   const cls = db.findClassById(req.params.classId);
@@ -219,7 +256,7 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
   if (title !== undefined) updates.title = title;
   if (description !== undefined) updates.description = description;
   if (dueDate !== undefined) updates.dueDate = dueDate;
-  if (allowReupload !== undefined) updates.allowReupload = allowReupload;
+  if (allowReupload !== undefined) updates.allowReupload = allowReupload === false || allowReupload === 'false' ? false : true;
   if (totalPoints !== undefined) updates.totalPoints = totalPoints;
 
   const updated = db.updateAssignment(assignment.id, updates);
@@ -305,12 +342,19 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
       });
     }
 
-    // Check if student already submitted and if re-upload is disallowed
+    // Check if student already submitted and if re-upload is disallowed or already graded
     const existingSubmission = db.getSubmission(assignment.id, req.user.id);
-    if (existingSubmission && !assignment.allowReupload) {
-      return res.status(403).json({
-        error: 'You have already submitted this assignment, and the instructor has disabled re-uploading.'
-      });
+    if (existingSubmission) {
+      if (existingSubmission.marks !== null && existingSubmission.marks !== undefined) {
+        return res.status(403).json({
+          error: 'This assignment has already been evaluated and graded by your instructor. Re-uploading is no longer permitted.'
+        });
+      }
+      if (!assignment.allowReupload) {
+        return res.status(403).json({
+          error: 'You have already submitted this assignment, and the instructor has disabled re-uploading.'
+        });
+      }
     }
 
     if (!req.file) {
@@ -367,6 +411,13 @@ router.delete('/:id/submission', authenticate, requireRole('student'), (req, res
   const existingSubmission = db.getSubmission(assignment.id, req.user.id);
   if (!existingSubmission) {
     return res.status(404).json({ error: 'No active submission found to delete.' });
+  }
+
+  // Once an assignment is graded, student CANNOT delete or re-upload, even if allowReupload was true
+  if (existingSubmission.marks !== null && existingSubmission.marks !== undefined) {
+    return res.status(403).json({
+      error: 'This assignment has already been evaluated and graded by your instructor. You cannot delete or replace graded submissions.'
+    });
   }
 
   // Check if teacher allowed re-upload
@@ -450,12 +501,15 @@ router.get('/submissions/:submissionId/download', authenticate, (req, res) => {
     return res.status(404).json({ error: 'Submission not found' });
   }
 
-  const cls = db.findClassById(submission.classId);
-  if (!cls) {
-    return res.status(404).json({ error: 'Class not found' });
+  // Fallback to parent assignment classId if submission.classId is missing
+  let classId = submission.classId;
+  const assignment = db.findAssignmentById(submission.assignmentId);
+  if (!classId && assignment) {
+    classId = assignment.classId;
   }
 
-  const isTeacherOwner = req.user.role === 'teacher' && cls.teacherId === req.user.id;
+  const cls = classId ? db.findClassById(classId) : null;
+  const isTeacherOwner = req.user.role === 'teacher' && cls && cls.teacherId === req.user.id;
   const isStudentOwner = req.user.role === 'student' && submission.studentId === req.user.id;
 
   if (!isTeacherOwner && !isStudentOwner) {
@@ -488,6 +542,56 @@ router.get('/submissions/:submissionId/download', authenticate, (req, res) => {
   }
 
   return res.status(404).json({ error: 'File not found on server disk or cloud storage.' });
+});
+
+// PUT /api/assignments/submissions/:submissionId/grade - Teacher grades / marks a student assignment submission
+router.put('/submissions/:submissionId/grade', authenticate, requireRole('teacher'), (req, res) => {
+  try {
+    const submission = db.findSubmissionById(req.params.submissionId);
+    if (!submission) {
+      return res.status(404).json({ error: 'Submission not found' });
+    }
+
+    let classId = submission.classId;
+    const assignment = db.findAssignmentById(submission.assignmentId);
+    if (!classId && assignment) {
+      classId = assignment.classId;
+    }
+
+    const cls = classId ? db.findClassById(classId) : null;
+    if (!cls || cls.teacherId !== req.user.id) {
+      return res.status(403).json({ error: 'You can only grade submissions for courses you teach.' });
+    }
+
+    const maxPoints = assignment ? (assignment.totalPoints || 100) : 100;
+
+    const { marks, feedback } = req.body;
+
+    if (marks !== null && marks !== undefined && marks !== '') {
+      const numMarks = Number(marks);
+      if (isNaN(numMarks) || numMarks < 0 || numMarks > maxPoints) {
+        return res.status(400).json({
+          error: `Marks must be a valid number between 0 and ${maxPoints}.`
+        });
+      }
+    }
+
+    const updatedSubmission = db.gradeSubmission({
+      submissionId: submission.id,
+      marks: (marks !== '' && marks !== null && marks !== undefined) ? Number(marks) : null,
+      feedback: feedback || '',
+      teacherId: req.user.id,
+      teacherName: req.user.name
+    });
+
+    return res.json({
+      message: 'Assignment submission marked successfully!',
+      submission: updatedSubmission
+    });
+  } catch (err) {
+    console.error('Error grading submission:', err);
+    return res.status(500).json({ error: 'Failed to grade submission' });
+  }
 });
 
 module.exports = router;

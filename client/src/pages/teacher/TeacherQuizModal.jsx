@@ -38,8 +38,10 @@ export default function TeacherQuizModal({
   classId, 
   quizToEdit = null, 
   onQuizCreated, 
-  onQuizUpdated 
+  onQuizUpdated,
+  classes = []
 }) {
+  const [selectedClassId, setSelectedClassId] = useState(classId || (classes[0]?.id || ''));
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -51,7 +53,7 @@ export default function TeacherQuizModal({
   const [startTime, setStartTime] = useState(defaultStart);
   const [endTime, setEndTime] = useState(end3Days);
 
-  const [sections, setSections] = useState(['DBMS', 'Operating Systems', 'Computer Networks', 'Java']);
+  const [sections, setSections] = useState(['DBMS', 'Operating Systems', 'Computer Networks', 'Java', 'Data Structures and Algorithms']);
   const [targetQuestionIdxForSection, setTargetQuestionIdxForSection] = useState(null);
   const [newSectionModalOpen, setNewSectionModalOpen] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
@@ -71,7 +73,7 @@ export default function TeacherQuizModal({
       correctAnswers: [],
       explanation: '',
       saveToBank: false,
-      bankSection: 'DBMS'
+      bankSection: ''
     }
   ]);
 
@@ -94,6 +96,7 @@ export default function TeacherQuizModal({
     if (!isOpen) return;
 
     loadSections();
+    setSelectedClassId(classId || (quizToEdit ? quizToEdit.classId : (classes[0]?.id || '')));
 
     if (quizToEdit) {
       setTitle(quizToEdit.title || '');
@@ -113,7 +116,7 @@ export default function TeacherQuizModal({
         correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers : [0]) : [],
         explanation: q.explanation || '',
         saveToBank: !!q.saveToBank,
-        bankSection: q.bankSection || (sections[0] || 'DBMS')
+        bankSection: q.bankSection || ''
       }));
 
       setQuestions(mapped.length > 0 ? mapped : [
@@ -127,7 +130,7 @@ export default function TeacherQuizModal({
           correctAnswers: [],
           explanation: '',
           saveToBank: false,
-          bankSection: sections[0] || 'DBMS'
+          bankSection: ''
         }
       ]);
     } else {
@@ -149,7 +152,7 @@ export default function TeacherQuizModal({
           correctAnswers: [],
           explanation: '',
           saveToBank: false,
-          bankSection: sections[0] || 'DBMS'
+          bankSection: ''
         }
       ]);
     }
@@ -172,7 +175,7 @@ export default function TeacherQuizModal({
       correctAnswers: bq.type === 'multiple' ? (bq.correctAnswers || []) : [],
       explanation: bq.explanation || '',
       saveToBank: false,
-      bankSection: bq.subject || sections[0] || 'DBMS'
+      bankSection: bq.subject || ''
     }));
 
     const hasOnlyInitialBlank = questions.length === 1 && !questions[0].question.trim();
@@ -194,7 +197,7 @@ export default function TeacherQuizModal({
       correctAnswers: type === 'multiple' ? [0] : [],
       explanation: '',
       saveToBank: false,
-      bankSection: sections[0] || 'DBMS'
+      bankSection: ''
     };
     setQuestions([...questions, newQ]);
   };
@@ -283,7 +286,16 @@ export default function TeacherQuizModal({
       }
     }
 
-    const targetSection = (q.bankSection || sections[0] || 'General').trim();
+    const targetSection = (q.bankSection || '').trim();
+    if (!targetSection) {
+      handleQuestionChange(qIdx, 'saveToBank', true);
+      setSavedStatus(prev => ({ 
+        ...prev, 
+        [key]: { isError: true, msg: 'Please choose a target section first.' } 
+      }));
+      setTimeout(() => setSavedStatus(prev => ({ ...prev, [key]: null })), 4000);
+      return;
+    }
 
     setSavedStatus(prev => ({ ...prev, [key]: { loading: true } }));
     try {
@@ -319,6 +331,7 @@ export default function TeacherQuizModal({
           msg: err.message || 'Failed to save question.'
         }
       }));
+      setTimeout(() => setSavedStatus(prev => ({ ...prev, [key]: null })), 6000);
     }
   };
 
@@ -408,6 +421,11 @@ export default function TeacherQuizModal({
           return;
         }
       }
+
+      if (q.saveToBank && (!q.bankSection || !q.bankSection.trim())) {
+        setError(`Question #${i + 1}: "Save to Question Bank" is enabled, but no section was selected. Please choose a target section.`);
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -420,8 +438,8 @@ export default function TeacherQuizModal({
         endTime: new Date(endTime).toISOString(),
         questions: questions.map(q => ({
           ...q,
-          saveToBank: !!q.saveToBank,
-          bankSection: (q.bankSection || sections[0] || 'General').trim()
+          saveToBank: !!q.saveToBank && !!(q.bankSection && q.bankSection.trim()),
+          bankSection: (q.bankSection || '').trim()
         }))
       };
 
@@ -432,7 +450,13 @@ export default function TeacherQuizModal({
         });
         onQuizUpdated && onQuizUpdated(data);
       } else {
-        const data = await apiRequest(`/api/quizzes/class/${classId}`, {
+        const targetClassId = classId || selectedClassId;
+        if (!targetClassId) {
+          setError('Please select a class to schedule this quiz for.');
+          setSubmitting(false);
+          return;
+        }
+        const data = await apiRequest(`/api/quizzes/class/${targetClassId}`, {
           method: 'POST',
           body: JSON.stringify(payload)
         });
@@ -491,6 +515,26 @@ export default function TeacherQuizModal({
               <FileText className="w-4 h-4 text-blue-600" />
               Quiz Information & Timeline
             </h3>
+
+            {(!classId && classes && classes.length > 0 && !quizToEdit) && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                  Select Class / Course <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={selectedClassId}
+                  onChange={(e) => setSelectedClassId(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium cursor-pointer"
+                  required
+                >
+                  {classes.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.code ? `${c.code} - ${c.name}` : c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
@@ -849,35 +893,42 @@ export default function TeacherQuizModal({
                         </span>
                       </label>
 
-                      {q.saveToBank && (
-                        <div className="flex items-center gap-2 animate-in fade-in duration-150 flex-wrap">
-                          <span className="text-slate-500 font-medium">Target Section:</span>
-                          <select
-                            value={q.bankSection || (sections[0] || 'General')}
-                            onChange={(e) => handleQuestionChange(qIdx, 'bankSection', e.target.value)}
-                            className="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                          >
-                            {sections.map(s => (
-                              <option key={s} value={s}>{s}</option>
-                            ))}
-                          </select>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-slate-500 font-medium">Target Section:</span>
+                        <select
+                          value={q.bankSection || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            handleQuestionChange(qIdx, 'bankSection', val);
+                            if (val) {
+                              handleQuestionChange(qIdx, 'saveToBank', true);
+                            }
+                          }}
+                          className={`px-2.5 py-1 bg-white border rounded-lg text-xs font-semibold focus:ring-2 focus:ring-amber-500 cursor-pointer ${
+                            !q.bankSection ? 'border-amber-300 text-slate-500 font-normal' : 'border-slate-300 text-slate-800'
+                          }`}
+                        >
+                          <option value="">-- Choose Section --</option>
+                          {sections.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setTargetQuestionIdxForSection(qIdx);
-                              setNewSectionName('');
-                              setSectionError('');
-                              setNewSectionModalOpen(true);
-                            }}
-                            className="text-xs text-indigo-700 hover:text-indigo-900 font-bold flex items-center gap-1 cursor-pointer px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
-                            title="Create a new custom section in question bank"
-                          >
-                            <FolderPlus className="w-3.5 h-3.5" />
-                            <span>+ New Section</span>
-                          </button>
-                        </div>
-                      )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTargetQuestionIdxForSection(qIdx);
+                            setNewSectionName('');
+                            setSectionError('');
+                            setNewSectionModalOpen(true);
+                          }}
+                          className="text-xs text-indigo-700 hover:text-indigo-900 font-bold flex items-center gap-1 cursor-pointer px-2 py-1 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
+                          title="Create a new custom section in question bank"
+                        >
+                          <FolderPlus className="w-3.5 h-3.5" />
+                          <span>+ New Section</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Instant Save to Bank Button */}
