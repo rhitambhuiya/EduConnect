@@ -83,10 +83,13 @@ router.get('/class/:classId', authenticate, (req, res) => {
     const result = assignments.map(a => {
       const submissions = db.getSubmissionsByAssignment(a.id);
       const isExpired = now > new Date(a.dueDate);
+      const gradedCount = submissions.filter(s => s.marks !== null && s.marks !== undefined).length;
       return {
         ...a,
         totalEnrolled,
         submittedCount: submissions.length,
+        submissionCount: submissions.length,
+        gradedCount,
         pendingCount: Math.max(0, totalEnrolled - submissions.length),
         isExpired
       };

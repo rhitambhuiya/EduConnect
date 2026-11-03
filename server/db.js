@@ -937,215 +937,26 @@ class Database {
           fileSize: sub.fileSize,
           mimeType: sub.mimeType,
           notes: sub.notes,
-          submittedAt: sub.submittedAt
+          submittedAt: sub.submittedAt,
+          marks: (sub.marks !== null && sub.marks !== undefined) ? sub.marks : null,
+          feedback: sub.feedback || '',
+          gradedAt: sub.gradedAt || null,
+          gradedBy: sub.gradedBy || null
         } : null
       };
     });
 
     const submittedCount = roster.filter(r => r.hasSubmitted).length;
+    const gradedCount = roster.filter(r => r.submission && r.submission.marks !== null && r.submission.marks !== undefined).length;
+    const pendingGradingCount = submittedCount - gradedCount;
     const pendingCount = roster.length - submittedCount;
 
     return {
       assignment,
       totalEnrolled: roster.length,
       submittedCount,
-      pendingCount,
-      roster
-    };
-  }
-
-  // Student perspective: list of all assignments across enrolled classes with submission status
-  getAssignmentsForStudent(studentId) {
-    const enrolledClasses = this.getClassesForStudent(studentId);
-    const classMap = new Map(enrolledClasses.map(c => [c.id, c]));
-    const classIds = new Set(enrolledClasses.map(c => c.id));
-
-    const allAssignments = (this.data.assignments || []).filter(a => classIds.has(a.classId));
-    const now = new Date();
-
-    return allAssignments.map(assignment => {
-      const cls = classMap.get(assignment.classId);
-      const sub = this.getSubmission(assignment.id, studentId);
-      const hasSubmitted = !!sub;
-      const dueDate = new Date(assignment.dueDate);
-      const isExpired = now > dueDate;
-
-      let status = 'pending';
-      if (hasSubmitted) {
-        status = 'submitted';
-      } else if (isExpired) {
-        status = 'overdue';
-      }
-
-      return {
-        ...assignment,
-        className: cls ? cls.name : 'Unknown Class',
-        classCode: cls ? cls.code : '',
-        status,
-        hasSubmitted,
-        isExpired,
-        submission: sub || null
-      };
-    }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-  }
-
-  // --- Quiz Operations ---
-  getQuizzesByClass(classId) {
-    return (this.data.quizzes || [])
-      .filter(q => q.classId === classId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  findQuizById(id) {
-    return (this.data.quizzes || []).find(q => q.id === id);
-  }
-
-  createQuiz({ classId, teacherId, teacherName, title, description, durationMinutes, startTime, endTime, questions = [] }) {
-    const formattedQuestions = (questions || []).map((q, idx) => {
-      const qText = (q.questionText || q.question || '').trim();
-      return {
-        id: q.id || generateId('q'),
-        type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-        question: qText,
-        questionText: qText,
-        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-        points: Number(q.points) || 1,
-        explanation: (q.explanation || '').trim(),
-        rubric: (q.rubric || '').trim()
-      };
-    });
-
-    const totalPoints = formattedQuestions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
-
-    const quiz = {
-      id: generateId('qiz'),
-      classId,
-      teacherId,
-      teacherName,
-      title: title.trim(),
-      description: description.trim(),
-      durationMinutes: Number(durationMinutes) || 0,
-      startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
-      endTime: new Date(endTime).toISOString(),
-      totalPoints,
-      questions: formattedQuestions,
-      createdAt: new Date().toISOString()
-    };
-
-    this.data.quizzes = this.data.quizzes || [];
-    this.data.quizzes.push(quiz);
-    this.save();
-    return quiz;
-  }
-
-  updateQuiz(id, updates) {
-    const quiz = this.findQuizById(id);
-    if (!quiz) return null;
-
-    let timingChanged = false;
-    if (updates.startTime !== undefined && new Date(updates.startTime).toISOString() !== quiz.startTime) {
-      quiz.startTime = new Date(updates.startTime).toISOString();
-      timingChanged = true;
-    }
-    if (updates.endTime !== undefined && new Date(updates.endTime).toISOString() !== quiz.endTime) {
-      quiz.endTime = new Date(updates.endTime).toISOString();
-      timingChanged = true;
-    }
-
-    if (updates.title !== undefined) quiz.title = updates.title.trim();
-    if (updates.description !== undefined) quiz.description = updates.description.trim();
-    if (updates.durationMinutes !== undefined) {
-      quiz.durationMinutes = Number(updates.durationMinutes) || 0;
-    } else if (timingChanged) {
-      const startMs = new Date(quiz.startTime).getTime();
-      const endMs = new Date(quiz.endTime).getTime();
-      quiz.durationMinutes = Math.max(1, Math.round((endMs - startMs) / 60000));
-    }
-
-    if (updates.questions !== undefined) {
-      quiz.questions = updates.questions.map(q => {
-        const qText = (q.questionText || q.question || '').trim();
-        return {
-          id: q.id || generateId('q'),
-          type: q.type || 'single',
-          question: qText,
-          questionText: qText,
-          options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-          correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-          correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-          points: Number(q.points) || 1,
-          explanation: (q.explanation || '').trim(),
-          rubric: (q.rubric || '').trim()
-        };
-      });
-      quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
-    }
-
-    if (timingChanged) {
-      this.data.quizAttempts = (this.data.quizAttempts || []).filter(a => a.quizId !== id);
-      quiz.rescheduledAt = new Date().toISOString();
-    }
-
-    this.save();
-    return quiz;
-  }
-
-  deleteQuiz(id) {
-    const index = (this.data.quizzes || []).findIndex(q => q.id === id);
-    if (index === -1) return null;
-    const [deleted] = this.data.quizzes.splice(index, 1);
-
-    // Remove all associated quiz attempts
-    this.data.quizAttempts = (this.data.quizAttempts || []).filter(a => a.quizId !== id);
-
-    this.save();
-    return deleted;
-  }
-
-  // Full roster submission review for teachers: enrolled students, who submitted vs who did not
-  getAssignmentRoster(assignmentId) {
-    const assignment = this.findAssignmentById(assignmentId);
-    if (!assignment) return null;
-
-    const enrolledStudents = this.getEnrolledStudents(assignment.classId);
-    const submissions = this.getSubmissionsByAssignment(assignmentId);
-    const subMap = new Map();
-    submissions.forEach(sub => subMap.set(sub.studentId, sub));
-
-    const roster = enrolledStudents.map(student => {
-      const sub = subMap.get(student.id);
-      const hasSubmitted = !!sub;
-      const isLate = hasSubmitted ? new Date(sub.submittedAt) > new Date(assignment.dueDate) : false;
-      return {
-        studentId: student.id,
-        studentName: student.name,
-        studentEmail: student.email,
-        enrolledAt: student.enrolledAt,
-        hasSubmitted,
-        isLate,
-        submission: sub ? {
-          id: sub.id,
-          originalName: sub.originalName,
-          fileName: sub.fileName,
-          fileUrl: sub.fileUrl || '',
-          cloudinaryId: sub.cloudinaryId || '',
-          fileSize: sub.fileSize,
-          mimeType: sub.mimeType,
-          notes: sub.notes,
-          submittedAt: sub.submittedAt
-        } : null
-      };
-    });
-
-    const submittedCount = roster.filter(r => r.hasSubmitted).length;
-    const pendingCount = roster.length - submittedCount;
-
-    return {
-      assignment,
-      totalEnrolled: roster.length,
-      submittedCount,
+      gradedCount,
+      pendingGradingCount,
       pendingCount,
       roster
     };
@@ -1638,7 +1449,11 @@ class Database {
       fileSize,
       mimeType,
       notes: (notes || '').trim(),
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      marks: null,
+      feedback: '',
+      gradedAt: null,
+      gradedBy: null
     };
     this.data.submissions.push(submission);
     this.save();
@@ -1663,329 +1478,35 @@ class Database {
     return deleted;
   }
 
-  // Full roster submission review for teachers: enrolled students, who submitted vs who did not
-  getAssignmentRoster(assignmentId) {
-    const assignment = this.findAssignmentById(assignmentId);
-    if (!assignment) return null;
+  gradeSubmission({ submissionId, marks, feedback = "", teacherId, teacherName }) {
+    this.data.submissions = this.data.submissions || [];
+    const sub = this.data.submissions.find(s => s.id === submissionId);
+    if (!sub) return null;
 
-    const enrolledStudents = this.getEnrolledStudents(assignment.classId);
-    const submissions = this.getSubmissionsByAssignment(assignmentId);
-    const subMap = new Map();
-    submissions.forEach(sub => subMap.set(sub.studentId, sub));
-
-    const roster = enrolledStudents.map(student => {
-      const sub = subMap.get(student.id);
-      const hasSubmitted = !!sub;
-      const isLate = hasSubmitted ? new Date(sub.submittedAt) > new Date(assignment.dueDate) : false;
-      return {
-        studentId: student.id,
-        studentName: student.name,
-        studentEmail: student.email,
-        enrolledAt: student.enrolledAt,
-        hasSubmitted,
-        isLate,
-        submission: sub ? {
-          id: sub.id,
-          originalName: sub.originalName,
-          fileName: sub.fileName,
-          fileUrl: sub.fileUrl || '',
-          cloudinaryId: sub.cloudinaryId || '',
-          fileSize: sub.fileSize,
-          mimeType: sub.mimeType,
-          notes: sub.notes,
-          submittedAt: sub.submittedAt
-        } : null
-      };
-    });
-
-    const submittedCount = roster.filter(r => r.hasSubmitted).length;
-    const pendingCount = roster.length - submittedCount;
-
-    return {
-      assignment,
-      totalEnrolled: roster.length,
-      submittedCount,
-      pendingCount,
-      roster
-    };
-  }
-
-  // Student perspective: list of all assignments across enrolled classes with submission status
-  getAssignmentsForStudent(studentId) {
-    const enrolledClasses = this.getClassesForStudent(studentId);
-    const classMap = new Map(enrolledClasses.map(c => [c.id, c]));
-    const classIds = new Set(enrolledClasses.map(c => c.id));
-
-    const allAssignments = (this.data.assignments || []).filter(a => classIds.has(a.classId));
-    const now = new Date();
-
-    return allAssignments.map(assignment => {
-      const cls = classMap.get(assignment.classId);
-      const sub = this.getSubmission(assignment.id, studentId);
-      const hasSubmitted = !!sub;
-      const dueDate = new Date(assignment.dueDate);
-      const isExpired = now > dueDate;
-
-      let status = 'pending';
-      if (hasSubmitted) {
-        status = 'submitted';
-      } else if (isExpired) {
-        status = 'overdue';
-      }
-
-      return {
-        ...assignment,
-        className: cls ? cls.name : 'Unknown Class',
-        classCode: cls ? cls.code : '',
-        status,
-        hasSubmitted,
-        isExpired,
-        submission: sub || null
-      };
-    }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-  }
-
-  // --- Quiz Operations ---
-  getQuizzesByClass(classId) {
-    return (this.data.quizzes || [])
-      .filter(q => q.classId === classId)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  findQuizById(id) {
-    return (this.data.quizzes || []).find(q => q.id === id);
-  }
-
-  createQuiz({ classId, teacherId, teacherName, title, description, durationMinutes, startTime, endTime, questions = [] }) {
-    const formattedQuestions = (questions || []).map((q, idx) => {
-      const qText = (q.questionText || q.question || '').trim();
-      return {
-        id: q.id || generateId('q'),
-        type: q.type || 'single', // 'single' | 'multiple' | 'paragraph'
-        question: qText,
-        questionText: qText,
-        options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-        correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-        correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-        points: Number(q.points) || 1,
-        explanation: (q.explanation || '').trim(),
-        rubric: (q.rubric || '').trim()
-      };
-    });
-
-    const totalPoints = formattedQuestions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
-
-    const quiz = {
-      id: generateId('qiz'),
-      classId,
-      teacherId,
-      teacherName,
-      title: title.trim(),
-      description: description.trim(),
-      durationMinutes: Number(durationMinutes) || 0,
-      startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
-      endTime: new Date(endTime).toISOString(),
-      totalPoints,
-      questions: formattedQuestions,
-      createdAt: new Date().toISOString()
-    };
-
-    this.data.quizzes = this.data.quizzes || [];
-    this.data.quizzes.push(quiz);
-    this.save();
-    return quiz;
-  }
-
-  updateQuiz(id, updates) {
-    const quiz = this.findQuizById(id);
-    if (!quiz) return null;
-
-    let timingChanged = false;
-    if (updates.startTime !== undefined && new Date(updates.startTime).toISOString() !== quiz.startTime) {
-      quiz.startTime = new Date(updates.startTime).toISOString();
-      timingChanged = true;
-    }
-    if (updates.endTime !== undefined && new Date(updates.endTime).toISOString() !== quiz.endTime) {
-      quiz.endTime = new Date(updates.endTime).toISOString();
-      timingChanged = true;
-    }
-
-    if (updates.title !== undefined) quiz.title = updates.title.trim();
-    if (updates.description !== undefined) quiz.description = updates.description.trim();
-    if (updates.durationMinutes !== undefined) {
-      quiz.durationMinutes = Number(updates.durationMinutes) || 0;
-    } else if (timingChanged) {
-      const startMs = new Date(quiz.startTime).getTime();
-      const endMs = new Date(quiz.endTime).getTime();
-      quiz.durationMinutes = Math.max(1, Math.round((endMs - startMs) / 60000));
-    }
-
-    if (updates.questions !== undefined) {
-      quiz.questions = updates.questions.map(q => {
-        const qText = (q.questionText || q.question || '').trim();
-        return {
-          id: q.id || generateId('q'),
-          type: q.type || 'single',
-          question: qText,
-          questionText: qText,
-          options: Array.isArray(q.options) ? q.options.map(opt => (typeof opt === 'object' ? String(opt.text || '').trim() : String(opt).trim())) : [],
-          correctAnswer: q.type === 'single' ? Number(q.correctAnswer) : undefined,
-          correctAnswers: q.type === 'multiple' ? (Array.isArray(q.correctAnswers) ? q.correctAnswers.map(Number) : []) : undefined,
-          points: Number(q.points) || 1,
-          explanation: (q.explanation || '').trim(),
-          rubric: (q.rubric || '').trim()
-        };
-      });
-      quiz.totalPoints = quiz.questions.reduce((sum, q) => sum + (Number(q.points) || 0), 0);
-    }
-
-    if (timingChanged) {
-      this.data.quizAttempts = (this.data.quizAttempts || []).filter(a => a.quizId !== id);
-      quiz.rescheduledAt = new Date().toISOString();
-    }
-
-    this.save();
-    return quiz;
-  }
-
-  deleteQuiz(id) {
-    const index = (this.data.quizzes || []).findIndex(q => q.id === id);
-    if (index === -1) return null;
-    const [deleted] = this.data.quizzes.splice(index, 1);
-
-    // Remove all associated quiz attempts
-    this.data.quizAttempts = (this.data.quizAttempts || []).filter(a => a.quizId !== id);
-
-    this.save();
-    return deleted;
-  }
-
-  // --- Teacher Question Bank Operations ---
-  getQuestionBankSections() {
-    const defaults = ['DBMS', 'Operating Systems', 'Computer Networks', 'Java', 'Data Structures and Algorithms'];
-    const deleted = new Set((this.data.deletedQuestionBankSections || []).map(s => (s || '').toLowerCase()));
-    const custom = (this.data.questionBankSections || []);
-    const fromQuestions = (this.getQuestionBank() || []).map(q => q.subject).filter(Boolean);
-    const all = [...defaults, ...custom, ...fromQuestions];
-    const unique = [];
-    const seen = new Set();
-    for (const s of all) {
-      if (s && !seen.has(s.toLowerCase()) && !deleted.has(s.toLowerCase())) {
-        seen.add(s.toLowerCase());
-        unique.push(s);
-      }
-    }
-    return unique;
-  }
-
-  addQuestionBankSection(name) {
-    if (!name || !name.trim()) return null;
-    const trimmed = name.trim();
-    const lower = trimmed.toLowerCase();
-
-    // If previously deleted, un-blacklist it
-    this.data.deletedQuestionBankSections = (this.data.deletedQuestionBankSections || []).filter(
-      s => (s || '').toLowerCase() !== lower
-    );
-
-    this.data.questionBankSections = this.data.questionBankSections || [];
-    if (!this.data.questionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
-      this.data.questionBankSections.push(trimmed);
-      this.save();
-    }
-    if (this.isMongoConnected && this.models && this.models.QuestionBankSection) {
-      this.models.QuestionBankSection.findOneAndUpdate(
-        { name: trimmed },
-        { $set: { name: trimmed } },
-        { upsert: true }
-      ).catch(e => console.error('[MongoDB Atlas] Error saving section:', e.message));
-    }
-    return trimmed;
-  }
-
-  deleteQuestionBankSection(name) {
-    if (!name || !name.trim()) return null;
-    const trimmed = name.trim();
-    const lower = trimmed.toLowerCase();
-
-    this.data.deletedQuestionBankSections = this.data.deletedQuestionBankSections || [];
-    if (!this.data.deletedQuestionBankSections.map(s => (s || '').toLowerCase()).includes(lower)) {
-      this.data.deletedQuestionBankSections.push(trimmed);
-    }
-
-    this.data.questionBankSections = (this.data.questionBankSections || []).filter(
-      s => (s || '').toLowerCase() !== lower
-    );
-
-    if (!this.questionBank) {
-      this.getQuestionBank();
-    }
-    const questionsToDelete = (this.questionBank || []).filter(
-      q => (q.subject || '').toLowerCase() === lower ||
-           (lower === 'operating systems' && (q.subject || '').toLowerCase() === 'os') ||
-           (lower === 'os' && (q.subject || '').toLowerCase() === 'operating systems')
-    );
-    const deleteIds = new Set(questionsToDelete.map(q => q.id));
-
-    this.questionBank = (this.questionBank || []).filter(q => !deleteIds.has(q.id));
-
-    const qbFile = path.join(__dirname, 'data', 'question_bank.json');
-    try {
-      fs.writeFileSync(qbFile, JSON.stringify(this.questionBank, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to write question_bank.json:', err);
-    }
+    sub.marks = (marks !== null && marks !== undefined && marks !== "") ? Number(marks) : null;
+    sub.feedback = feedback !== undefined ? String(feedback).trim() : "";
+    sub.gradedAt = new Date().toISOString();
+    sub.gradedBy = teacherName || (teacherId ? `Teacher (${teacherId})` : "Teacher");
+    sub.gradedById = teacherId || null;
 
     this.save();
 
-    if (this.isMongoConnected && this.models) {
-      if (this.models.QuestionBankSection) {
-        this.models.QuestionBankSection.deleteMany({
-          name: { $regex: new RegExp('^' + trimmed + String.fromCharCode(36), 'i') }
-        }).catch(e => console.error('[MongoDB Atlas] Error deleting section:', e.message));
-      }
-      if (this.models.QuestionBank && deleteIds.size > 0) {
-        this.models.QuestionBank.deleteMany({ id: { $in: Array.from(deleteIds) } })
-          .catch(e => console.error('[MongoDB Atlas] Error deleting section questions:', e.message));
-      }
-    }
-
-    return {
-      deletedSection: trimmed,
-      deletedQuestionsCount: deleteIds.size
-    };
-  }
-
-  getQuestionBank({ subject, type, search } = {}) {
-    if (!this.questionBank) {
-      if (fs.existsSync(QUESTION_BANK_FILE)) {
-        try {
-          this.questionBank = JSON.parse(fs.readFileSync(QUESTION_BANK_FILE, 'utf-8'));
-        } catch (e) {
-          console.error('Failed to load question bank:', e);
-          this.questionBank = [];
+    if (this.isMongoConnected && this.models && this.models.Submission) {
+      this.models.Submission.findOneAndUpdate(
+        { id: submissionId },
+        {
+          $set: {
+            marks: sub.marks,
+            feedback: sub.feedback,
+            gradedAt: sub.gradedAt,
+            gradedBy: sub.gradedBy,
+            gradedById: sub.gradedById
+          }
         }
-      } else {
-        this.questionBank = [];
-      }
+      ).catch(err => console.error("[MongoDB Atlas] Error grading submission:", err.message));
     }
 
-    let results = [...(this.questionBank || [])];
-    if (subject && subject !== 'all') {
-      results = results.filter(q => (q.subject || '').toLowerCase() === subject.toLowerCase());
-    }
-    if (type && type !== 'all') {
-      results = results.filter(q => q.type === type);
-    }
-    if (search && search.trim()) {
-      const qLower = search.trim().toLowerCase();
-      results = results.filter(q =>
-        (q.question || '').toLowerCase().includes(qLower) ||
-        (q.topic && q.topic.toLowerCase().includes(qLower)) ||
-        (q.options && q.options.some(opt => (typeof opt === 'string' ? opt : opt.text || '').toLowerCase().includes(qLower)))
-      );
-    }
-    return results;
+    return sub;
   }
 
   // --- Quiz Attempt Operations ---

@@ -151,6 +151,10 @@ export default function TeacherSubmissionsModal({ isOpen, onClose, assignment, o
         };
       });
 
+      if (onAssignmentUpdated) {
+        onAssignmentUpdated();
+      }
+
       setGradeMsg({ id: subId, text: 'Marks & feedback saved successfully! ✓', isError: false });
       setTimeout(() => {
         setActiveGradingId(null);
