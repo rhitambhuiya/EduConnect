@@ -440,6 +440,13 @@ export default function TakeQuizModal({ isOpen, onClose, quizId, onQuizSubmitted
                   type="button"
                   onClick={() => {
                     attemptStartTimeRef.current = new Date().toISOString();
+                    // Recalculate remaining seconds at the exact moment attempt starts
+                    const durSecs = (quiz.durationMinutes || 30) * 60;
+                    const endMs = new Date(quiz.endTime).getTime();
+                    const nowMs = Date.now();
+                    const secsUntilDeadline = Math.max(0, Math.floor((endMs - nowMs) / 1000));
+                    const effSecs = Math.min(durSecs, secsUntilDeadline);
+                    setTimeLeftSeconds(effSecs);
                     setAttemptStarted(true);
                   }}
                   className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"

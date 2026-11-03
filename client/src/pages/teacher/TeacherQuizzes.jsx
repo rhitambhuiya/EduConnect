@@ -345,10 +345,18 @@ export default function TeacherQuizzes() {
                     </div>
                     <div className="flex items-center justify-between text-slate-600">
                       <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" /> End:
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" /> Deadline:
                       </span>
                       <span className="font-medium text-slate-800">{formatDateTime(quiz.endTime)}</span>
                     </div>
+                    {quiz.durationMinutes ? (
+                      <div className="flex items-center justify-between text-purple-700 pt-1 border-t border-slate-200/60 font-medium">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-purple-500" /> Attempt Duration:
+                        </span>
+                        <span className="font-bold text-purple-900">{quiz.durationMinutes} mins</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Question Count & Points */}

@@ -4325,5 +4325,923 @@
     "correctAnswers": [],
     "explanation": "DSU manages a collection of disjoint sets supporting find(x) (find set representative) and union(x, y) (merge sets). Without optimization, trees can degenerate into linear chains of height O(n). 'Union by Rank' always attaches the shorter tree to the root of the taller tree, keeping tree height O(log n). 'Path Compression' flattens the tree during find(x) by pointing all visited nodes directly to the root. Together, they bound the amortized cost per operation to O(alpha(n)), where alpha is the extremely slow-growing inverse Ackermann function, enabling Kruskal's algorithm to run in O(E log V) dominated only by edge sorting.",
     "points": 10
+  },
+  {
+    "id": "qb_os_51",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "In an x86-64 multi-level page table architecture (4-level paging), what is the size of each Page Table Entry (PTE)?",
+    "options": [
+      "4 Bytes (32 bits)",
+      "8 Bytes (64 bits)",
+      "16 Bytes (128 bits)",
+      "32 Bytes (256 bits)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In 64-bit x86 architecture, each page table entry is 8 bytes (64 bits) long, allowing a 4KB page table to hold exactly 512 entries (4096 / 8 = 512 = 2^9).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_52",
+    "subject": "Operating Systems",
+    "topic": "Process Management",
+    "type": "single",
+    "question": "Which balanced search tree data structure does the Linux Completely Fair Scheduler (CFS) utilize to track runnable tasks sorted by virtual runtime (vruntime)?",
+    "options": [
+      "AVL Tree",
+      "B+ Tree",
+      "Red-Black Tree",
+      "Splay Tree"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "Linux CFS uses a time-ordered Red-Black tree where tasks are sorted by vruntime. The leftmost node is the task that has received the least CPU time and is picked next.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_53",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "Which kernel memory allocator eliminates internal fragmentation for frequently allocated small kernel objects like process descriptors and file structs by caching initialized objects?",
+    "options": [
+      "Buddy Allocator",
+      "Slab Allocator",
+      "First-Fit Allocator",
+      "Compacting Allocator"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "The Slab Allocator uses caches of pre-allocated, pre-initialized objects of specific types (slabs), drastically reducing initialization overhead and fragmentation.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_54",
+    "subject": "Operating Systems",
+    "topic": "Process Management",
+    "type": "single",
+    "question": "When a process invokes the fork() system call in modern operating systems, what mechanism prevents copying all physical memory pages immediately?",
+    "options": [
+      "Memory Compaction",
+      "Copy-on-Write (COW)",
+      "Demand Paging",
+      "Direct Memory Access (DMA)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Copy-on-Write (COW) marks physical pages as read-only shared between parent and child. A private physical copy is only created if either process attempts to write to a page.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_55",
+    "subject": "Operating Systems",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "Under Rate-Monotonic Scheduling (RMS), how are static priorities assigned to periodic tasks?",
+    "options": [
+      "Tasks with longer periods receive higher priorities",
+      "Tasks with shorter periods (higher rates) receive higher priorities",
+      "Tasks with longer execution times receive higher priorities",
+      "Tasks with earlier absolute deadlines receive higher priorities"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Rate-Monotonic Scheduling is an optimal static-priority algorithm where shorter periods (higher execution frequencies) receive strictly higher priorities.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_56",
+    "subject": "Operating Systems",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "In real-time systems, what is the key difference between Rate Monotonic Scheduling (RMS) and Earliest Deadline First (EDF)?",
+    "options": [
+      "RMS is dynamic-priority, while EDF is static-priority",
+      "RMS is static-priority, while EDF assigns dynamic priorities based on upcoming deadlines",
+      "RMS achieves 100% CPU utilization theoretically, while EDF is bounded at 69%",
+      "EDF only works for non-preemptive tasks"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "RMS uses static priorities based on period, bounding utilization to ~69% (ln 2 for large N), whereas EDF dynamically assigns priority based on deadline and can achieve up to 100% CPU utilization.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_57",
+    "subject": "Operating Systems",
+    "topic": "Concurrency & Synchronization",
+    "type": "single",
+    "question": "What is the primary advantage of the Read-Copy-Update (RCU) synchronization mechanism used extensively in the Linux kernel?",
+    "options": [
+      "Readers execute concurrently with writers without taking any locks or experiencing lock contention",
+      "Writers are prioritized over all incoming readers",
+      "It completely prevents memory allocation during writes",
+      "It allows multiple writers to update the same memory location simultaneously without synchronization"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "RCU allows readers to traverse linked data structures with zero lock overhead, even while writers are updating nodes and waiting for a grace period before reclaiming old memory.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_58",
+    "subject": "Operating Systems",
+    "topic": "Concurrency & Synchronization",
+    "type": "single",
+    "question": "Which atomic CPU instruction compares the contents of a memory location to a given value and, only if they are the same, modifies the contents of that memory location to a new given value?",
+    "options": [
+      "Test-and-Set",
+      "Compare-and-Swap (CAS)",
+      "Fetch-and-Add",
+      "Load-Linked / Store-Conditional"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Compare-and-Swap (CAS) atomically compares the value at a memory address with expected value and updates it only if they match, forming the cornerstone of lock-free data structures.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_59",
+    "subject": "Operating Systems",
+    "topic": "Concurrency & Synchronization",
+    "type": "single",
+    "question": "Why are Futexes (Fast Userspace Mutexes) significantly faster than traditional kernel semaphores in uncontended scenarios?",
+    "options": [
+      "They disable hardware interrupts entirely",
+      "Lock acquisition and release occur entirely in user space via atomic instructions without a system call if there is no contention",
+      "They run entirely in L1 cache without accessing RAM",
+      "They execute on a dedicated hardware coprocessor"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A futex avoids kernel context switches when there is no contention by using atomic assembly instructions in user space; it only invokes a system call to sleep/wake when contention actually occurs.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_60",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "What is the primary design motivation behind an Inverted Page Table?",
+    "options": [
+      "To speed up address translation compared to regular page tables",
+      "To fix the page table size proportionally to physical memory rather than virtual address space",
+      "To eliminate the need for a Translation Lookaside Buffer (TLB)",
+      "To support unlimited page sizes dynamically"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "An inverted page table has only one entry for each real page (frame) of physical memory, drastically saving memory overhead in systems with massive 64-bit virtual address spaces.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_61",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "What does a \"TLB Shootdown\" refer to in a symmetric multiprocessing (SMP) operating system?",
+    "options": [
+      "A hardware error that disables the MMU",
+      "An Inter-Processor Interrupt (IPI) mechanism where one CPU core forces other CPU cores to invalidate their local TLB entries for a modified page table entry",
+      "The automated hardware flush of TLB during deep sleep power saving states",
+      "A vulnerability exploit targeting the TLB cache"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "When one CPU modifies a shared page table mapping (e.g. unmapping or changing permissions), it must signal all other CPUs via Inter-Processor Interrupts (IPIs) to flush their stale TLB entries.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_62",
+    "subject": "Operating Systems",
+    "topic": "Security & Protection",
+    "type": "single",
+    "question": "What security mechanism randomizes the memory locations of program headers, the stack, the heap, and shared libraries to prevent buffer overflow and return-to-libc attacks?",
+    "options": [
+      "Non-Executable Stack (NX/DEP)",
+      "Address Space Layout Randomization (ASLR)",
+      "Mandatory Access Control (MAC)",
+      "Role-Based Access Control (RBAC)"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "ASLR randomizes memory segment offsets each time an executable runs, making it statistically improbable for attackers to reliably predict jump addresses.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_63",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "In a journaling file system (such as Ext4 or NTFS), what is the purpose of writing changes to a circular log before applying them to main storage structures?",
+    "options": [
+      "To compress file data on the fly",
+      "To enable rapid crash recovery and maintain file system consistency without scanning the entire disk with fsck",
+      "To encrypt blocks before storing them on SSDs",
+      "To bypass the operating system buffer cache entirely"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Journaling records transactions in a log before committing them to disk. After an unexpected power loss or crash, the system simply replays or rolls back incomplete log transactions in seconds.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_64",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "Which of the following modern file systems implements Copy-on-Write (COW) at the storage block level, enabling instantaneous snapshots and checksumming?",
+    "options": [
+      "FAT32",
+      "Ext2",
+      "ZFS",
+      "ISO 9660"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "ZFS (and Btrfs) uses Copy-on-Write for all data and metadata blocks, ensuring blocks are never overwritten in place, which facilitates zero-cost atomic snapshots and silent data corruption detection.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_65",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "What is the function of the ATA TRIM command sent by an operating system to a Solid State Drive (SSD)?",
+    "options": [
+      "It formats the drive to FAT32",
+      "It notifies the SSD controller which logical blocks no longer contain valid data, allowing background garbage collection and wear leveling without rewriting dead blocks",
+      "It increases disk rotation speeds",
+      "It checks the drive for magnetic platter scratches"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Because NAND flash requires erasing entire blocks before rewriting pages, the TRIM command informs the SSD firmware that deleted file blocks are free, preventing write amplification.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_66",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "How many simultaneous disk failures can a RAID 6 array tolerate without data loss, and what is its minimum drive requirement?",
+    "options": [
+      "1 disk failure, minimum 3 drives",
+      "2 disk failures, minimum 4 drives",
+      "3 disk failures, minimum 5 drives",
+      "2 disk failures, minimum 3 drives"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "RAID 6 utilizes dual distributed parity blocks across all disks, requiring at least 4 drives and surviving the simultaneous failure of any 2 disks.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_67",
+    "subject": "Operating Systems",
+    "topic": "I/O & Interrupts",
+    "type": "single",
+    "question": "In operating system device drivers, what is the primary role of the \"Top Half\" of an interrupt handler?",
+    "options": [
+      "Perform lengthy calculations and allocate disk memory",
+      "Acknowledge the hardware interrupt quickly, read device status, and schedule the bottom half for deferred execution with interrupts re-enabled",
+      "Execute user-space GUI updates",
+      "Poll the network port every 5 milliseconds"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "The top half runs immediately with interrupts disabled to service the immediate hardware request and queue heavier data processing to the bottom half (softirq/tasklet/workqueue).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_68",
+    "subject": "Operating Systems",
+    "topic": "I/O & Interrupts",
+    "type": "single",
+    "question": "In Linux kernel driver design, what distinguishes a Workqueue from a Softirq or Tasklet?",
+    "options": [
+      "Workqueues run in interrupt context and cannot sleep",
+      "Workqueues run in kernel process context and are permitted to sleep and block on locks/I/O",
+      "Softirqs can sleep, while workqueues cannot",
+      "Workqueues are strictly executed in user mode"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Workqueues execute inside a dedicated kernel thread context (kworker), meaning their handler routines are allowed to sleep, allocate memory, or wait for I/O, unlike softirqs.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_69",
+    "subject": "Operating Systems",
+    "topic": "I/O & Interrupts",
+    "type": "single",
+    "question": "How does Direct Memory Access (DMA) reduce CPU overhead during heavy I/O transfers?",
+    "options": [
+      "The CPU executes the transfer byte-by-byte in a tight polling loop",
+      "The DMA controller manages transferring data directly between memory and the I/O device without routing every word through the CPU",
+      "DMA compresses data using hardware encryption before CPU processing",
+      "DMA eliminates the need for physical RAM entirely"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "With DMA, the CPU only initializes the transfer (source, destination, block count); the DMA controller moves the data over the system bus and generates a single interrupt upon completion.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_70",
+    "subject": "Operating Systems",
+    "topic": "I/O & Interrupts",
+    "type": "single",
+    "question": "In computer architecture and OS design, what distinguishes Memory-Mapped I/O (MMIO) from Port-Mapped I/O (PMIO)?",
+    "options": [
+      "MMIO requires special assembly instructions like IN and OUT",
+      "MMIO assigns device registers to addresses within the CPU physical memory address space accessed via standard load/store instructions",
+      "PMIO shares address space with RAM, while MMIO has an isolated address bus",
+      "MMIO can only be accessed by user-space applications without privilege"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In MMIO, peripheral control registers are mapped directly into physical memory addresses, allowing drivers to manipulate hardware using standard C pointers and instructions (MOV, LDR).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_71",
+    "subject": "Operating Systems",
+    "topic": "System Calls & Architecture",
+    "type": "single",
+    "question": "What is the purpose of the vDSO (virtual Dynamic Shared Object) mechanism in the Linux kernel for system calls like gettimeofday()?",
+    "options": [
+      "To encrypt system call payloads",
+      "To allow user space applications to execute safe, read-only system calls directly in user space without incurring the overhead of a CPU privilege context switch",
+      "To emulate Windows system calls on Linux",
+      "To dynamically load kernel modules on demand"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "vDSO exports a small kernel memory page into user space address space. Frequent calls like gettimeofday() or clock_gettime() read kernel-maintained counters directly without a costly trap to ring 0.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_72",
+    "subject": "Operating Systems",
+    "topic": "Process Management",
+    "type": "single",
+    "question": "In Unix/Linux process status monitoring (ps/top), what does the \"D\" state (TASK_UNINTERRUPTIBLE) signify?",
+    "options": [
+      "The process is a zombie waiting for parent wait()",
+      "The process is in deep sleep waiting for hardware I/O (such as disk or NFS) and cannot be killed even by SIGKILL",
+      "The process is currently being traced by a debugger",
+      "The process has encountered a deadlock and is being reaped"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "TASK_UNINTERRUPTIBLE (D state) is used when a process is waiting for hardware I/O completion. It will not wake up for any signals (including kill -9) to prevent data corruption during driver operations.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_73",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "Why do database management systems and virtualization hypervisors frequently configure Huge Pages (e.g. 2MB or 1GB pages) instead of default 4KB pages?",
+    "options": [
+      "To reduce physical RAM consumption",
+      "To increase TLB reach and dramatically decrease TLB misses for massive memory working sets",
+      "To eliminate page faults completely from the system",
+      "To allow 32-bit applications to access 64-bit addresses"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A single TLB entry for a 2MB huge page covers 512 times more address space than a 4KB page, drastically minimizing TLB misses for large databases and virtual machines.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_74",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "single",
+    "question": "Which Linux namespace isolates process IDs so that a process inside a container can have PID 1 while having a different PID on the host system?",
+    "options": [
+      "Mount Namespace (mnt)",
+      "Network Namespace (net)",
+      "PID Namespace (pid)",
+      "IPC Namespace (ipc)"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "The PID namespace provides an isolated set of process IDs. A process that starts a new PID namespace becomes PID 1 inside its container while retaining a normal PID in the parent namespace.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_75",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "single",
+    "question": "What is the primary function of Linux Control Groups (cgroups) in container engines like Docker and Kubernetes?",
+    "options": [
+      "To provide cryptographic file system encryption",
+      "To enforce limits, prioritization, accounting, and control over hardware resource usage (CPU, memory, disk I/O, network) for a collection of processes",
+      "To translate Linux system calls into Windows API calls",
+      "To assign public IP addresses automatically"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "While namespaces provide isolation (what a process can see), cgroups provide resource management (how much CPU, memory, and I/O a process group is allowed to consume).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_76",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "single",
+    "question": "Which of the following is a Type-1 (bare-metal) hypervisor that runs directly on the underlying physical computer hardware without a host operating system?",
+    "options": [
+      "VMware Workstation",
+      "Oracle VirtualBox",
+      "VMware ESXi",
+      "QEMU without KVM"
+    ],
+    "correctAnswer": 2,
+    "correctAnswers": [],
+    "explanation": "VMware ESXi, Xen, and Hyper-V bare-metal installations run directly on the server hardware as Type-1 hypervisors, unlike hosted Type-2 hypervisors (VirtualBox, VMware Workstation).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_77",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "single",
+    "question": "What hardware extensions introduced by Intel (VT-x) and AMD (AMD-V) eliminate the need for binary translation by allowing guest operating systems to run in a dedicated VMX non-root mode?",
+    "options": [
+      "SIMD / AVX extensions",
+      "Hardware Virtual Machine (HVM) CPU rings",
+      "MMX instructions",
+      "Hyper-Threading Technology"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Intel VT-x and AMD-V introduce VMX root and non-root modes, allowing the hypervisor to intercept sensitive guest OS instructions via VM-Exit events rather than costly software emulation.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_78",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "Why are hard links in standard Unix-like operating systems typically prohibited from spanning across different file systems (mount points)?",
+    "options": [
+      "Hard links do not support file permissions",
+      "A hard link references an inode number directly, and inode numbers are only unique within a single file system instance",
+      "Hard links require write access to the kernel memory",
+      "Hard links can only link to symbolic links"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "An inode table is local to a specific file system. An inode number on filesystem A has no relation to the same inode number on filesystem B, making cross-device hard links impossible.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_79",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "What is the role of the Virtual File System (VFS) switch layer in modern operating system kernels?",
+    "options": [
+      "To provide RAM disk storage for temporary files",
+      "To provide a common object-oriented abstraction interface allowing user applications to access diverse concrete file systems (Ext4, NTFS, NFS, procfs) using uniform system calls (open, read, write)",
+      "To scan disks for virus signatures before mounting",
+      "To convert FAT32 disks into Ext4 automatically"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "VFS defines standardized abstract interfaces (inode_operations, file_operations) so system calls like read() and write() execute identically regardless of the underlying storage medium or network protocol.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_80",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "In a Non-Uniform Memory Access (NUMA) multiprocessor architecture, what policy does the OS kernel adopt to optimize performance?",
+    "options": [
+      "It forces all processors to access memory through a single central bus",
+      "It prioritizes allocating memory from the local memory node attached directly to the CPU socket executing the process",
+      "It disables all multi-level caches",
+      "It randomizes memory allocations across all available RAM sockets"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "In NUMA systems, accessing local memory (node-local) is substantially faster than accessing remote memory across interconnects (QPI/UPI). The kernel scheduler and page allocator are NUMA-aware to favor local nodes.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_81",
+    "subject": "Operating Systems",
+    "topic": "Security & Protection",
+    "type": "single",
+    "question": "What is the purpose of Linux POSIX Capabilities (e.g., CAP_NET_BIND_SERVICE, CAP_SYS_ADMIN)?",
+    "options": [
+      "To measure processor clock frequency",
+      "To decompose the monolithic power of the root user into discrete, fine-grained privileges so a binary does not require full superuser access",
+      "To manage battery usage on laptops",
+      "To calculate disk encryption hashes"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "Capabilities divide the all-or-nothing root privilege into distinct permissions (e.g. binding to ports < 1024 without full root access), minimizing security exposure in daemon services.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_82",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "single",
+    "question": "When an operating system suffers from severe external fragmentation, what memory management technique shifts allocated memory blocks toward one end of memory to produce a single large free contiguous block?",
+    "options": [
+      "Compaction (Defragmentation)",
+      "Swapping",
+      "Paging",
+      "Segmentation"
+    ],
+    "correctAnswer": 0,
+    "correctAnswers": [],
+    "explanation": "Compaction relocates in-use memory segments to aggregate free memory holes into a large contiguous block. It requires dynamic relocation hardware (base and limit registers).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_83",
+    "subject": "Operating Systems",
+    "topic": "Inter-Process Communication",
+    "type": "single",
+    "question": "What is the fundamental difference between an anonymous Unix pipe (created via pipe()) and a named pipe (FIFO, created via mkfifo())?",
+    "options": [
+      "Anonymous pipes are bidirectional, while named pipes are strictly unidirectional",
+      "Named pipes have a directory entry in the file system and can be opened by unrelated processes, while anonymous pipes can only connect related (parent-child) processes",
+      "Anonymous pipes store data permanently on disk",
+      "Named pipes cannot transfer binary data"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "A named pipe exists as a special file in the filesystem namespace (FIFO) allowing completely unrelated processes to rendezvous, whereas anonymous pipes require inheritance across fork().",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_84",
+    "subject": "Operating Systems",
+    "topic": "CPU Scheduling",
+    "type": "single",
+    "question": "How does a Multilevel Feedback Queue (MLFQ) scheduler distinguish between interactive (I/O-bound) jobs and CPU-bound jobs without prior knowledge?",
+    "options": [
+      "It asks the user to configure process priorities in advance",
+      "It demotes jobs that consume their entire time quantum to lower priority queues, while keeping jobs that surrender the CPU for I/O in higher priority queues",
+      "It inspects the binary executable header",
+      "It sorts processes alphabetically by name"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "MLFQ monitors runtime behavior: compute-intensive jobs consume entire time slices and drop to lower-priority longer-quantum queues, while interactive I/O jobs release CPU early and stay in top-priority queues.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_85",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "single",
+    "question": "What is a \"Dirty Page\" in the context of operating system page cache management?",
+    "options": [
+      "A page that contains uncorrectable hardware RAM bit-flips",
+      "A page in memory whose contents have been modified by a write operation but have not yet been written back (flushed) to physical disk storage",
+      "A page allocated by a terminated process that failed to deallocate",
+      "A page with corrupted permissions"
+    ],
+    "correctAnswer": 1,
+    "correctAnswers": [],
+    "explanation": "When an application writes to a file, the OS modifies the page in RAM and marks it dirty. Kernel flusher threads (e.g. pdflush/flush) periodically write dirty pages back to disk.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_86",
+    "subject": "Operating Systems",
+    "topic": "OS Architecture",
+    "type": "multiple",
+    "question": "Which of the following components are typically moved outside privileged kernel space into user-space daemon servers in a pure Microkernel architecture (e.g., Minix, seL4)? (Select all that apply)",
+    "options": [
+      "File System Servers",
+      "Device Drivers",
+      "Network Protocol Stacks",
+      "Basic IPC and Thread Management"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "A microkernel retains only minimal essential mechanisms in privileged space (IPC, low-level virtual memory, thread dispatching). File systems, drivers, and network stacks run as isolated user-space processes.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_87",
+    "subject": "Operating Systems",
+    "topic": "System Calls & Architecture",
+    "type": "multiple",
+    "question": "Which of the following events trigger a transition from User Mode to Kernel Mode in modern x86/ARM processors? (Select all that apply)",
+    "options": [
+      "Hardware Interrupt generated by a network interface card (NIC)",
+      "Software Trap caused by executing a system call instruction (syscall / sysenter / svc)",
+      "CPU Exception triggered by dividing by zero or a page fault",
+      "A regular user-space function call via the CALL instruction"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Hardware interrupts, software traps (system calls), and CPU faults/exceptions switch the processor privilege level to Ring 0. Regular CALL instructions stay in the same privilege ring.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_88",
+    "subject": "Operating Systems",
+    "topic": "Deadlocks",
+    "type": "multiple",
+    "question": "Which of the following strategies successfully prevent deadlocks by invalidating at least one of the four Coffman conditions? (Select all that apply)",
+    "options": [
+      "Enforcing a strict global linear ordering on all resource types and requiring processes to request resources in increasing order (Invalidates Circular Wait)",
+      "Requiring a process to request and be allocated all necessary resources at once before beginning execution (Invalidates Hold and Wait)",
+      "Allowing preemption of allocated resources if a process cannot acquire an additional resource immediately (Invalidates No Preemption)",
+      "Increasing the total number of processes in the system indefinitely"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Resource ordering prevents Circular Wait. All-or-nothing allocation prevents Hold & Wait. Releasing resources on blocked acquisition invalidates No Preemption.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_89",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "multiple",
+    "question": "Which protection attributes can typically be configured on a per-page basis in modern Page Table Entries (PTEs)? (Select all that apply)",
+    "options": [
+      "Read Permission (R)",
+      "Write Permission (W)",
+      "Execute / No-Execute Permission (NX / XD)",
+      "User / Supervisor Privilege Level (U/S)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Modern MMUs support Read, Write, Execute (via NX/XD bit), and User/Supervisor mode bits in each page table entry to enforce memory isolation and security.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_90",
+    "subject": "Operating Systems",
+    "topic": "Concurrency & Synchronization",
+    "type": "multiple",
+    "question": "Which of the following are concurrency hazards that can occur in multithreaded shared-memory programming? (Select all that apply)",
+    "options": [
+      "Race Condition",
+      "Livelock",
+      "Priority Inversion",
+      "Deadlock"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Race conditions (unsynchronized access), livelock (threads repeatedly changing state in response to each other without making progress), priority inversion, and deadlocks are all classic concurrency pitfalls.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_91",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "multiple",
+    "question": "Which of the following are mechanisms used by hypervisors to virtualize memory for guest virtual machines? (Select all that apply)",
+    "options": [
+      "Shadow Page Tables maintained by the hypervisor in software",
+      "Extended Page Tables (EPT) on Intel processors",
+      "Nested Page Tables (NPT) on AMD processors",
+      "Compacting user-space swap files"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Early hypervisors used software-managed Shadow Page Tables. Modern hardware supports two-dimensional paging natively via Intel EPT and AMD NPT (RVI).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_92",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "multiple",
+    "question": "Which of the following are valid Linux kernel namespaces used to isolate container resources? (Select all that apply)",
+    "options": [
+      "Network Namespace (net)",
+      "Mount Namespace (mnt)",
+      "User Namespace (user)",
+      "UTS Namespace (hostname and NIS domain)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "explanation": "Linux provides net (interfaces/routes/firewalls), mnt (mount points), user (UID/GID mappings), uts (hostname/domain), pid, and ipc namespaces.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_93",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "multiple",
+    "question": "Which system calls in Unix/Linux enable Zero-Copy or minimized data movement between disk and network sockets? (Select all that apply)",
+    "options": [
+      "sendfile()",
+      "splice()",
+      "mmap() combined with write()",
+      "fork()"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "sendfile() transfers data directly from file descriptor to socket in kernel space. splice() streams between pipes and descriptors without copying to user space. mmap() maps file into address space avoiding buffer copying.",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_94",
+    "subject": "Operating Systems",
+    "topic": "I/O & Interrupts",
+    "type": "multiple",
+    "question": "Which of the following scalable I/O multiplexing and asynchronous notification mechanisms are provided by modern operating systems? (Select all that apply)",
+    "options": [
+      "epoll on Linux",
+      "kqueue on FreeBSD / macOS",
+      "I/O Completion Ports (IOCP) on Windows",
+      "Busy-waiting spinloop in user space"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      2
+    ],
+    "explanation": "Linux epoll, BSD/macOS kqueue, and Windows IOCP provide O(1) scalable event-driven I/O notifications, avoiding the O(N) performance degradation of legacy select() and poll().",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_95",
+    "subject": "Operating Systems",
+    "topic": "Security & Protection",
+    "type": "multiple",
+    "question": "Which OS kernel techniques have been deployed to mitigate speculative execution CPU hardware vulnerabilities (Meltdown and Spectre)? (Select all that apply)",
+    "options": [
+      "Kernel Page Table Isolation (KPTI / KAISER) to separate kernel page tables in user space",
+      "Retpoline (Return Trampoline) compiler/kernel sequence to prevent branch target injection",
+      "Disabling system calls entirely",
+      "Speculative Store Bypass Disable (SSBD)"
+    ],
+    "correctAnswer": null,
+    "correctAnswers": [
+      0,
+      1,
+      3
+    ],
+    "explanation": "KPTI unmaps kernel memory while executing user mode to stop Meltdown. Retpoline and SSBD prevent speculative branch prediction exploitation (Spectre).",
+    "points": 5,
+    "rubric": ""
+  },
+  {
+    "id": "qb_os_96",
+    "subject": "Operating Systems",
+    "topic": "Process Management",
+    "type": "paragraph",
+    "question": "Explain the internal architecture and scheduling mechanics of the Linux Completely Fair Scheduler (CFS). In your answer, define virtual runtime (vruntime), explain how task weights (nice values) influence vruntime progression, describe the role of the Red-Black tree in task selection and insertion, and explain how latency targeting (sched_latency) ensures responsiveness.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "CFS aims to model an \"ideal multi-tasking CPU\" on real hardware. Tasks are assigned a vruntime proportional to their execution time divided by their priority weight. The lowest vruntime task at the leftmost node of the Red-Black tree is scheduled next.",
+    "points": 10,
+    "rubric": "Full Marks (9-10): Clearly explains vruntime calculation, nice-to-weight mapping, Red-Black tree O(log N) operations, sched_latency, and min_vruntime handling for new/sleeping tasks. Good (7-8): Covers vruntime and RB-tree accurately with minor omissions in weight math. Partial (4-6): Describes basic fair queuing without detail on vruntime or RB-tree."
+  },
+  {
+    "id": "qb_os_97",
+    "subject": "Operating Systems",
+    "topic": "Memory Management",
+    "type": "paragraph",
+    "question": "Walk through the complete hardware address translation process for a 64-bit virtual address in an x86-64 system using 4-level paging (PML4, PDPT, PD, PT). Explain how the 48-bit canonical address is partitioned into indices and offset, describe the role of the CR3 register, explain the purpose of the TLB in bypassing memory lookups, and explain what happens step-by-step when a Translation Lookaside Buffer miss occurs.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The 48-bit address consists of four 9-bit table indices (bits 47-39 PML4, 38-30 PDPT, 29-21 PD, 20-12 PT) and a 12-bit page offset. The CR3 register holds the physical base of the PML4 table. On a TLB miss, the hardware page table walker traverses all 4 levels in memory before caching the result in the TLB.",
+    "points": 10,
+    "rubric": "Full Marks (9-10): Accurately breaks down 48-bit address (9+9+9+9+12), CR3 role, 4-level page table walk, page fault vs TLB miss distinction, and PTE caching. Good (7-8): Covers table hierarchy well with slight vagueness on bit partitioning. Partial (4-6): General explanation of paging without 4-level x86-64 specifics."
+  },
+  {
+    "id": "qb_os_98",
+    "subject": "Operating Systems",
+    "topic": "Deadlocks",
+    "type": "paragraph",
+    "question": "Explain Dijkstra's Banker's Algorithm for deadlock avoidance in multi-resource systems. Define the four key data structures (Available, Max, Allocation, Need), explain the Safety Algorithm used to determine if an execution state is safe, and state the exact steps the resource-request algorithm performs when a process requests additional instances of resources.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The Banker's Algorithm tests whether granting a resource request leaves the system in a safe state where a sequence of all processes can finish with their maximum claims. Need = Max - Allocation. If Request <= Need and Request <= Available, hypothetical allocation is tested via the safety algorithm.",
+    "points": 10,
+    "rubric": "Full Marks (9-10): Defines all vectors/matrices (Available, Max, Allocation, Need), provides exact mathematical condition Need[i,j] = Max[i,j] - Allocation[i,j], steps through safety algorithm with Finish array, and explains request admission rules. Good (7-8): Clear explanation with minor gaps in algorithm steps. Partial (4-6): High level summary without mathematical rigor."
+  },
+  {
+    "id": "qb_os_99",
+    "subject": "Operating Systems",
+    "topic": "Virtualization & Containers",
+    "type": "paragraph",
+    "question": "Explain how modern operating systems implement lightweight containerization (e.g. Docker, Podman) natively within the Linux kernel without running a hypervisor. Contrast the distinct responsibilities of Linux Namespaces (isolation), Control Groups / cgroups (resource constraints), and security layers such as Seccomp-BPF filters and AppArmor/SELinux.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "Containers are regular Linux processes isolated by namespaces (PID, NET, MNT, IPC, UTS, USER), resource-throttled by cgroups (CPU quotas, memory limits, OOM killer), and sandboxed by Seccomp (system call filtering) and SELinux/AppArmor (mandatory access controls).",
+    "points": 10,
+    "rubric": "Full Marks (9-10): Comprehensive comparison: namespaces (view isolation across specific types), cgroups (resource limits and accounting), seccomp-BPF (syscall whitelist/blacklist), and LSM (MAC policies). Good (7-8): Explains namespaces and cgroups clearly, brief on security. Partial (4-6): Describes containers vs VMs without technical kernel primitives."
+  },
+  {
+    "id": "qb_os_100",
+    "subject": "Operating Systems",
+    "topic": "File Systems & Storage",
+    "type": "paragraph",
+    "question": "Explain the Crash Consistency Problem in operating system file systems. Describe the different journaling modes supported by modern file systems like Ext4 (Writeback, Ordered, and Data Journaling), explain how write barriers and transactions ensure atomic updates, and explain how the file system recovers quickly after an abrupt power outage without running a full fsck.",
+    "options": [],
+    "correctAnswer": null,
+    "correctAnswers": [],
+    "explanation": "The crash consistency problem arises when updating a file requires modifying multiple disjoint disk blocks (data, inode, bitmap). If power fails mid-write, inconsistency occurs. Journaling solves this by writing a transaction log with commit records before updating real structures.",
+    "points": 10,
+    "rubric": "Full Marks (9-10): Clear definition of crash consistency with concrete multi-block write example; detailed comparison of Journal/Ordered/Writeback modes; write barrier role; replay/rollback recovery process. Good (7-8): Covers journaling modes and recovery well. Partial (4-6): Basic concept of log without distinguishing modes."
   }
 ]

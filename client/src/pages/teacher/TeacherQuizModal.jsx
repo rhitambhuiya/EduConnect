@@ -52,6 +52,27 @@ export default function TeacherQuizModal({
 
   const [startTime, setStartTime] = useState(defaultStart);
   const [endTime, setEndTime] = useState(end3Days);
+  const [durationMinutes, setDurationMinutes] = useState(30);
+
+  // Compute total available window in minutes between start time and deadline
+  const windowMinutes = React.useMemo(() => {
+    const s = new Date(startTime);
+    const e = new Date(endTime);
+    if (isNaN(s.getTime()) || isNaN(e.getTime()) || s >= e) return 0;
+    return Math.max(1, Math.round((e.getTime() - s.getTime()) / 60000));
+  }, [startTime, endTime]);
+
+  const formatWindowDuration = (mins) => {
+    if (!mins || mins <= 0) return '0 mins';
+    const days = Math.floor(mins / (24 * 60));
+    const hours = Math.floor((mins % (24 * 60)) / 60);
+    const remMins = mins % 60;
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (remMins > 0 || parts.length === 0) parts.push(`${remMins}m`);
+    return parts.join(' ');
+  };
 
   const [sections, setSections] = useState(['DBMS', 'Operating Systems', 'Computer Networks', 'Java', 'Data Structures and Algorithms']);
   const [targetQuestionIdxForSection, setTargetQuestionIdxForSection] = useState(null);
@@ -103,6 +124,7 @@ export default function TeacherQuizModal({
       setDescription(quizToEdit.description || '');
       setStartTime(toLocalDatetimeInput(quizToEdit.startTime));
       setEndTime(toLocalDatetimeInput(quizToEdit.endTime));
+      setDurationMinutes(quizToEdit.durationMinutes !== undefined ? quizToEdit.durationMinutes : 30);
 
       const mapped = (quizToEdit.questions || []).map((q, idx) => ({
         id: q.id || `q_${Date.now()}_${idx}`,
@@ -141,6 +163,7 @@ export default function TeacherQuizModal({
       const e = new Date(n.getTime() + 3 * 24 * 60 * 60 * 1000 - n.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
       setStartTime(s);
       setEndTime(e);
+      setDurationMinutes(30);
       setQuestions([
         {
           id: 'q_1',
@@ -387,7 +410,18 @@ export default function TeacherQuizModal({
       return;
     }
     if (start >= end) {
-      setError('Quiz end time must be after start time.');
+      setError('Quiz deadline (end time) must be after start time.');
+      return;
+    }
+
+    const currentWindowMinutes = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
+    const numDuration = parseInt(durationMinutes, 10);
+    if (isNaN(numDuration) || numDuration <= 0) {
+      setError('Please provide a valid quiz attempt duration in minutes (at least 1 minute).');
+      return;
+    }
+    if (numDuration > currentWindowMinutes) {
+      setError(`Quiz duration (${numDuration} mins) cannot exceed the scheduled availability window (${currentWindowMinutes} mins / ${formatWindowDuration(currentWindowMinutes)}). Please reduce the duration or extend the deadline.`);
       return;
     }
 
@@ -433,7 +467,7 @@ export default function TeacherQuizModal({
       const payload = {
         title,
         description,
-        durationMinutes: Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60))),
+        durationMinutes: numDuration,
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
         questions: questions.map(q => ({
@@ -601,6 +635,104 @@ export default function TeacherQuizModal({
                   className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+            </div>
+
+            {/* Quiz Attempt Duration / Time Limit */}
+            <div className="p-4 bg-slate-50/90 border border-slate-200 rounded-xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-blue-600" />
+                    Attempt Duration (Time Limit) <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Once a student begins, their countdown timer runs for this duration (or until the deadline passes).
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <input
+                    type="number"
+                    min="1"
+                    max={windowMinutes > 0 ? windowMinutes : undefined}
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                    className="w-24 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-slate-900 text-xs font-bold text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="30"
+                  />
+                  <span className="text-xs font-semibold text-slate-600">Minutes</span>
+                </div>
+              </div>
+
+              {/* Quick Preset Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-200/70">
+                <span className="text-[11px] font-semibold text-slate-500 mr-1">Quick Presets:</span>
+                {[15, 30, 45, 60, 90, 120].map(mins => {
+                  const isAvailable = windowMinutes >= mins;
+                  const isSelected = Number(durationMinutes) === mins;
+                  return (
+                    <button
+                      key={mins}
+                      type="button"
+                      disabled={!isAvailable}
+                      onClick={() => setDurationMinutes(mins)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : isAvailable
+                          ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                          : 'bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-60'
+                      }`}
+                      title={isAvailable ? `Set duration to ${mins} minutes` : `Exceeds scheduled window (${windowMinutes} mins)`}
+                    >
+                      {mins}m
+                    </button>
+                  );
+                })}
+                {windowMinutes > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setDurationMinutes(windowMinutes)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                      Number(durationMinutes) === windowMinutes
+                        ? 'bg-blue-600 text-white shadow-2xs'
+                        : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                    }`}
+                    title="Set duration to full scheduled window"
+                  >
+                    Match Full Window ({formatWindowDuration(windowMinutes)})
+                  </button>
+                )}
+              </div>
+
+              {/* Dynamic Validation & Context Banner */}
+              {windowMinutes > 0 && (
+                <div className="text-[11px] pt-1">
+                  {Number(durationMinutes) > windowMinutes ? (
+                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+                      <span>
+                        <strong>Duration Exceeds Deadline:</strong> The scheduled window is only <strong>{windowMinutes} mins ({formatWindowDuration(windowMinutes)})</strong>. The attempt duration cannot be greater than the available window.
+                      </span>
+                    </div>
+                  ) : Number(durationMinutes) <= 0 || isNaN(Number(durationMinutes)) ? (
+                    <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                      <span>Duration must be a positive number of minutes (at least 1 minute).</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between text-slate-600 flex-wrap gap-2 text-[11px] bg-white p-2 rounded-lg border border-slate-200/60">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        Availability Window: <strong className="text-slate-800 font-semibold">{formatWindowDuration(windowMinutes)}</strong> ({windowMinutes} mins)
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-blue-500" />
+                        Student Timer: <strong className="text-blue-600 font-bold">{durationMinutes} mins</strong> once attempt starts
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

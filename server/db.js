@@ -1065,11 +1065,14 @@ class Database {
     if (updates.title !== undefined) quiz.title = updates.title.trim();
     if (updates.description !== undefined) quiz.description = updates.description.trim();
     if (updates.durationMinutes !== undefined) {
-      quiz.durationMinutes = Number(updates.durationMinutes) || 0;
+      quiz.durationMinutes = Math.max(1, Number(updates.durationMinutes) || 1);
     } else if (timingChanged) {
       const startMs = new Date(quiz.startTime).getTime();
       const endMs = new Date(quiz.endTime).getTime();
-      quiz.durationMinutes = Math.max(1, Math.round((endMs - startMs) / 60000));
+      const maxWin = Math.max(1, Math.round((endMs - startMs) / 60000));
+      if (!quiz.durationMinutes || quiz.durationMinutes > maxWin) {
+        quiz.durationMinutes = maxWin;
+      }
     }
 
     if (updates.questions !== undefined) {

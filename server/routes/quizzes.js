@@ -537,8 +537,16 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), (req, res) 
       return res.status(400).json({ error: 'End time must be after start time' });
     }
 
-    const calculatedDuration = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
-    const duration = Math.max(1, parseInt(durationMinutes, 10) || calculatedDuration);
+    const windowMinutes = Math.max(1, Math.round((end.getTime() - start.getTime()) / 60000));
+    let duration = parseInt(durationMinutes, 10);
+    if (isNaN(duration) || duration <= 0) {
+      return res.status(400).json({ error: 'Quiz duration must be a positive number of minutes (at least 1 minute).' });
+    }
+    if (duration > windowMinutes) {
+      return res.status(400).json({
+        error: `Quiz duration (${duration} mins) cannot exceed the scheduled availability window (${windowMinutes} mins) between start time and deadline.`
+      });
+    }
 
     if (!Array.isArray(questions) || questions.length === 0) {
       return res.status(400).json({ error: 'Quiz must contain at least one question' });
@@ -624,7 +632,7 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
       return res.status(403).json({ error: 'Unauthorized to update this quiz' });
     }
 
-    const { title, description, startTime, endTime, questions } = req.body;
+    const { title, description, durationMinutes, startTime, endTime, questions } = req.body;
 
     const newStart = startTime ? new Date(startTime) : new Date(quiz.startTime);
     const newEnd = endTime ? new Date(endTime) : new Date(quiz.endTime);
@@ -634,6 +642,24 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
     }
     if (newStart >= newEnd) {
       return res.status(400).json({ error: 'End time must be after start time' });
+    }
+
+    const windowMinutes = Math.max(1, Math.round((newEnd.getTime() - newStart.getTime()) / 60000));
+    let validatedDuration = quiz.durationMinutes || windowMinutes;
+
+    if (durationMinutes !== undefined && durationMinutes !== null && durationMinutes !== '') {
+      const parsedDuration = parseInt(durationMinutes, 10);
+      if (isNaN(parsedDuration) || parsedDuration <= 0) {
+        return res.status(400).json({ error: 'Quiz duration must be a positive number of minutes (at least 1 minute).' });
+      }
+      if (parsedDuration > windowMinutes) {
+        return res.status(400).json({
+          error: `Quiz duration (${parsedDuration} mins) cannot exceed the scheduled availability window (${windowMinutes} mins) between start time and deadline.`
+        });
+      }
+      validatedDuration = parsedDuration;
+    } else if (validatedDuration > windowMinutes) {
+      validatedDuration = windowMinutes;
     }
 
     if (questions !== undefined) {
@@ -667,7 +693,10 @@ router.put('/:id', authenticate, requireRole('teacher'), (req, res) => {
       }
     }
 
-    const updated = db.updateQuiz(quiz.id, req.body);
+    const updated = db.updateQuiz(quiz.id, {
+      ...req.body,
+      durationMinutes: validatedDuration
+    });
 
     // Save any newly created questions marked for question bank
     if (Array.isArray(questions)) {
