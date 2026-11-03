@@ -5,7 +5,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://educonnect-production-95e2.up.railway.app/api/:splat"
+  to = "https://educonnect-gizn.onrender.com/api/:splat"
   status = 200
   force = true
 
