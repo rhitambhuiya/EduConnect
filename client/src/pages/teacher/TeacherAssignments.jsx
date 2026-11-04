@@ -41,9 +41,9 @@ export default function TeacherAssignments() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [bannerMsg, setBannerMsg] = useState({ text: '', type: '' });
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError('');
       const [asgData, classData] = await Promise.all([
         apiRequest('/api/assignments/teacher/all'),
@@ -52,9 +52,9 @@ export default function TeacherAssignments() {
       setAssignments(asgData || []);
       setClasses(classData || []);
     } catch (err) {
-      setError(err.message || 'Failed to load assignments');
+      if (!silent) setError(err.message || 'Failed to load assignments');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -443,7 +443,7 @@ export default function TeacherAssignments() {
           onClose={() => setRosterAssignment(null)}
           assignment={rosterAssignment}
           onAssignmentUpdated={async () => {
-            await loadData();
+            await loadData(true);
           }}
         />
       )}

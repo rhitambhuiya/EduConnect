@@ -1576,8 +1576,16 @@ export default function TeacherClassDetail() {
         isOpen={!!rosterAssignment}
         onClose={() => setRosterAssignment(null)}
         assignment={rosterAssignment}
-        onAssignmentUpdated={(updatedAsg) => {
-          setAssignments(prev => prev.map(a => a.id === updatedAsg.id ? { ...a, ...updatedAsg } : a));
+        onAssignmentUpdated={async (updatedAsg) => {
+          if (updatedAsg && updatedAsg.id) {
+            setAssignments(prev => prev.map(a => a.id === updatedAsg.id ? { ...a, ...updatedAsg } : a));
+          }
+          try {
+            const fresh = await apiRequest(`/api/assignments/class/${id}`);
+            if (Array.isArray(fresh)) setAssignments(fresh);
+          } catch (e) {
+            // Ignore silent refresh error
+          }
         }}
       />
 

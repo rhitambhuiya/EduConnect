@@ -152,7 +152,11 @@ export default function TeacherSubmissionsModal({ isOpen, onClose, assignment, o
       });
 
       if (onAssignmentUpdated) {
-        onAssignmentUpdated();
+        try {
+          onAssignmentUpdated(currentAssignment);
+        } catch (callbackErr) {
+          console.warn('Error in onAssignmentUpdated callback:', callbackErr);
+        }
       }
 
       setGradeMsg({ id: subId, text: 'Marks & feedback saved successfully! ✓', isError: false });

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import AuthPage from './pages/AuthPage';
 
 // Teacher Pages
@@ -31,10 +32,11 @@ function HomeRedirect() {
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public Auth Routes */}
-      <Route path="/login" element={<AuthPage initialMode="login" />} />
-      <Route path="/register" element={<AuthPage initialMode="register" />} />
+    <ErrorBoundary>
+      <Routes>
+        {/* Public Auth Routes */}
+        <Route path="/login" element={<AuthPage initialMode="login" />} />
+        <Route path="/register" element={<AuthPage initialMode="register" />} />
 
       {/* Teacher Protected Routes */}
       <Route
@@ -164,5 +166,6 @@ export default function App() {
       <Route path="/" element={<HomeRedirect />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  </ErrorBoundary>
   );
 }
