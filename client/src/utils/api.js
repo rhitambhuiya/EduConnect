@@ -30,7 +30,19 @@ export async function apiRequest(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-    const errorMsg = (data && data.error) || (typeof data === 'string' ? data : 'An error occurred');
+    let errorMsg = 'An error occurred';
+    if (data && typeof data === 'object' && data.error) {
+      errorMsg = data.error;
+    } else if (typeof data === 'string') {
+      const trimmed = data.trim();
+      if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html') || trimmed.includes('<title>Page not found</title>')) {
+        errorMsg = 'Server unreachable (404 Page Not Found). Backend is not responding or Netlify proxy target is incorrect.';
+      } else {
+        errorMsg = trimmed.slice(0, 300) || ('Request failed with status ' + response.status);
+      }
+    } else {
+      errorMsg = 'Request failed with status ' + response.status;
+    }
     const err = new Error(errorMsg);
     err.status = response.status;
     err.data = data;

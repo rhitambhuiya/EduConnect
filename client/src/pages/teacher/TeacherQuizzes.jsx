@@ -48,7 +48,7 @@ export default function TeacherQuizzes() {
       setError('');
       const [quizData, classData] = await Promise.all([
         apiRequest('/api/quizzes/teacher/all'),
-        apiRequest('/api/classes')
+        apiRequest('/api/classes/my')
       ]);
       setQuizzes(quizData || []);
       setClasses(classData || []);

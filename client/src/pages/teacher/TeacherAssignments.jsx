@@ -47,7 +47,7 @@ export default function TeacherAssignments() {
       setError('');
       const [asgData, classData] = await Promise.all([
         apiRequest('/api/assignments/teacher/all'),
-        apiRequest('/api/classes')
+        apiRequest('/api/classes/my')
       ]);
       setAssignments(asgData || []);
       setClasses(classData || []);
