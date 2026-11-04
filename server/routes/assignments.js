@@ -210,11 +210,16 @@ router.post('/class/:classId', authenticate, requireRole('teacher'), upload.sing
     let attachment = null;
     if (req.file) {
       const cloudFile = await uploadToCloudinary(req.file.buffer, req.file.originalname, 'college_portal/assignments');
+      let fileData = '';
+      if (req.file.buffer && req.file.buffer.length < 12 * 1024 * 1024) {
+        fileData = req.file.buffer.toString('base64');
+      }
       attachment = {
         originalName: req.file.originalname,
         fileName: cloudFile.fileName,
         fileUrl: cloudFile.fileUrl,
         cloudinaryId: cloudFile.cloudinaryId,
+        fileData,
         fileSize: req.file.size,
         mimeType: req.file.mimetype
       };
@@ -374,6 +379,11 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
       deleteFromCloudinary(existingSubmission.cloudinaryId);
     }
 
+    let fileData = '';
+    if (req.file.buffer && req.file.buffer.length < 12 * 1024 * 1024) {
+      fileData = req.file.buffer.toString('base64');
+    }
+
     const submission = db.createSubmission({
       assignmentId: assignment.id,
       classId: cls.id,
@@ -384,6 +394,7 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
       fileName: cloudFile.fileName,
       fileUrl: cloudFile.fileUrl,
       cloudinaryId: cloudFile.cloudinaryId,
+      fileData,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
       notes: notes || ''
@@ -395,7 +406,7 @@ router.post('/:id/submit', authenticate, requireRole('student'), upload.single('
     });
   } catch (err) {
     console.error('Error submitting assignment:', err);
-    return res.status(500).json({ error: 'Failed to process assignment submission' });
+    return res.status(500).json({ error: err.message || 'Failed to process assignment submission' });
   }
 });
 
@@ -494,6 +505,19 @@ router.get('/:id/attachment/download', authenticate, (req, res) => {
     return res.redirect(cloudUrl);
   }
 
+  // 4. Fallback to database stored binary buffer (recovers files across container restarts)
+  if (assignment.attachment.fileData) {
+    const fileBuffer = Buffer.from(assignment.attachment.fileData, 'base64');
+    try { fs.writeFileSync(filePath, fileBuffer); } catch (e) {}
+    res.setHeader('Content-Type', assignment.attachment.mimeType || 'application/pdf');
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(assignment.attachment.originalName)}"`);
+    } else {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(assignment.attachment.originalName)}"`);
+    }
+    return res.send(fileBuffer);
+  }
+
   return res.status(404).json({ error: 'File was not found on server disk or cloud storage.' });
 });
 
@@ -542,6 +566,19 @@ router.get('/submissions/:submissionId/download', authenticate, (req, res) => {
       ? `https://res.cloudinary.com/${cloudName}/raw/upload/${submission.cloudinaryId}`
       : `https://res.cloudinary.com/${cloudName}/raw/upload/college_portal/submissions/${submission.fileName}`;
     return res.redirect(cloudUrl);
+  }
+
+  // 4. Fallback to database stored binary buffer (recovers files across container restarts)
+  if (submission.fileData) {
+    const fileBuffer = Buffer.from(submission.fileData, 'base64');
+    try { fs.writeFileSync(filePath, fileBuffer); } catch (e) {}
+    res.setHeader('Content-Type', submission.mimeType || 'application/pdf');
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(submission.originalName)}"`);
+    } else {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(submission.originalName)}"`);
+    }
+    return res.send(fileBuffer);
   }
 
   return res.status(404).json({ error: 'File not found on server disk or cloud storage.' });

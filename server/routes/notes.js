@@ -52,6 +52,19 @@ router.get('/:id/download', authenticate, (req, res) => {
     return res.redirect(cloudUrl);
   }
 
+  // 4. Fallback to database stored binary buffer (recovers files across container restarts)
+  if (note.fileData) {
+    const fileBuffer = Buffer.from(note.fileData, 'base64');
+    try { fs.writeFileSync(filePath, fileBuffer); } catch (e) {}
+    res.setHeader('Content-Type', note.mimeType || 'application/pdf');
+    if (req.query.view === 'inline') {
+      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(note.originalName)}"`);
+    } else {
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(note.originalName)}"`);
+    }
+    return res.send(fileBuffer);
+  }
+
   return res.status(404).json({ error: 'File was not found on server disk or cloud storage.' });
 });
 

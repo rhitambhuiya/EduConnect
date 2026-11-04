@@ -56,6 +56,7 @@ const NoteSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
   fileUrl: { type: String, default: '' },
   cloudinaryId: { type: String, default: '' },
+  fileData: { type: String, default: '' },
   fileSize: { type: Number, default: 0 },
   mimeType: { type: String, default: 'application/pdf' },
   uploadedAt: { type: String, default: () => new Date().toISOString() }
@@ -88,6 +89,7 @@ const AssignmentSchema = new mongoose.Schema({
     fileName: String,
     fileUrl: String,
     cloudinaryId: String,
+    fileData: { type: String, default: '' },
     fileSize: Number,
     mimeType: String
   },
@@ -106,6 +108,7 @@ const SubmissionSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
   fileUrl: { type: String, default: '' },
   cloudinaryId: { type: String, default: '' },
+  fileData: { type: String, default: '' },
   fileSize: { type: Number, default: 0 },
   mimeType: { type: String, default: 'application/pdf' },
   notes: { type: String, default: '' },

@@ -111,7 +111,7 @@ export function formatTimeRemaining(dueDateString) {
 }
 
 export async function downloadFile(url, fileName, inline = false) {
-  const token = localStorage.getItem('cp_token');
+  const token = localStorage.getItem('cp_token') || localStorage.getItem('token');
   const headers = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 

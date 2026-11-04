@@ -26,7 +26,7 @@ const upload = multer({
 });
 
 /**
- * Upload a file buffer to Cloudinary (or fallback to local disk if Cloudinary is not yet configured)
+ * Upload a file buffer to Cloudinary (or fallback to local disk if Cloudinary is not configured or fails)
  * @param {Buffer} buffer - File buffer from multer
  * @param {string} originalname - Original file name
  * @param {string} folder - Target folder in Cloudinary
@@ -36,9 +36,9 @@ async function uploadToCloudinary(buffer, originalname, folder = 'college_portal
   const safeName = originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
   const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${safeName}`;
 
-  if (!isCloudinaryConfigured) {
-    // Graceful fallback to local disk when testing without Cloudinary credentials
-    const localUploadsDir = path.join(__dirname, '..', 'data', 'uploads');
+  // Helper to persist file to server/uploads
+  const saveLocally = () => {
+    const localUploadsDir = path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(localUploadsDir)) {
       fs.mkdirSync(localUploadsDir, { recursive: true });
     }
@@ -46,61 +46,72 @@ async function uploadToCloudinary(buffer, originalname, folder = 'college_portal
     fs.writeFileSync(localFilePath, buffer);
 
     return {
-      fileUrl: `/api/notes/file/${uniqueName}`,
-      cloudinaryId: uniqueName,
+      fileUrl: '',
+      cloudinaryId: '',
       fileName: uniqueName
     };
+  };
+
+  if (!isCloudinaryConfigured) {
+    return saveLocally();
   }
 
-  // Stream to Cloudinary
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'raw', // Preserves exact PDF binary format
-        public_id: uniqueName
-      },
-      (error, result) => {
-        if (error) {
-          console.error('Cloudinary upload error:', error);
-          return reject(new Error(error.message || 'Cloudinary upload failed'));
+  // Attempt upload to Cloudinary; gracefully fallback to disk if Cloudinary encounters an error
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: 'raw', // Preserves exact PDF binary format
+          public_id: uniqueName
+        },
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
         }
-        resolve({
-          fileUrl: result.secure_url,
-          cloudinaryId: result.public_id,
-          fileName: uniqueName
-        });
-      }
-    );
+      );
 
-    stream.end(buffer);
-  });
+      stream.end(buffer);
+    });
+
+    return {
+      fileUrl: result.secure_url,
+      cloudinaryId: result.public_id,
+      fileName: uniqueName
+    };
+  } catch (cloudErr) {
+    console.warn(`[Cloudinary] Upload failed (${cloudErr.message || cloudErr}). Gracefully falling back to local storage.`);
+    return saveLocally();
+  }
 }
 
 /**
- * Delete a file from Cloudinary (or local disk if fallback was used)
+ * Delete a file from Cloudinary and local disk
  * @param {string} cloudinaryId
  */
 async function deleteFromCloudinary(cloudinaryId) {
   if (!cloudinaryId) return;
 
-  if (!isCloudinaryConfigured) {
-    const localUploadsDir = path.join(__dirname, '..', 'data', 'uploads');
-    const localFilePath = path.join(localUploadsDir, cloudinaryId);
-    if (fs.existsSync(localFilePath)) {
-      try {
-        fs.unlinkSync(localFilePath);
-      } catch (err) {
-        console.error('Error deleting local file:', err);
-      }
+  // 1. Remove from local uploads if present
+  const localUploadsDir = path.join(__dirname, '..', 'uploads');
+  const localFilePath = path.join(localUploadsDir, cloudinaryId);
+  if (fs.existsSync(localFilePath)) {
+    try {
+      fs.unlinkSync(localFilePath);
+    } catch (err) {
+      console.error('Error deleting local file:', err);
     }
-    return;
   }
 
-  try {
-    await cloudinary.uploader.destroy(cloudinaryId, { resource_type: 'raw' });
-  } catch (err) {
-    console.error('Error deleting file from Cloudinary:', err);
+  // 2. Remove from Cloudinary if configured
+  if (isCloudinaryConfigured && !cloudinaryId.includes(path.sep)) {
+    try {
+      await cloudinary.uploader.destroy(cloudinaryId, { resource_type: 'raw' });
+    } catch (err) {
+      console.error('Error deleting file from Cloudinary:', err);
+    }
   }
 }
 

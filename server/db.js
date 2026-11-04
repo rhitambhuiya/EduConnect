@@ -749,7 +749,7 @@ class Database {
     return this.data.notes.find(n => n.id === id);
   }
 
-  createNote({ classId, teacherId, title, originalName, fileName, fileSize, mimeType, fileUrl = '', cloudinaryId = '' }) {
+  createNote({ classId, teacherId, title, originalName, fileName, fileSize, mimeType, fileUrl = '', cloudinaryId = '', fileData = '' }) {
     const note = {
       id: generateId('not'),
       classId,
@@ -759,6 +759,7 @@ class Database {
       fileName,
       fileUrl,
       cloudinaryId,
+      fileData: fileData || '',
       fileSize,
       mimeType,
       uploadedAt: new Date().toISOString()
@@ -1420,7 +1421,7 @@ class Database {
     return (this.data.submissions || []).find(s => s.id === id);
   }
 
-  createSubmission({ assignmentId, classId, studentId, studentName, studentEmail, originalName, fileName, fileSize, mimeType, notes = '', fileUrl = '', cloudinaryId = '' }) {
+  createSubmission({ assignmentId, classId, studentId, studentName, studentEmail, originalName, fileName, fileSize, mimeType, notes = '', fileUrl = '', cloudinaryId = '', fileData = '' }) {
     this.data.submissions = this.data.submissions || [];
     
     // If student already has a submission, remove previous file and record
@@ -1449,6 +1450,7 @@ class Database {
       fileName,
       fileUrl,
       cloudinaryId,
+      fileData: fileData || '',
       fileSize,
       mimeType,
       notes: (notes || '').trim(),

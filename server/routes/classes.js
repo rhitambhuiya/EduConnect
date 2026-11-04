@@ -247,6 +247,11 @@ router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('f
     // Stream directly to Cloudinary (or local fallback if not configured)
     const cloudFile = await uploadToCloudinary(req.file.buffer, req.file.originalname, 'college_portal/notes');
 
+    let fileData = '';
+    if (req.file.buffer && req.file.buffer.length < 12 * 1024 * 1024) {
+      fileData = req.file.buffer.toString('base64');
+    }
+
     const note = db.createNote({
       classId: cls.id,
       teacherId: req.user.id,
@@ -255,6 +260,7 @@ router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('f
       fileName: cloudFile.fileName,
       fileUrl: cloudFile.fileUrl,
       cloudinaryId: cloudFile.cloudinaryId,
+      fileData,
       fileSize: req.file.size,
       mimeType: req.file.mimetype
     });
@@ -265,7 +271,7 @@ router.post('/:id/notes', authenticate, requireRole('teacher'), upload.single('f
     });
   } catch (err) {
     console.error('Error uploading note:', err);
-    return res.status(500).json({ error: 'Failed to upload note' });
+    return res.status(500).json({ error: err.message || 'Failed to upload note' });
   }
 });
 
